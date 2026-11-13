@@ -60,6 +60,9 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .red h1{background:linear-gradient(180deg,#ffd0d0,#d0375a 60%,#5a1024);-webkit-background-clip:text;background-clip:text;
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
+#menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
+#menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
+#menu #mClose{margin-top:calc(var(--u)*22)}
 #codex h2,#stages h2{margin:0;font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #cnt{color:var(--dim);font-size:calc(var(--u)*12.5);margin-bottom:calc(var(--u)*6);line-height:1.6}
 #grid{flex:1;overflow-y:auto;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8);
@@ -116,6 +119,14 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
+  </div>
+
+  <div class="ov" id="menu">
+    <h2 id="hMenu">設定</h2>
+    <button class="b s m" id="mSound"></button>
+    <button class="b s m" id="mLang"></button>
+    <button class="b s m" id="mStages"></button>
+    <button class="b m" id="mClose"></button>
   </div>
 
   <div class="ov" id="codex">
@@ -192,6 +203,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
+  bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ','Sound: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
+  mStages:['ステージ選択へ戻る','Back to stages'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
@@ -367,7 +380,7 @@ function layout(){
   bgCanvas=null;
 }
 const buttons=[{id:'wave',x:12,y:747,w:164,h:46,p:0},{id:'trash',x:182,y:747,w:60,h:46,p:0},{id:'codex',x:247,y:747,w:60,h:46,p:0},
-  {id:'speed',x:312,y:747,w:60,h:46,p:0},{id:'sound',x:377,y:747,w:60,h:46,p:0}];
+  {id:'speed',x:312,y:747,w:60,h:46,p:0},{id:'menu',x:377,y:747,w:60,h:46,p:0}];
 const btn=id=>buttons.find(b=>b.id===id);
 // 呼び出し一覧：ランクのタブと、横に流せるボタンの列。見つけた元素はここから直接呼び出せる
 const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
@@ -682,10 +695,9 @@ function drawItem(it,x,y,sc=1,alpha=1){
   ctx.save();ctx.globalAlpha=alpha;ctx.translate(x+(it.shake>0?Math.sin(it.shake*60)*it.shake*14:0),y);
   ctx.scale(s*(1+it.kick*.05),s*(1-it.kick*.05));
   ctx.drawImage(orb(it.id,true),-40,-40,80,80);
-  for(let i=0;i<d.t;i++){ // ランク（★の数）を小さな菱形で
-    const px=(i-(d.t-1)/2)*(d.t>4?7.6:9.5),py=14.5;
-    ctx.fillStyle='#07060d';ctx.beginPath();ctx.moveTo(px,py-5.5);ctx.lineTo(px+5,py);ctx.lineTo(px,py+5.5);ctx.lineTo(px-5,py);ctx.fill();
-    ctx.fillStyle=d.t>=5?'#fff1b8':'#e8c36a';ctx.beginPath();ctx.moveTo(px,py-3.6);ctx.lineTo(px+3.2,py);ctx.lineTo(px,py+3.6);ctx.lineTo(px-3.2,py);ctx.fill();
+  for(let i=0;i<d.t;i++){ // ランクを★の数で（◆は魔力の記号なので使わない）
+    const px=(i-(d.t-1)/2)*(d.t>4?8:9.5),py=14.5,star=(R,r)=>{ctx.beginPath();for(let j=0;j<10;j++){const a=j/10*TAU-TAU/4,q=j%2?r:R;ctx.lineTo(px+Math.cos(a)*q,py+Math.sin(a)*q)}ctx.closePath();ctx.fill()};
+    ctx.fillStyle='#07060d';star(6.6,3.6);ctx.fillStyle=d.t>=5?'#fff1b8':'#e8c36a';star(4.8,2.1);
   }
   ctx.restore();
 }
@@ -1182,7 +1194,7 @@ function press(b){
   if(b.id==='wave'){startWave();return}
   sfx.ui();
   if(b.id==='speed')S.speed=S.speed===1?2:1;
-  if(b.id==='sound'){muted=!muted;save();if(!muted){audio();sfx.ui()}}
+  if(b.id==='menu'){openMenu();shownAt=performance.now()}
   if(b.id==='codex'){openCodex();shownAt=performance.now()}
 }
 
@@ -1288,8 +1300,16 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
-  orbCache=new Map();
+  orbCache=new Map();bgCanvas=null;
 }
+function openMenu(){
+  $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mLang').textContent=TT('mLang');
+  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');show('menu');
+}
+$('#mSound').onclick=()=>{muted=!muted;save();if(!muted){audio();sfx.ui()}openMenu()};
+$('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
+$('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
+$('#mClose').onclick=()=>{sfx.ui();show(null)};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();
 
@@ -1329,7 +1349,7 @@ function makeBg(){
     }else if(s.path){
       g.strokeStyle=rgba('#e8c36a',.4);g.lineWidth=1.2;g.setLineDash([4,4]);
       g.beginPath();g.moveTo(s.x,s.y-15);g.lineTo(s.x+15,s.y);g.lineTo(s.x,s.y+15);g.lineTo(s.x-15,s.y);g.closePath();g.stroke();g.setLineDash([]);
-      g.fillStyle=rgba('#e8c36a',.3);g.beginPath();g.arc(s.x,s.y,2,0,TAU);g.fill();
+      g.fillStyle=rgba('#e8c36a',.5);g.font=FONT(LANG==='ja'?10:7.5,800);g.textAlign='center';g.textBaseline='middle';g.fillText(TT('trapMark'),s.x,s.y+.5);
     }else{const ch=LY.pitch-6;g.fillStyle='#07060d';rr(g,s.x-31,s.y-ch/2,62,ch,12);g.fill();g.strokeStyle='#231e38';g.stroke()}
   }
   // 周辺を暗く
@@ -1392,7 +1412,7 @@ function drawBtn(b,dt){
     ctx.fillText(S.active?TT('left',left):TT('nextWave',S.wave+1),cx,cy+1);on=!S.active;
   }else{
     ctx.font=FONT((b.id==='speed'?19:15)*LY.k,800);ctx.fillStyle=hot?'#ff8a9a':'#cfc8e6';
-    label={trash:TT('bTrash'),codex:TT('bCodex'),speed:'×'+S.speed,sound:TT(muted?'bMute':'bSound')}[b.id];
+    label={trash:TT('bTrash'),codex:TT('bCodex'),speed:'×'+S.speed,menu:TT('bMenu')}[b.id];
     ctx.fillText(label,cx,cy+(b.id==='codex'?-6*LY.k:1));
     if(b.id==='codex'){ctx.font=FONT(11*LY.k,800);ctx.fillStyle=disc.size>=TOTAL?'#ffe9a0':'#e8c36a';ctx.fillText(`${disc.size}/${TOTAL}`,cx,cy+11*LY.k)}
   }
@@ -1512,7 +1532,7 @@ function render(dt){
   for(const s of slots){
     if(src&&s!==src){
       let ok=false;
-      if(!s.item)ok=fits(src.item.id,s);else{const r=tryCombine(src.item,s.item);ok=!r.fail&&disc.has(r.id)}
+      if(!s.item)ok=!!held&&fits(src.item.id,s);else{const r=tryCombine(src.item,s.item);ok=!r.fail&&disc.has(r.id)}
       if(ok){const pu=.5+.5*Math.sin(T*7);ctx.strokeStyle=rgba(s.item?'#ffe9a0':'#8b5cf6',s.item?.5+pu*.5:.25+pu*.3);ctx.lineWidth=s.item?2.5:1.5;
         ctx.beginPath();ctx.arc(s.x,s.y,31+pu*2,0,TAU);ctx.stroke()}
     }
@@ -1643,7 +1663,7 @@ function render(dt){
 let last=performance.now(),ambT=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on');
+  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on')||$('#menu').classList.contains('on');
   if(!paused&&!S.over){
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
