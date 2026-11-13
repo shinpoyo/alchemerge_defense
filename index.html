@@ -69,15 +69,6 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .card b{display:block;color:var(--ink);font-size:calc(var(--u)*13)}
 .card em{font-style:normal;color:var(--gold);display:block}
 .card img.o{border:0;background:none;box-shadow:none;width:calc(var(--u)*62);height:calc(var(--u)*62);margin:calc(var(--u)*-8) auto calc(var(--u)*-5);display:block}
-.card.buy{position:relative;cursor:pointer;transition:transform .12s cubic-bezier(.3,2,.5,1)}
-.card.buy:active{transform:scale(.93)}
-.card.no{opacity:.42}
-.card .pr{position:absolute;top:calc(var(--u)*4);right:calc(var(--u)*6);color:var(--gold);font-weight:800;font-size:calc(var(--u)*11.5)}
-.card.ok{animation:ok .45s ease}
-.card.ng{animation:ng .3s ease}
-@keyframes ok{0%{transform:scale(1.12);border-color:var(--c);box-shadow:0 0 calc(var(--u)*22) var(--c)}100%{transform:none}}
-@keyframes ng{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-#cnt b{color:var(--gold)}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
 </style>
 </head>
@@ -89,7 +80,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <h1 id="t1"></h1>
     <div class="sub">MERGE × TOWER DEFENSE</div>
     <ul class="how">
-      <li><i>一</i>下のボタンで<b>火・水・土・風</b>を呼び出す</li>
+      <li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li>
       <li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li>
       <li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li>
       <li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 42 種、★はランク</li>
@@ -234,11 +225,19 @@ for(const x of[150,225,300,375])slots.push({x,y:335,field:true,item:null});
 for(const x of[115,190,265,340])slots.push({x,y:470,field:true,item:null});
 for(const[x,y]of[[225,125],[375,195],[225,265],[75,335],[240,405]])slots.push({x,y,path:true,item:null});
 for(let r=0;r<2;r++)for(let i=0;i<6;i++)slots.push({x:45+i*72,y:558+r*66,bench:true,item:null});
-const buttons=[];
-BASES.forEach((id,i)=>buttons.push({id,x:12+i*74,y:668,w:68,h:54,p:0}));
-buttons.push({id:'trash',x:310,y:668,w:60,h:54,p:0},{id:'codex',x:378,y:668,w:60,h:54,p:0},
-  {id:'wave',x:12,y:730,w:290,h:58,p:0},{id:'speed',x:310,y:730,w:60,h:58,p:0},{id:'sound',x:378,y:730,w:60,h:58,p:0});
+const buttons=[{id:'wave',x:12,y:747,w:164,h:46,p:0},{id:'trash',x:182,y:747,w:60,h:46,p:0},{id:'codex',x:247,y:747,w:60,h:46,p:0},
+  {id:'speed',x:312,y:747,w:60,h:46,p:0},{id:'sound',x:377,y:747,w:60,h:46,p:0}];
 const btn=id=>buttons.find(b=>b.id===id);
+// 呼び出し一覧：ランクのタブと、横に流せるボタンの列。見つけた元素はここから直接呼び出せる
+const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
+const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:19}));
+function shopList(t){const a=Object.values(ITEMS).filter(d=>d.t===t);return a.filter(d=>disc.has(d.id)).concat(a.filter(d=>!disc.has(d.id)))}
+const shopMax=t=>Math.max(0,shopList(t).length*SHOP.pitch-5-SHOP.w);
+const shopBtnX=i=>SHOP.x+i*SHOP.pitch-SHOP.scroll[SHOP.tab];
+function shopShow(id){ // その元素のボタンが見える位置までタブと列を動かす
+  const t=ITEMS[id].t,i=shopList(t).findIndex(d=>d.id===id);
+  SHOP.tab=t;SHOP.scroll[t]=clamp(i*SHOP.pitch-(SHOP.w-SHOP.bw)/2,0,shopMax(t));SHOP.newId=id;SHOP.newT=5;
+}
 
 /* ---------------- 敵 ---------------- */
 const ENEMY={
@@ -517,16 +516,18 @@ function mergeDone(f){
   ring(f.x,f.y,d.c,46+d.t*14,.45,3);ring(f.x,f.y,'#ffffff',30+d.t*8,.28,1.5);
   shake(2+d.t*1.2);buzz(15+d.t*6);sfx.merge(d.t-1);
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',13);
-  if(f.isNew){S.banner={id:n.id,t:0,dur:2.1};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c}
+  if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c}
 }
 function spawnBase(id,b){ // 失敗したら理由（'full'／'mana'）を返す
   const free=slots.find(s=>s.bench&&!s.item),cost=itemValue({id});
   if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,530,'作業台がいっぱい','#ff8a9a',14);return'full'}
-  if(S.mana<cost){S.manaErr=.5;sfx.fail();return'mana'}
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,'魔力が足りない','#ff8a9a',12.5);return'mana'}
   S.mana-=cost;
   const it=mkItem(id,b?b.x+b.w/2:free.x,b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;
-  sfx.spawn(Math.max(0,BASES.indexOf(id))+ITEMS[id].t-1);buzz(6);
-  if(FX)sparks(it.rx,it.ry,ITEMS[id].c,6,140);
+  it.fly=.55; // ボタンから作業台へ、光の尾を引いて飛ぶ
+  sfx.spawn(Math.max(0,BASES.indexOf(id))+ITEMS[id].t-1);tone(N(12+ITEMS[id].t*2),.18,'sine',.06,null,.16);buzz(10);
+  if(FX){sparks(it.rx,it.ry,ITEMS[id].c,10,160);fx.push({ty:'land',x:free.x,y:free.y,color:ITEMS[id].c,t:-.22,dur:.7})}
+  floatText(W-34,48,'−'+cost,'#ffb89a',14);S.manaBump=1;S.started2=true;
   return'';
 }
 function sell(slot){
@@ -725,7 +726,7 @@ function gameOver(){
 }
 
 /* ---------------- 入力 ---------------- */
-let drag=null,sel=null,pressed=null,ptr={x:0,y:0};
+let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
 const slotAt=(x,y,need)=>{let b=null,bd=40*40;for(const s of slots){if(need&&!s.item)continue;const q=(s.x-x)**2+(s.y-y)**2;if(q<bd){bd=q;b=s}}return b};
 const inBtn=(b,x,y)=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h;
@@ -735,6 +736,10 @@ cv.addEventListener('pointerdown',ev=>{
   if(S.over||(S.cleared&&!S.endless))return;
   if(S.banner&&S.banner.t>.4){S.banner.t=Math.max(S.banner.t,S.banner.dur-.25)}
   ring(p.x,p.y,'#8b5cf6',18,.3,1.5,2);
+  const tb=p.y>=654&&p.y<682&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);
+  if(tb){if(SHOP.tab!==tb.t){SHOP.tab=tb.t;sfx.ui()}return}
+  if(inBtn(SHOP,p.x,p.y)){strip={sx:p.x,s0:SHOP.scroll[SHOP.tab],moved:false,i:Math.floor((p.x-SHOP.x+SHOP.scroll[SHOP.tab])/SHOP.pitch)};
+    SHOP.press=strip.i;SHOP.pressT=1;return}
   const b=buttons.find(b=>inBtn(b,p.x,p.y));
   if(b){pressed=b;b.p=1;return}
   const s=slotAt(p.x,p.y,true);
@@ -743,10 +748,17 @@ cv.addEventListener('pointerdown',ev=>{
 });
 cv.addEventListener('pointermove',ev=>{
   const p=pos(ev);ptr=p;
+  if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null}
+    if(strip.moved)SHOP.scroll[SHOP.tab]=clamp(strip.s0-dx,0,shopMax(SHOP.tab))}
   if(drag&&!drag.moved&&Math.hypot(p.x-drag.sx,p.y-drag.sy)>9){drag.moved=true;sel=null}
 });
 function release(ev,cancel){
   const p=ev?pos(ev):ptr;
+  if(strip){const st=strip;strip=null;SHOP.press=null;
+    if(cancel||st.moved)return;
+    const d=shopList(SHOP.tab)[st.i];if(!d)return;
+    if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,'錬成して見つけると呼び出せる','#b9b1d0',12.5);return}
+    spawnBase(d.id,{x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h});return}
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
   if(!drag)return;
   const d=drag;drag=null;d.item.held=false;
@@ -763,9 +775,10 @@ function release(ev,cancel){
 cv.addEventListener('pointerup',ev=>release(ev,false));
 cv.addEventListener('pointercancel',()=>release(null,true));
 cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=654&&p.y<=SHOP.y+SHOP.h){ev.preventDefault();
+  SHOP.scroll[SHOP.tab]=clamp(SHOP.scroll[SHOP.tab]+(Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY),0,shopMax(SHOP.tab))}},{passive:false});
 addEventListener('keydown',e=>{if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}});
 function press(b){
-  if(BASES.includes(b.id)){spawnBase(b.id,b);return}
   if(b.id==='trash'){if(sel){sell(sel);sel=null}else floatText(b.x+b.w/2,b.y-8,'ここへ運ぶと魔力に還る','#b9b1d0',12);return}
   if(b.id==='wave'){startWave();return}
   sfx.ui();
@@ -778,16 +791,15 @@ function press(b){
 const spanify=t=>[...t].map((c,i)=>`<span style="animation-delay:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join('');
 function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle('on',o.id===id))}
 function openCodex(){
-  const all=Object.values(ITEMS),free=slots.filter(s=>s.bench&&!s.item).length,mana=Math.floor(S.mana);
-  $('#cnt').innerHTML=`発見 ${disc.size} / ${all.length}　<b>◆ ${mana}</b>　作業台の空き ${free}<br>見つけた元素は、タップで直接呼び出せる`;
+  const all=Object.values(ITEMS);
+  $('#cnt').textContent=`発見 ${disc.size} / ${all.length}`;
   let h='';
   for(let t=1;t<=6;t++){
     h+=`<div class="tier">${'★'.repeat(t)}</div>`;
     for(const d of all.filter(d=>d.t===t)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        const v=itemValue(d);
-        h+=`<div class="card buy${v>mana||!free?' no':''}" data-id="${d.id}" style="--c:${d.c}"><span class="pr">◆${v}</span><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${d.name}</b>${mk?`<em>${ITEMS[mk[0]].name} ＋ ${ITEMS[mk[1]].name}</em>`:''}${d.desc}</div>`;
+        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${d.name}</b>${mk?`<em>${ITEMS[mk[0]].name} ＋ ${ITEMS[mk[1]].name}</em>`:''}${d.desc}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
         const hint=mk&&disc.has(mk[0])&&disc.has(mk[1])?`${ITEMS[mk[0]].name} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${t<6?'まだ見つけていない':'すべての果て'}</div>`;
@@ -797,13 +809,6 @@ function openCodex(){
   const g=$('#grid'),keep=$('#codex').classList.contains('on')?g.scrollTop:0;
   g.innerHTML=h;g.scrollTop=keep;show('codex');
 }
-$('#grid').addEventListener('click',ev=>{
-  const c=ev.target.closest('.card.buy');if(!c)return;
-  const why=spawnBase(c.dataset.id);
-  if(why){c.classList.remove('ng');void c.offsetWidth;c.classList.add('ng');return}
-  S.manaShow=S.mana;openCodex();
-  const n=$(`#grid .card[data-id="${c.dataset.id}"]`);if(n)n.classList.add('ok');
-});
 $('#bClose').onclick=()=>{sfx.ui();show(null)};
 $('#bStart').onclick=()=>{audio();sfx.merge(2);show(null)};
 $('#bRetry').onclick=$('#bAgain').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
@@ -885,15 +890,54 @@ function drawBtn(b,dt){
   }else if(b.id==='wave'){
     const pulse=on&&!S.over?.5+.5*Math.sin(S.time*4):0;
     if(on){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.12+pulse*.12;ctx.fillStyle='#e8c36a';rr(ctx,b.x,b.y,b.w,b.h,12);ctx.fill();ctx.globalCompositeOperation='source-over'}
-    ctx.globalAlpha=on?1:.6;ctx.font=FONT(19,800);ctx.fillStyle=on?'#fff3cf':'#8d86a3';
+    ctx.globalAlpha=on?1:.6;ctx.font=FONT(17,800);ctx.fillStyle=on?'#fff3cf':'#8d86a3';
     const left=S.queue.length+S.enemies.length;
-    ctx.fillText(S.active?`第 ${S.wave} 波 … のこり ${left}`:`▶  第 ${S.wave+1} 波を迎え撃つ`,cx,cy+1);
+    ctx.fillText(S.active?`のこり ${left}`:`▶ 第 ${S.wave+1} 波`,cx,cy+1);
   }else{
     ctx.font=FONT(b.id==='speed'?19:15,800);ctx.fillStyle=hot?'#ff8a9a':'#cfc8e6';
     label={trash:'還す',codex:'図鑑',speed:'×'+S.speed,sound:muted?'無音':'音'}[b.id];
     ctx.fillText(label,cx,cy+1);
   }
   ctx.restore();
+}
+function drawShop(dt){
+  const T=performance.now()/1000;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const t of TABS){const on=SHOP.tab===t.t,has=shopList(t.t).some(d=>disc.has(d.id));
+    ctx.fillStyle=on?'#2a2148':'#0d0b18';rr(ctx,t.x,t.y,t.w,t.h,9);ctx.fill();
+    ctx.strokeStyle=on?'#e8c36a':rgba('#8b5cf6',has?.5:.2);ctx.lineWidth=1.2;ctx.stroke();
+    ctx.font=FONT(9.5,800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#4f4870';ctx.fillText('★'.repeat(t.t),t.x+t.w/2,t.y+t.h/2+.5);
+    if(SHOP.dotT[t.t]>0){SHOP.dotT[t.t]-=dt;if(on)SHOP.dotT[t.t]=Math.min(SHOP.dotT[t.t],1.2);
+      ctx.fillStyle=rgba('#ffe9a0',.6+.4*Math.sin(T*9));ctx.beginPath();ctx.arc(t.x+t.w-5,t.y+3,3.2,0,TAU);ctx.fill()}}
+  const tab=SHOP.tab,list=shopList(tab),max=shopMax(tab);SHOP.scroll[tab]=clamp(SHOP.scroll[tab],0,max);
+  if(SHOP.newT>0)SHOP.newT-=dt;SHOP.pressT+=((SHOP.press!==null?1:0)-SHOP.pressT)*Math.min(1,dt*22);
+  ctx.save();ctx.beginPath();ctx.rect(SHOP.x-2,SHOP.y-10,SHOP.w+4,SHOP.h+14);ctx.clip();
+  list.forEach((d,i)=>{
+    const x=shopBtnX(i);if(x>SHOP.x+SHOP.w||x+SHOP.bw<SHOP.x)return;
+    const ok=disc.has(d.id),cost=itemValue(d),can=ok&&S.mana>=cost,cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
+    const sc=1-(SHOP.press===i?SHOP.pressT*.1:0);
+    ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
+    const gr=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);gr.addColorStop(0,ok?'#191430':'#0e0c19');gr.addColorStop(1,'#0a0814');
+    ctx.fillStyle=gr;rr(ctx,x,SHOP.y,SHOP.bw,SHOP.h,11);ctx.fill();
+    ctx.strokeStyle=rgba(ok?d.c:'#3a3355',can?.6:.28);ctx.lineWidth=1.3;ctx.stroke();
+    if(ok){
+      ctx.globalAlpha=can?1:.38;ctx.drawImage(orb(d.id),cx-25,SHOP.y-6,50,50);
+      ctx.font=FONT(10.5,800);ctx.fillStyle='#ece7f7';ctx.fillText(d.name,cx,SHOP.y+40);
+      ctx.font=FONT(10.5,800);ctx.fillStyle='#e8c36a';ctx.fillText('◆'+cost,cx,SHOP.y+51.5);ctx.globalAlpha=1;
+      if(SHOP.newId===d.id&&SHOP.newT>0){const pu=.5+.5*Math.sin(T*8);ctx.strokeStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT)*(.5+pu*.5));ctx.lineWidth=2.5;
+        rr(ctx,x-1-pu*2,SHOP.y-1-pu*2,SHOP.bw+2+pu*4,SHOP.h+2+pu*4,12);ctx.stroke();
+        ctx.font=FONT(9.5,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a';ctx.strokeText('NEW',cx+16,SHOP.y+7);ctx.fillStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT));ctx.fillText('NEW',cx+16,SHOP.y+7)}
+    }else{
+      ctx.strokeStyle='#3a3355';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(cx,SHOP.y+19,14,0,TAU);ctx.stroke();
+      ctx.font=FONT(15,800);ctx.fillStyle='#4f4870';ctx.fillText('？',cx,SHOP.y+20);ctx.font=FONT(9.5);ctx.fillText('未発見',cx,SHOP.y+45);
+    }
+    ctx.restore();
+  });
+  ctx.restore();
+  // まだ先があるときは端をぼかし、矢印を出す
+  for(const[cond,x0,x1,ax]of[[SHOP.scroll[tab]<max-1,W-46,W,W-10],[SHOP.scroll[tab]>1,46,0,10]]){if(!cond)continue;
+    const g=ctx.createLinearGradient(x0,0,x1,0);g.addColorStop(0,'rgba(5,4,9,0)');g.addColorStop(1,'rgba(5,4,9,.95)');ctx.fillStyle=g;ctx.fillRect(Math.min(x0,x1),SHOP.y-8,46,SHOP.h+12);
+    ctx.font=FONT(15,800);ctx.fillStyle=rgba('#e8c36a',.6+.4*Math.sin(T*5));ctx.fillText(ax>W/2?'›':'‹',ax+(ax>W/2?1:-1)*Math.sin(T*5)*2,SHOP.y+SHOP.h/2)}
 }
 function drawHud(dt){
   S.manaShow+=(S.mana-S.manaShow)*Math.min(1,dt*10);
@@ -944,7 +988,8 @@ function render(dt){
     }
     const it=s.item;if(!it)continue;
     // ばねで位置と大きさを追従させる
-    const k=1-Math.exp(-dt*20);it.rx+=(s.x-it.rx)*k;it.ry+=(s.y-it.ry)*k;
+    const k=1-Math.exp(-dt*(it.fly>0?9:20));it.rx+=(s.x-it.rx)*k;it.ry+=(s.y-it.ry)*k;
+    if(it.fly>0){it.fly-=dt;P(it.rx+rnd(-6,6),it.ry+rnd(-6,6),rnd(-20,20),rnd(-20,20),.45,5,ITEMS[it.id].c)}
     if(it.hide>0){it.hide-=dt;if(it.hide<=0&&it.s<.1){it.s=.3;it.sv=8}continue}
     it.sv+=((1-it.s)*320-it.sv*16)*dt;it.s+=it.sv*dt;it.kick*=Math.exp(-dt*12);if(it.shake>0)it.shake-=dt;
   }
@@ -985,6 +1030,8 @@ function render(dt){
   for(const f of fx){
     f.t+=dt;if(f.t<0)continue;const k=Math.min(1,f.t/f.dur);
     if(f.ty==='ring'){const e=1-(1-k)**3;ctx.strokeStyle=rgba(f.color,1-k);ctx.lineWidth=f.lw*(1-k*.6);ctx.beginPath();ctx.arc(f.x,f.y,f.r0+(f.r1-f.r0)*e,0,TAU);ctx.stroke()}
+    else if(f.ty==='land'){const e=1-(1-k)**2;ctx.strokeStyle=rgba(f.color,(1-k));ctx.lineWidth=3;rr(ctx,f.x-31-e*5,f.y-30-e*5,62+e*10,60+e*10,12+e*3);ctx.stroke();
+      ctx.fillStyle=rgba(f.color,(1-k)*.25);ctx.fill()}
     else if(f.ty==='zap'){zapPath(f);ctx.strokeStyle=rgba(f.color,(1-k)*.5);ctx.lineWidth=7;ctx.stroke();ctx.strokeStyle=rgba('#ffffff',1-k);ctx.lineWidth=2;ctx.stroke()}
     else if(f.ty==='line'){ctx.strokeStyle=rgba(f.color,(1-k)*.6);ctx.lineWidth=12*(1-k);ctx.beginPath();ctx.moveTo(f.x,f.y);ctx.lineTo(f.ex,f.ey);ctx.stroke();ctx.strokeStyle=rgba('#ffffff',1-k);ctx.lineWidth=3*(1-k);ctx.stroke()}
     else if(f.ty==='mana'){const u=k*k*(3-2*k),tx=W-40,ty=25,a=1-u;
@@ -1015,6 +1062,7 @@ function render(dt){
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   // 画面下の操作部
   drawHud(dt);
+  drawShop(dt);
   for(const b of buttons)drawBtn(b,dt);
   // 説明の帯（選んでいる・運んでいる元素）
   const inf=held?held.item:sel&&sel.item;
@@ -1043,13 +1091,14 @@ function render(dt){
   // 新発見の幕
   if(S.banner){const b=S.banner;b.t+=dt;const k=b.t/b.dur;
     if(k>=1)S.banner=null;else{const d=ITEMS[b.id],a=k<.12?k/.12:k>.85?(1-k)/.15:1,e=Math.min(1,b.t/.35),sc=1+(1-e)**2*1.6;
-      ctx.globalAlpha=a*.72;ctx.fillStyle='#05040a';ctx.fillRect(0,170,W,220);ctx.globalAlpha=a;
+      ctx.globalAlpha=a*.72;ctx.fillStyle='#05040a';ctx.fillRect(0,170,W,246);ctx.globalAlpha=a;
       ctx.save();ctx.translate(W/2,262);ctx.globalCompositeOperation='lighter';
       for(let i=0;i<14;i++){const an=i/14*TAU+T*.7;ctx.fillStyle=rgba(d.c,.09);ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,190,an,an+.13);ctx.fill()}
       ctx.drawImage(glow(d.c),-100,-100,200,200);ctx.globalCompositeOperation='source-over';
       ctx.scale(sc*1.9,sc*1.9);ctx.drawImage(orb(b.id),-40,-40,80,80);ctx.restore();
       ctx.textAlign='center';ctx.font=FONT(14,800);ctx.fillStyle='#e8c36a';ctx.fillText('―  新 発 見  ―',W/2,192);
-      ctx.font=FONT(28,800);ctx.fillStyle=d.c;ctx.fillText(d.name,W/2,340);ctx.font=FONT(13);ctx.fillStyle='#cfc8e6';ctx.fillText(d.desc,W/2,368);ctx.globalAlpha=1}}
+      ctx.font=FONT(28,800);ctx.fillStyle=d.c;ctx.fillText(d.name,W/2,340);ctx.font=FONT(13);ctx.fillStyle='#cfc8e6';ctx.fillText(d.desc,W/2,366);
+      ctx.font=FONT(12.5,800);ctx.fillStyle='#e8c36a';ctx.fillText(`次からは下の一覧で直接呼び出せる（◆${itemValue(d)}）`,W/2,394);ctx.globalAlpha=1}}
   if(S.flash>0){ctx.globalCompositeOperation='lighter';ctx.fillStyle=rgba(S.flashC,Math.min(.7,S.flash));ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over';S.flash-=dt*1.6}
   S.shake*=Math.exp(-dt*9);S.manaBump*=Math.exp(-dt*10);if(S.manaErr>0)S.manaErr-=dt;
 }
