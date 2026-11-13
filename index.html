@@ -125,6 +125,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
   <div class="ov" id="menu">
     <h2 id="hMenu">設定</h2>
     <button class="b s m" id="mSound"></button>
+    <button class="b s m" id="mMusic"></button>
     <button class="b s m" id="mLang"></button>
     <button class="b s m" id="mStages"></button>
     <button class="b m" id="mClose"></button>
@@ -204,7 +205,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
-  bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ','Sound: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
+  bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mStages:['ステージ選択へ戻る','Back to stages'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
@@ -418,11 +419,11 @@ function buildWave(w){
 }
 
 /* ---------------- 状態 ---------------- */
-let S,disc,prog={},muted=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
+let S,disc,prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
-try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));prog=d.prog||{};TUT=d.tut?9:0;RUN=d.run&&STAGES[d.run.stage]?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted}catch(e){disc=new Set(BASES)}
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));prog=d.prog||{};TUT=d.tut?9:0;RUN=d.run&&STAGES[d.run.stage]?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,lang:LANG,tut:TUT>=9?1:0,run:RUN}))}catch(e){}}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -456,27 +457,94 @@ function reset(){
 }
 
 /* ---------------- 音（Web Audio で合成） ---------------- */
-let AC=null,noiseBuf=null;
+let AC=null,noiseBuf=null,BUS=null,REV=null,MUS=null;
+const MUS_VOL=.6; // 音楽は効果音より控えめに
+// 音の通り道：効果音(BUS)と音楽(MUS) → まとめ役のコンプレッサー → 出力。残響(REV)にも送って奥行きを出す
+function buildAudio(ctx){
+  AC=ctx;
+  const comp=AC.createDynamicsCompressor(),out=AC.createGain();
+  comp.threshold.value=-16;comp.knee.value=14;comp.ratio.value=5;comp.attack.value=.004;comp.release.value=.22;out.gain.value=.9;
+  comp.connect(out).connect(AC.destination);
+  BUS=AC.createGain();BUS.connect(comp);
+  MUS=AC.createGain();MUS.gain.value=musicOff?0:MUS_VOL;MUS.connect(comp);
+  // 残響：だんだん小さくなる雑音を、広間の響きとして使う（高い音ほど早く消えるようにして暗めに）
+  const sr=AC.sampleRate,len=Math.floor(sr*2.4),ir=AC.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<len;i++){const t=i/len,k=.08+.5*(1-t);lp+=((Math.random()*2-1)-lp)*k;d[i]=lp*(1-t)**2.6*(i<sr*.012?i/(sr*.012):1)}}
+  const cv2=AC.createConvolver(),rg=AC.createGain();cv2.buffer=ir;rg.gain.value=.55;REV=AC.createGain();REV.connect(cv2).connect(rg).connect(comp);
+  noiseBuf=AC.createBuffer(1,sr*1.2,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+}
 function audio(){
   if(AC||muted)return;
-  try{AC=new(window.AudioContext||window.webkitAudioContext)();
-    noiseBuf=AC.createBuffer(1,AC.sampleRate*.6,AC.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}catch(e){}
+  try{buildAudio(new(window.AudioContext||window.webkitAudioContext)());musicStart()}catch(e){AC=null}
 }
-function tone(f,d,type='sine',v=.1,to=null,delay=0){
-  if(!AC||muted||!FX)return;
-  const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
-  o.type=type;o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02);
+function audioState(){ // 消音・画面を離れたときは音を止め、戻ったら再開する
+  if(!AC||!AC.suspend)return;
+  try{if(muted||document.hidden)AC.suspend();else AC.resume()}catch(e){}
+  if(MUS)MUS.gain.value=musicOff?0:MUS_VOL;
 }
-function noise(d,v=.1,freq=1200,delay=0){
-  if(!AC||muted||!FX)return;
-  const t=AC.currentTime+delay,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
-  s.buffer=noiseBuf;f.type='lowpass';f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(120,t+d);
-  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  s.connect(f).connect(g).connect(AC.destination);s.start(t);s.stop(t+d);
+document.addEventListener('visibilitychange',audioState);
+const sndOK=()=>AC&&!muted&&FX;
+// 1 つの音：o.det=少しずらした 2 本目を重ねて厚く / o.a=立ち上がり / o.lp=こもらせる高さ / o.rev=残響の量 / o.dst=出力先
+function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
+  if(!sndOK())return;
+  const t=AC.currentTime+delay,g=AC.createGain(),a=o.a||.006;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);
+  if(o.hold){g.gain.setValueAtTime(v,t+d-o.hold);g.gain.linearRampToValueAtTime(0,t+d)}else g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  let head=g;
+  if(o.lp){const fl=AC.createBiquadFilter();fl.type='lowpass';fl.frequency.setValueAtTime(o.lp,t);if(o.lpTo)fl.frequency.exponentialRampToValueAtTime(o.lpTo,t+d);fl.Q.value=o.q||.7;fl.connect(g);head=fl}
+  for(const c of(o.det?[-o.det,o.det]:[0])){const os=AC.createOscillator();os.type=type;os.detune.value=c;
+    os.frequency.setValueAtTime(f,t);if(to)os.frequency.exponentialRampToValueAtTime(to,t+d);
+    if(o.vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=o.vib;lg.gain.value=f*.012;l.connect(lg).connect(os.frequency);l.start(t);l.stop(t+d+.05)}
+    os.connect(head);os.start(t);os.stop(t+d+.05)}
+  g.connect(o.dst||BUS);const rv=o.rev===undefined?.16:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(REV)}
+}
+function noise(d,v=.1,freq=1200,delay=0,o={}){
+  if(!sndOK())return;
+  const t=AC.currentTime+delay,src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
+  src.buffer=noiseBuf;f.type=o.type||'lowpass';f.Q.value=o.q||.7;f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(o.to||120,t+d);
+  g.gain.setValueAtTime(o.a?0:v,t);if(o.a)g.gain.linearRampToValueAtTime(v,t+o.a);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  src.connect(f).connect(g).connect(o.dst||BUS);const rv=o.rev===undefined?.12:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(REV)}
+  src.start(t,Math.random()*.5);src.stop(t+d+.02);
 }
 const N=s=>440*2**(s/12);
+// 鐘のような音：基音に、少しずれた倍音を重ねる
+function bell(f,d,v,delay=0,rev=.5,dst){
+  tone(f,d,'sine',v,null,delay,{rev,dst});tone(f*2.01,d*.7,'sine',v*.45,null,delay,{rev,dst});
+  tone(f*3.02,d*.45,'sine',v*.22,null,delay,{rev,dst});tone(f*4.23,d*.25,'sine',v*.12,null,delay,{rev,dst});
+}
+// 金管のような音：のこぎり波を 2 本重ね、こもらせてから開く
+const brass=(f,d,v,delay=0,rev=.35)=>tone(f,d,'sawtooth',v,null,delay,{det:7,a:.04,lp:f*2,lpTo:f*6,q:1.2,rev,hold:d*.35,vib:5});
+// 太鼓：低い音がすとんと落ちる＋皮の雑音
+function drum(v,delay=0,f=95){tone(f,.38,'sine',v,f*.42,delay,{rev:.3});noise(.16,v*.55,320,delay,{rev:.3})}
+
+/* ---------------- 音楽（その場で合成する、暗めの環境音楽） ----------------
+   0.5 秒を 1 拍として先の分を予約していく。8 拍ごとに和音が変わり、戦闘中は鼓動と低音が加わる */
+const CHORDS=[[-19,-7,-4,0],[-23,-11,-7,-4],[-26,-14,-11,-7],[-24,-12,-8,-5]]; // Dm → B♭ → Gm → A（A=440 からの半音）
+const SCALE=[5,8,10,12,15,17,20];                                              // 鐘が鳴らす音（D の短調の五音）
+let musT=0,musStep=0,musTimer=null,musBattle=0;
+function musicSchedule(until,battle){
+  const o=s=>({dst:MUS,...s});
+  while(musT<until){
+    const dly=Math.max(0,musT-AC.currentTime),bar=Math.floor(musStep/8)%4,beat=musStep%8,ch=CHORDS[bar];
+    musBattle+=((battle?1:0)-musBattle)*.25;const B=musBattle;
+    if(beat===0){ // 和音：ゆっくり立ち上がって、次の和音に重なりながら消える
+      tone(N(ch[0]),5.2,'sawtooth',.03,null,dly,o({det:9,a:1.4,lp:240,lpTo:150,rev:.4,hold:1.6}));
+      for(const n of ch.slice(1))tone(N(n),5.4,'triangle',.02,null,dly,o({det:5,a:1.8,rev:.7,hold:2.2}));
+      tone(N(ch[3]+12),5,'sine',.008,null,dly,o({a:2.2,rev:.9,hold:2}));
+    }
+    if(beat%2===0&&Math.random()<(B>.5?.35:.6))bell(N(pick(SCALE)+(Math.random()<.3?12:0)),2.6,.018+Math.random()*.01,dly+(Math.random()<.5?0:.25),.8,MUS);
+    if(B>.15){ // 戦闘中：鼓動と、和音の根音を刻む低音
+      if(beat%2===0){tone(62,.3,'sine',.11*B,34,dly,o({rev:.15}));if(beat%4===0)tone(62,.3,'sine',.07*B,34,dly+.19,o({rev:.15}))}
+      tone(N(ch[0]),.22,'sawtooth',.035*B,null,dly,o({lp:420,lpTo:180,rev:.2}));tone(N(ch[0]),.2,'sawtooth',.022*B,null,dly+.25,o({lp:360,lpTo:180,rev:.2}));
+      noise(.05,.012*B,7000,dly+.25,o({type:'highpass',to:5000,rev:.1}));
+    }
+    musT+=.5;musStep++;
+  }
+}
+function musicStart(){
+  if(musTimer||!AC)return;musT=AC.currentTime+.15;
+  musTimer=setInterval(()=>{if(sndOK()&&!musicOff&&AC.state==='running')musicSchedule(AC.currentTime+.9,S&&S.active&&!S.over);else if(AC)musT=Math.max(musT,AC.currentTime+.1)},300);
+}
 let lastKill=0,lastShot=0,lastHit=0;
 /* 元素の系統：音色の土台（波形・基準音程・ノイズの帯域） */
 const FAM={
@@ -499,17 +567,26 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   star:'light',stone:'light',genesis:'light',dragon:'dragon'};
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
-  pick(){tone(520,.07,'triangle',.08,820)},
-  drop(){tone(320,.09,'sine',.1,190)},
-  spawn(i){tone(N(i*3-5),.12,'triangle',.08,N(i*3+7))},
-  merge(t){[0,4,7,12,16].slice(0,2+t).forEach((s,i)=>tone(N(s+t*2-9),.28,'triangle',.09,null,i*.045));noise(.18,.05,3000)},
-  disc(){[0,4,7,11,14,19,23].forEach((s,i)=>tone(N(s-5),.6,'sine',.07,null,i*.07))},
-  fail(){tone(150,.16,'sawtooth',.05,85)},
-  kill(){if(S.time-lastKill<.05)return;lastKill=S.time;tone(rnd(500,900),.06,'square',.02,220)},
+  pick(){tone(560,.1,'triangle',.17,880,0,{rev:.25});noise(.03,.06,5000,0,{type:'highpass',rev:0})},
+  drop(){tone(190,.16,'sine',.3,85,0,{rev:.25});noise(.07,.1,700,0,{rev:.1})},
+  spawn(i){const f=N(i*2-7);bell(f,.55,.15,0,.45);tone(f/2,.14,'sine',.14,f,0,{rev:.2})},
+  merge(t){ // 吸いこむ音 → 低い一打 → 鐘の和音が開く。ランクが高いほど音が増え、長く響く
+    noise(.22,.05,600,0,{type:'bandpass',to:5200,q:2.5,a:.15,rev:.3});
+    tone(120,.3,'sine',.16+t*.02,48,.02,{rev:.3});
+    [0,4,7,12,16,19].slice(0,3+Math.min(t,3)).forEach((n,i)=>bell(N(n+t*2-10),.9+t*.15,.07,.04+i*.05,.6));
+    if(t>=3)tone(N(t*2-22),1.4,'sawtooth',.035,null,.05,{det:8,a:.2,lp:500,rev:.7,hold:.6});
+  },
+  disc(){ // 新発見：和音がふくらみ、鐘が駆け上がって、きらめきが残る
+    [-10,-3,2,6].forEach(n=>tone(N(n),2.2,'sawtooth',.03,null,0,{det:9,a:.25,lp:700,lpTo:2400,rev:.8,hold:.9}));
+    [0,4,7,11,14,19,23,26].forEach((n,i)=>bell(N(n-5),1.3,.06,.08+i*.075,.75));
+    noise(1.4,.02,9000,.3,{type:'highpass',to:6000,a:.4,rev:.9});tone(73,1.2,'sine',.13,55,0,{a:.02,rev:.4});
+  },
+  fail(){tone(150,.12,'square',.2,105,0,{lp:500,rev:.1});tone(120,.14,'square',.17,85,.1,{lp:420,rev:.1})},
+  kill(){if(S.time-lastKill<.05)return;lastKill=S.time;const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1})},
   shoot(d){ // アイテムごとの発射音：系統×攻撃タイプ×ティアで合成する
     if(S.time-lastShot<.05)return;lastShot=S.time;
     const F=FAM[FAMOF[d.id]]||FAM.earth,t=d.t;
-    const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.06,.028+t*.006);
+    const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.13,.055+t*.013);
     if(t>=4)tone(f/2,.16,'sine',v*.7,f/3); // 高ティアは低音の芯を足す
     switch(d.kind){
       case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.6,f*.5);break;
@@ -522,17 +599,28 @@ const sfx={
   },
   hit(d){ // 範囲攻撃の着弾音
     if(S.time-lastHit<.07)return;lastHit=S.time;
-    const v=Math.min(.09,.04+d.t*.01);noise(.14,v,380);tone(90+d.t*8,.16,'sine',v,40);
+    const v=Math.min(.2,.09+d.t*.02);noise(.14,v,380);tone(90+d.t*8,.16,'sine',v,40);
   },
-  leak(){tone(95,.5,'sawtooth',.13,38);noise(.4,.12,500)},
-  wave(){tone(98,.7,'sawtooth',.06,147);tone(147,.7,'sawtooth',.04,196,.12)},
-  waveEnd(){[0,7,12].forEach((s,i)=>tone(N(s-9),.35,'triangle',.07,null,i*.09))},
-  boom(){noise(.5,.16,900);tone(70,.4,'sine',.14,35)},
-  fw(){noise(.35,.07,rnd(1500,4000));tone(rnd(90,140),.25,'sine',.06,50)},
-  clear(){[0,4,7,12,7,12,16,19,24].forEach((s,i)=>tone(N(s-9),i===8?1.6:.3,'triangle',.1,null,i*.13));
-          [-12,-5,0].forEach(s=>tone(N(s-9),2.4,'sine',.06,null,1.05))},
-  over(){[0,-1,-5,-12].forEach((s,i)=>tone(N(s-12),.7,'sawtooth',.06,null,i*.28))},
-  ui(){tone(660,.05,'sine',.05,880)},
+  leak(){tone(82,.9,'sine',.24,30,0,{rev:.5});tone(87,.7,'sawtooth',.06,40,0,{lp:300,rev:.5});noise(.55,.13,480,0,{rev:.5});bell(N(-22),1.6,.07,.05,.8)},
+  wave(n){ // 波の開始：角笛と太鼓。5 波ごとの主は低く長く
+    const boss=n%5===0,b=boss?-5:0;
+    brass(N(-31+b),1.5,.075);brass(N(-24+b),1.5,.06,.14);if(boss)brass(N(-19+b),1.6,.05,.3);
+    drum(.2,0);drum(.16,.42);if(boss){drum(.22,.84,80);drum(.22,1.05,70)}
+  },
+  waveEnd(){[0,7,12,16].forEach((n,i)=>bell(N(n-9),1.1,.06,i*.09,.7));tone(N(-21),.9,'sine',.07,null,0,{a:.02,rev:.5})},
+  boom(){noise(.7,.2,1100,0,{rev:.6});tone(66,.7,'sine',.24,28,0,{rev:.5});tone(48,.9,'sine',.14,24,.05,{rev:.5});bell(N(-19),2,.06,.1,.9)},
+  fw(){ // 花火：どん、のあとにぱらぱら
+    tone(rnd(90,130),.35,'sine',.22,45,0,{rev:.6});noise(.3,.16,rnd(1800,3200),0,{type:'bandpass',q:1,rev:.7});
+    for(let i=0;i<7;i++)noise(.03,.07,rnd(4000,9000),.12+rnd(.5),{type:'highpass',rev:.6});
+  },
+  clear(){ // クリア：金管のファンファーレ → 長い和音と鐘、太鼓
+    [[-7,0,.22],[-3,.2,.22],[0,.4,.22],[5,.6,.5],[2,1.05,.22],[5,1.25,1.9]].forEach(([n,t,d])=>{brass(N(n),d,.085,t,.5);brass(N(n-12),d,.05,t,.5)});
+    [-19,-12,-7,-3].forEach(n=>tone(N(n),3,'sawtooth',.03,null,1.25,{det:9,a:.3,lp:900,lpTo:2600,rev:.8,hold:1.4}));
+    [5,9,12,17,21,24,29].forEach((n,i)=>bell(N(n),1.6,.05,1.3+i*.09,.85));
+    drum(.2,0);drum(.2,.6);drum(.24,1.25,80);noise(1.6,.03,8000,1.25,{type:'highpass',to:5000,a:.2,rev:.9});
+  },
+  over(){[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
+  ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
 };
 const buzz=ms=>{try{if(FX&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 
@@ -966,7 +1054,7 @@ function startWave(){
   if(S.tut<3)S.tut=3;if(S.wave>=3&&S.tut<9)tutDone();
   S.queue=buildWave(S.wave);
   S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
-  sfx.wave();if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
+  sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
 function spawnEnemy(q){
   const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m;
@@ -1333,10 +1421,11 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   orbCache=new Map();bgCanvas=null;
 }
 function openMenu(){
-  $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mLang').textContent=TT('mLang');
+  $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');show('menu');
 }
-$('#mSound').onclick=()=>{muted=!muted;save();if(!muted){audio();sfx.ui()}openMenu()};
+$('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
+$('#mMusic').onclick=()=>{musicOff=!musicOff;save();audio();audioState();sfx.ui();openMenu()};
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
@@ -1759,7 +1848,14 @@ function frame(now){
 }
 ready=true;layout();
 reset();
-window.G={saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+window.G={async audioTest(name,sec,arg,battle){
+  const sr=44100,keep=[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle];muted=false;FX=true;
+  buildAudio(new OfflineAudioContext(2,sr*sec,sr));
+  S.time+=1;if(name==='music'){musT=0;musStep=0;musBattle=battle?1:0;MUS.gain.value=MUS_VOL;musicSchedule(sec,battle)}else sfx[name](arg);
+  const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle]=keep;
+  let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
+  return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
