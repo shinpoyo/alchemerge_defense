@@ -1357,9 +1357,34 @@ function makeBg(){
   g.fillStyle=gr;g.fillRect(0,0,W,518);
   return c;
 }
+function ePath(e,t,r){ // 敵の輪郭：種類ごとのシルエットを描く
+  const ph=e.ph;
+  if(e.type==='wisp'){ // 炎のしずく：先端が揺れる
+    const fl=Math.sin(t*9+ph)*r*.12;
+    ctx.beginPath();ctx.moveTo(0,-r*1.25+fl);
+    ctx.bezierCurveTo(r*.75,-r*.55,r*.85,r*.25,r*.55,r*.7);
+    ctx.quadraticCurveTo(0,r*1.05,-r*.55,r*.7);
+    ctx.bezierCurveTo(-r*.85,-r*.25,-r*.75,-r*.55,0,-r*1.25+fl);
+    ctx.closePath();return;
+  }
+  if(e.type==='golem'){ // 角ばった岩の多角形
+    const pts=[[-.55,-.95],[.5,-1],[.95,-.45],[.85,.5],[.45,1],[-.5,.95],[-.95,.4],[-.9,-.5]];
+    ctx.beginPath();pts.forEach((q,i)=>ctx[i?'lineTo':'moveTo'](q[0]*r,q[1]*r));ctx.closePath();return;
+  }
+  if(e.type==='mite'){ctx.beginPath();ctx.arc(0,0,r,0,TAU);return}
+  // shade と boss：裾がギザギザの影（ボスはひと回り大きい）
+  const wd=e.type==='boss'?1.12:.92,ht=e.type==='boss'?1.08:1,wob=Math.sin(t*6+ph)*r*.04;
+  ctx.beginPath();ctx.moveTo(-r*wd,r*.55);
+  ctx.quadraticCurveTo(-r*wd*1.02,-r*.5,Math.sin(t*2.2+ph)*r*.05,-r*ht);
+  ctx.quadraticCurveTo(r*wd*1.02,-r*.5,r*wd,r*.55);
+  const teeth=5;for(let i=1;i<=teeth;i++)ctx.lineTo(r*wd-(i/teeth)*r*wd*2,r*.55+((i%2)?-r*.22:r*.02)+wob);
+  ctx.closePath();
+}
 function drawEnemy(e){
   const t=S.time,r=e.r,boss=e.type==='boss';
-  ctx.save();ctx.translate(e.x,e.y+Math.sin(t*5+e.ph)*1.5);
+  const bob=e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
+        sway=e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
+  ctx.save();ctx.translate(e.x+sway,e.y+bob);
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
@@ -1370,16 +1395,39 @@ function drawEnemy(e){
     ctx.strokeStyle=rgba('#ffffff',e.kb/.3);ctx.lineWidth=2;ctx.lineCap='round';
     for(const oy of[-r*.5,0,r*.5]){ctx.beginPath();ctx.moveTo(r+4,oy);ctx.lineTo(r+14,oy);ctx.stroke();ctx.beginPath();ctx.moveTo(-r-4,oy);ctx.lineTo(-r-14,oy);ctx.stroke()}
   }
-  ctx.beginPath();
-  const n=e.type==='golem'?6:14;
-  for(let i=0;i<=n;i++){const a=i/n*TAU,w=e.type==='golem'?1:1+Math.sin(a*3+t*6+e.ph)*.1+Math.sin(a*5-t*4)*.06,q=r*w;ctx[i?'lineTo':'moveTo'](Math.cos(a)*q,Math.sin(a)*q)}
-  ctx.closePath();ctx.fillStyle=e.flash>0?'#ffffff':'#08060f';ctx.fill();
+  ePath(e,t,r);
+  if(e.flash>0)ctx.fillStyle='#ffffff';
+  else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r);bg2.addColorStop(0,'#181230');bg2.addColorStop(.6,'#0a0716');bg2.addColorStop(1,'#040309');ctx.fillStyle=bg2}
+  ctx.fill();
   ctx.strokeStyle=e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):e.def.rim;ctx.lineWidth=(boss?2.5:1.6)+(e.slowT>0||e.dotT>0?.8:0);ctx.stroke();
   if(e.dotT>0&&e.dotK){ctx.fillStyle='#a8f06a55';ctx.fill()} // 毒：体が緑がかる
-  if(boss){ctx.fillStyle=e.def.rim;for(const sx of[-1,1]){ctx.beginPath();ctx.moveTo(sx*r*.45,-r*.8);ctx.lineTo(sx*r*.95,-r*1.6);ctx.lineTo(sx*r*.85,-r*.5);ctx.fill()}}
-  if(e.type!=='mite'){ctx.fillStyle=e.type==='wisp'?'#ffd0ff':'#ff3b6b';const ex=r*.36,ey=-r*.12,er=Math.max(1.4,r*.16);
-    ctx.beginPath();ctx.arc(-ex,ey,er,0,TAU);ctx.arc(ex,ey,er,0,TAU);ctx.fill()}
-  else{ctx.fillStyle='#ff3b6b';ctx.beginPath();ctx.arc(0,0,1.6,0,TAU);ctx.fill()}
+  if(boss){ctx.fillStyle=e.def.rim;for(const sx of[-1,1]){ctx.beginPath();ctx.moveTo(sx*r*.45,-r*.8);ctx.lineTo(sx*r*.95,-r*1.6);ctx.lineTo(sx*r*.85,-r*.5);ctx.fill()}
+    const pu=.6+.4*Math.sin(t*4+e.ph),cq=r*.17;ctx.save();ctx.translate(0,r*.38);ctx.rotate(Math.PI/4);ctx.fillStyle=rgba(e.def.rim,.55+.35*pu);ctx.fillRect(-cq/2,-cq/2,cq,cq);ctx.restore();
+    ctx.strokeStyle=rgba(e.def.rim,.85);ctx.lineWidth=1.4;ctx.beginPath();for(let i=0;i<=4;i++){const mx=-r*.3+i*r*.15;ctx[i?'lineTo':'moveTo'](mx,r*.08+((i%2)?r*.09:0))}ctx.stroke()}
+  if(e.type==='golem'){ // 岩の面とひび、怒り眉
+    ctx.fillStyle='rgba(255,255,255,.07)';ctx.beginPath();ctx.moveTo(-.55*r,-.95*r);ctx.lineTo(.5*r,-1*r);ctx.lineTo(.1*r,-.2*r);ctx.lineTo(-.7*r,-.3*r);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-r*.2,-r*.9);ctx.lineTo(-r*.05,-r*.4);ctx.lineTo(-r*.3,r*.1);ctx.moveTo(r*.55,r*.2);ctx.lineTo(r*.3,r*.55);ctx.stroke();
+    ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.6;for(const sx of[-1,1]){ctx.beginPath();ctx.moveTo(sx*r*.1,-r*.34);ctx.lineTo(sx*r*.52,-r*.22);ctx.stroke()}
+  }
+  if(e.type==='mite'){ // 小さな脚と背のトゲ
+    ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.3;ctx.lineCap='round';
+    for(const sx of[-1,1])for(let i=0;i<3;i++){const y0=r*.5+i*r*.17,wg=Math.sin(t*18+i*1.7+e.ph)*1.6;
+      ctx.beginPath();ctx.moveTo(sx*r*.8,y0);ctx.lineTo(sx*(r+4.5),y0+3.5+wg);ctx.stroke()}
+    ctx.fillStyle=e.def.rim;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*r*.45-r*.14,-r*.8);ctx.lineTo(i*r*.45,-r*1.3);ctx.lineTo(i*r*.45+r*.14,-r*.8);ctx.fill()}
+  }
+  if(e.type==='wisp'){ // 内側の炎
+    ctx.save();ctx.scale(.55,.62);ctx.translate(0,r*.28);
+    const fl2=Math.sin(t*11+e.ph)*r*.1;ctx.beginPath();ctx.moveTo(0,-r*1.25+fl2);
+    ctx.bezierCurveTo(r*.75,-r*.55,r*.85,r*.25,r*.55,r*.7);ctx.quadraticCurveTo(0,r*1.05,-r*.55,r*.7);
+    ctx.bezierCurveTo(-r*.85,r*.25,-r*.75,-r*.55,0,-r*1.25+fl2);ctx.closePath();
+    ctx.fillStyle=rgba(e.def.rim,.5);ctx.fill();ctx.restore();
+  }
+  if(e.type==='shade'){ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(0,-r*.3,r*.52,r*.42,0,0,TAU);ctx.fill()}
+  const eyC=e.type==='wisp'?'#ffd0ff':e.type==='golem'?'#ffb03a':'#ff3b6b';ctx.fillStyle=eyC;
+  if(e.type==='mite'){ctx.beginPath();ctx.arc(0,-r*.1,Math.max(1.4,r*.22),0,TAU);ctx.fill()}
+  else if(e.type==='golem'){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.32,-r*.08,r*.17,r*.07,-.15*sx,0,TAU);ctx.fill()}}
+  else if(e.type==='wisp'){const er=Math.max(1.6,r*.2);ctx.beginPath();ctx.arc(-r*.32,-r*.05,er,0,TAU);ctx.arc(r*.32,-r*.05,er,0,TAU);ctx.fill()}
+  else{for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.34,-r*.18,Math.max(1.2,r*.09),Math.max(2,r*.24),0,0,TAU);ctx.fill()}}
   if(e.curseT>0){ // 呪い：回る輪と、頭上の印
     ctx.strokeStyle='#d05aff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,r+4,t*3,t*3+4);ctx.stroke();
     const my=-r-17-(boss?12:0);ctx.fillStyle='#d98aff';ctx.beginPath();ctx.moveTo(-5,my-4);ctx.lineTo(5,my-4);ctx.lineTo(0,my+4);ctx.fill();ctx.fillStyle='#1c0a2c';ctx.beginPath();ctx.ellipse(0,my-1.5,.9,2,0,0,TAU);ctx.fill()}
