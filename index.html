@@ -52,6 +52,10 @@ button.b:active{transform:scale(.92)}
 button.b.done{border-color:#7df0c0;color:#7df0c0}
 button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24);border-color:#4a4070;color:var(--ink);box-shadow:none}
 .big{font-size:calc(var(--u)*58)}
+.en h1{font-size:calc(var(--u)*39);letter-spacing:.08em}
+.en .big{font-size:calc(var(--u)*54)}
+.en .how li{font-size:calc(var(--u)*13.5)}
+.en .stg b{letter-spacing:.04em}
 .clear .sub{color:#fff3cf;text-shadow:0 0 calc(var(--u)*8) #05040a,0 0 calc(var(--u)*3) #05040a;font-size:calc(var(--u)*14)}
 .red h1{background:linear-gradient(180deg,#ffd0d0,#d0375a 60%,#5a1024);-webkit-background-clip:text;background-clip:text;
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
@@ -97,31 +101,32 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
   <div class="ov on" id="title">
     <h1 id="t1"></h1>
     <div class="sub">MERGE × TOWER DEFENSE</div>
-    <ul class="how">
+    <ul class="how" id="how">
       <li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li>
       <li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li>
       <li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li>
       <li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 54 種、★はランク</li>
     </ul>
     <button class="b" id="bStart">はじめる</button>
+    <button class="b s" id="bLang">English</button>
   </div>
 
   <div class="ov" id="stages">
-    <h2>ステージ</h2>
+    <h2 id="hStages">ステージ</h2>
     <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
   </div>
 
   <div class="ov" id="codex">
-    <h2>錬金図鑑</h2>
+    <h2 id="hCodex">錬金図鑑</h2>
     <div id="cnt"></div>
     <div id="grid"></div>
     <div><button class="b s" id="bShare3">図鑑を共有</button><button class="b s" id="bClose">とじる</button></div>
   </div>
 
   <div class="ov red" id="over">
-    <h1>陥 落</h1>
+    <h1 id="hOver">陥 落</h1>
     <div class="sub" id="overSub"></div>
     <button class="b" id="bRetry">もう一度</button>
     <div><button class="b s" id="bShare2">結果を共有</button><button class="b s" id="bStages1">ステージ選択</button></div>
@@ -156,6 +161,60 @@ function resize(){
   st.style.setProperty('--u',r.width/W+'px');
 }
 addEventListener('resize',resize);resize();
+
+/* ---------------- 言語（日本語／English） ---------------- */
+let LANG='ja';
+try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.lang||((navigator.language||'ja').startsWith('ja')?'ja':'en')}catch(e){}
+const TX={ // [日本語, English]。{0}{1}… に値が入る
+  title:['宵闇の錬金塔','Alchemerge Defense'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
+  docTitle:['宵闇の錬金塔 — マージ×タワーディフェンス','Alchemerge Defense — Merge × Tower Defense'],
+  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li><li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
+       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you discover</b> can be summoned directly next time</li><li><i>2</i><b>Stack</b> two elements to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
+  start:['はじめる','Start'],langBtn:['English','日本語'],
+  stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],
+  nightNote:['悪夢：敵の体力 {0} 倍・灯は {1}','Nightmare: enemy HP ×{0}, only {1} lives'],
+  nightLocked:['ステージをクリアすると「悪夢」が開く','Clear a stage to unlock Nightmare'],
+  carry:['見つけた元素は、どのステージにも持ち越される','Discovered elements carry over to every stage'],
+  needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
+  cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
+  codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
+  found:['発見 {0} / {1}','Found {0} / {1}'],notYet:['まだ見つけていない','Not found yet'],theEnd:['すべての果て','The end of all'],
+  fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
+  overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
+  dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
+  noReact:['反応なし…','No reaction…'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
+  allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
+  findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
+  left:['のこり {0}','{0} left'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
+  bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
+  unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
+  hint:['元素を重ねて錬成し、魔法陣へ運ぼう','Stack elements to merge, then drag them onto a circle'],
+  waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
+  buyNext:['次からは下の一覧で直接呼び出せる（◆{0}）','Now you can summon it from the list below (◆{0})'],
+  shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
+  copied:['コピーしました','Copied!'],copyThis:['この文章をコピーしてください','Copy this text'],
+};
+const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
+const EN={ // 英語の名前と説明
+  fire:['Fire','Burns what it hits'],water:['Water','Slows what it hits'],earth:['Earth','Heavy shot with splash'],wind:['Wind','Weak but very fast'],
+  flame:['Flame','Burns hard'],pond:['Pond','Slows nearby foes'],rock:['Rock','Hurls a boulder'],gust:['Gust','Rapid wind blades'],steam:['Steam','Scalds all nearby foes'],
+  lava:['Lava','Bursts and burns wide'],bolt:['Bolt','Lightning that jumps'],ice:['Ice','Chills foes hard'],sand:['Sand','Rapid grit shots'],swamp:['Swamp','Trap: slows foes on it'],
+  inferno:['Inferno','Burns everything nearby'],sea:['Sea','Crashing wave that slows'],mountain:['Mountain','A mountain of a hit'],tornado:['Tornado','Shreds nearby foes'],
+  engine:['Engine','Nonstop machine gun'],blizzard:['Blizzard','Freezes the area'],glass:['Prism','Focused beam of light'],miasma:['Miasma','Poison fog all around'],
+  storm:['Storm','Lightning hits 6 foes'],crystal:['Crystal','Long-range sniper'],curse:['Curse','Cursed foes take ×1.5 damage'],obsidian:['Obsidian','Blade that pierces a line'],
+  bog:['Toxic Bog','Trap: slows and poisons'],quicksand:['Quicksand','Trap: slows foes a lot'],crater:['Crater','Trap: scorches foes on it'],
+  iron:['Iron','Fires heavy slugs'],mist:['Mist','Slows and weakens nearby foes'],golem:['Golem','Punches foes backward'],sandstorm:['Sandstorm','Grinds and slows nearby foes'],
+  wisp:['Wisp','Fire that keeps burning'],magnet:['Magnet','Pulls foes backward'],spore:['Spore','Spreads poison spores'],heat:['Heatwave','Burning wind in a line'],
+  frost:['Ice Sheet','Trap: nearly freezes foes'],
+  sun:['Sun','Scorches a wide area'],tsunami:['Tsunami','Sweeps a whole line'],peak:['Holy Peak','Crushes everything'],typhoon:['Typhoon','Batters all nearby foes'],
+  cataclysm:['Cataclysm','Freezing bolts hit 9 foes'],star:['Star','Three burning beams'],abyss:['Abyss','Spreads poison and curse'],titan:['Cannon','Fires huge blasts'],
+  railgun:['Railgun','Pierces across the map'],reaper:['Reaper','Curses and drains life'],colossus:['Colossus','Smashes foes backward'],
+  stone:['Sage Stone','Light upon everything'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Breath that pierces all'],
+  genesis:['Genesis','Ends the night itself'],
+};
+const nm=d=>LANG==='ja'?d.name:EN[d.id][0],ds=d=>LANG==='ja'?d.desc:EN[d.id][1];
+const sn=st=>LANG==='ja'?st.name:st.en,snote=st=>LANG==='ja'?st.note:st.noteEn;
 
 /* ---------------- 元素（アイテム）の定義 ----------------
    kind: bolt=弾 / chain=連鎖する稲妻 / pulse=周囲への波動 / beam=照射 / pierce=貫通 / trap=道に置く罠
@@ -255,15 +314,15 @@ const fits=(id,sl)=>sl.bench||(sl.path?isTrap(id):!isTrap(id));
 /* ---------------- 盤面（道・魔法陣・作業台・ボタン） ---------------- */
 // ステージ：道（複数あれば敵が交互に出る）・魔法陣・罠マスの位置と、敵の体力の倍率
 const STAGES=[
-  {name:'宵の回廊',note:'長い一本道',hp:1,
+  {name:'宵の回廊',note:'長い一本道',en:'Dusk Corridor',noteEn:'One long road',hp:1,
    paths:[[[-30,125],[375,125],[375,265],[75,265],[75,405],[425,405]]],
    field:[[75,195],[150,195],[225,195],[300,195],[150,335],[225,335],[300,335],[375,335],[115,470],[190,470],[265,470],[340,470]],
    traps:[[225,125],[375,195],[225,265],[75,335],[240,405]]},
-  {name:'螺旋の庭',note:'渦を巻いて中心へ',hp:1.3,
+  {name:'螺旋の庭',note:'渦を巻いて中心へ',en:'Spiral Garden',noteEn:'Winds into the center',hp:1.3,
    paths:[[[-30,100],[390,100],[390,460],[60,460],[60,220],[270,220],[270,345]]],
    field:[[130,160],[200,160],[270,160],[330,160],[330,228],[330,296],[330,370],[130,290],[200,290],[130,372],[200,372],[270,405]],
    traps:[[200,100],[390,280],[225,460],[60,340],[165,220]]},
-  {name:'双つの門',note:'上下ふたつの入口',hp:1,
+  {name:'双つの門',note:'上下ふたつの入口',en:'Twin Gates',noteEn:'Two entrances, top and bottom',hp:1,
    paths:[[[-30,95],[300,95],[300,190],[110,190],[110,290],[425,290]],[[-30,485],[300,485],[300,390],[110,390],[110,290],[425,290]]],
    field:[[130,142],[200,142],[130,438],[200,438],[190,240],[260,240],[190,340],[260,340],[370,150],[370,225],[370,355],[370,430]],
    traps:[[200,95],[200,485],[110,240],[110,340],[300,290]]},
@@ -328,7 +387,7 @@ let S,disc,prog={},muted=false,FX=true,bgCanvas=null;
 const SAVE='yoiyami-alchemy-v1';
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));prog=d.prog||{};if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted}))}catch(e){}}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,lang:LANG}))}catch(e){}}
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[]}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
 const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
@@ -531,7 +590,7 @@ function orb(id,named){
   const g=c.getContext('2d');g.scale(k,k);g.translate(R,R);
   if(named){ // 名前は玉の下に小さく
     g.font=FONT(10.5,800);g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';
-    g.lineWidth=3;g.strokeStyle='#05040a';g.strokeText(d.name,0,27.5);g.fillStyle='#ece7f7';g.fillText(d.name,0,27.5);
+    g.lineWidth=3;g.strokeStyle='#05040a';g.strokeText(nm(d),0,27.5);g.fillStyle='#ece7f7';g.fillText(nm(d),0,27.5);
     g.translate(0,-6);g.scale(.86,.86);
   }
   let gr=g.createRadialGradient(0,0,14,0,0,38);gr.addColorStop(0,rgba(d.c,.45));gr.addColorStop(1,rgba(d.c,0));
@@ -569,13 +628,13 @@ function drawItem(it,x,y,sc=1,alpha=1){
 /* ---------------- 錬成 ---------------- */
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
-  return r?{id:r}:{fail:'反応なし…'};
+  return r?{id:r}:{fail:TT('noReact')};
 }
 function dropOn(from,to){
   const it=from.item;if(!it)return;
   if(!to||to===from){sfx.drop();return}
   if(!to.item){
-    if(!fits(it.id,to)){it.shake=.35;sfx.fail();floatText(to.x,to.y-30,to.path?'道に置けるのは罠だけ':'罠は道の上に置く','#b9b1d0',13);return}
+    if(!fits(it.id,to)){it.shake=.35;sfx.fail();floatText(to.x,to.y-30,TT(to.path?'onlyTrap':'trapOnPath'),'#b9b1d0',13);return}
     to.item=it;from.item=null;it.s=1.3;it.sv=-2;it.cd=Math.max(it.cd,.15);
     sfx.drop();ring(to.x,to.y,ITEMS[it.id].c,38,.3,2);buzz(8);
     if(!to.bench)S.started=true;
@@ -588,7 +647,7 @@ function dropOn(from,to){
   }
   // できたものが置けない場所なら、運んできた側のマスに残す
   const dst=fits(res.id,to)?to:fits(res.id,from)?from:null;
-  if(!dst){it.shake=.35;sfx.fail();floatText(to.x,to.y-34,'作業台で錬成しよう','#b9b1d0',13);return}
+  if(!dst){it.shake=.35;sfx.fail();floatText(to.x,to.y-34,TT('mergeOnBench'),'#b9b1d0',13);return}
   const n=mkItem(res.id,dst.x,dst.y);n.hide=.3;n.s=.01;
   const isNew=!disc.has(res.id);
   if(isNew){disc.add(res.id);save()}
@@ -604,13 +663,13 @@ function mergeDone(f){
   ring(f.x,f.y,d.c,46+d.t*14,.45,3);ring(f.x,f.y,'#ffffff',30+d.t*8,.28,1.5);
   shake(2+d.t*1.2);buzz(15+d.t*6);sfx.merge(d.t-1);
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',13);
-  if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:`全 ${TOTAL} 種 発見`});setTimeout(()=>sfx.clear(),2400)}
+  if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:TT('allFound',TOTAL)});setTimeout(()=>sfx.clear(),2400)}
   if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c}
 }
 function spawnBase(id,b){ // 失敗したら理由（'full'／'mana'）を返す
   const free=slots.find(s=>s.bench&&!s.item),cost=itemValue({id});
-  if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,530,'作業台がいっぱい','#ff8a9a',14);return'full'}
-  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,'魔力が足りない','#ff8a9a',12.5);return'mana'}
+  if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,530,TT('benchFull'),'#ff8a9a',14);return'full'}
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',12.5);return'mana'}
   S.mana-=cost;
   const it=mkItem(id,b?b.x+b.w/2:free.x,b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;
   it.fly=.55; // ボタンから作業台へ、光の尾を引いて飛ぶ
@@ -763,7 +822,7 @@ function update(dt){
 function endWave(){
   S.active=false;const bonus=12+3*S.wave;S.mana+=bonus;
   if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
-  floatText(W/2,300,`第 ${S.wave} 波 撃退`,'#ffe9a0',22);floatText(W/2,328,`魔力 +${bonus}`,'#e8c36a',15);
+  floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',22);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',15);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
   if(S.wave===MAX_WAVE&&!S.endless)victory();
@@ -781,7 +840,7 @@ function victory(){
   for(let i=0;i<7;i++)ring(W/2,300,FW[i],140+i*60,.8+i*.14,5,10);
   for(let i=0;i<160;i++)confetti(rnd(W),rnd(-260,0));
   setTimeout(()=>{if(!S.cleared)return;
-    $('#t2').innerHTML=spanify('夜明け');$('#clearSub').textContent=`全 ${MAX_WAVE} 波 撃退 ・ 発見 ${disc.size} / ${Object.keys(ITEMS).length}`;
+    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').textContent=TT('clearSub',MAX_WAVE,disc.size,TOTAL);
     show('clear')},1500);
 }
 function confetti(x,y){
@@ -814,7 +873,7 @@ function gameOver(){
   if(!FX)return;
   sfx.over();burst(CORE.x,CORE.y,'#ff2a4a',70,320);sparks(CORE.x,CORE.y,'#ffd0d8',50,420);
   for(let i=0;i<4;i++)ring(CORE.x,CORE.y,'#ff2a4a',120+i*90,.6+i*.2,5);
-  setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=`第 ${S.wave} 波で砦は闇に沈んだ（最高 第 ${rec().best} 波）`;show('over')},1300);
+  setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=TT('overSub',S.wave,rec().best);show('over')},1300);
 }
 
 /* ---------------- 入力 ---------------- */
@@ -849,7 +908,7 @@ function release(ev,cancel){
   if(strip){const st=strip;strip=null;SHOP.press=null;
     if(cancel||st.moved)return;
     const d=shopList(SHOP.tab)[st.i];if(!d)return;
-    if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,'錬成して見つけると呼び出せる','#b9b1d0',12.5);return}
+    if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT('findFirst'),'#b9b1d0',12.5);return}
     spawnBase(d.id,{x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h});return}
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
   if(!drag)return;
@@ -871,7 +930,7 @@ cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=654&&p.y<=SHOP.y+SHOP.h
   SHOP.scroll[SHOP.tab]=clamp(SHOP.scroll[SHOP.tab]+(Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY),0,shopMax(SHOP.tab))}},{passive:false});
 addEventListener('keydown',e=>{if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}});
 function press(b){
-  if(b.id==='trash'){if(sel){sell(sel);sel=null}else floatText(b.x+b.w/2,b.y-8,'ここへ運ぶと魔力に還る','#b9b1d0',12);return}
+  if(b.id==='trash'){if(sel){sell(sel);sel=null}else floatText(b.x+b.w/2,b.y-8,TT('trashHint'),'#b9b1d0',12);return}
   if(b.id==='wave'){startWave();return}
   sfx.ui();
   if(b.id==='speed')S.speed=S.speed===1?2:1;
@@ -884,17 +943,17 @@ const spanify=t=>[...t].map((c,i)=>`<span style="animation-delay:${i*.09}s">${c=
 function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle('on',o.id===id))}
 function openCodex(){
   const all=Object.values(ITEMS);
-  $('#cnt').textContent=`発見 ${disc.size} / ${all.length}`;
+  $('#cnt').textContent=TT('found',disc.size,all.length);
   let h='';
-  for(let t=1;t<=6;t++){
-    h+=`<div class="tier">${'★'.repeat(t)}</div>`;
-    for(const d of all.filter(d=>d.t===t)){
+  for(let tr=1;tr<=6;tr++){
+    h+=`<div class="tier">${'★'.repeat(tr)}</div>`;
+    for(const d of all.filter(d=>d.t===tr)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${d.name}</b>${mk?`<em>${ITEMS[mk[0]].name} ＋ ${ITEMS[mk[1]].name}</em>`:''}${d.desc}</div>`;
+        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${mk?`<em>${nm(ITEMS[mk[0]])} ＋ ${nm(ITEMS[mk[1]])}</em>`:''}${ds(d)}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
-        const hint=mk&&disc.has(mk[0])&&disc.has(mk[1])?`${ITEMS[mk[0]].name} ＋ ？`:'？ ＋ ？';
-        h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${t<6?'まだ見つけていない':'すべての果て'}</div>`;
+        const hint=mk&&disc.has(mk[0])&&disc.has(mk[1])?`${nm(ITEMS[mk[0]])} ＋ ？`:'？ ＋ ？';
+        h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
     }
   }
@@ -913,13 +972,13 @@ function openStages(){
   if(NIGHT&&!STAGES.some((_,i)=>nightOpen(i)))NIGHT=false;
   $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT);
   $('#dNight').disabled=!STAGES.some((_,i)=>nightOpen(i));
-  $('#dNote').textContent=NIGHT?`悪夢：敵の体力 ${NIGHT_HP} 倍・灯は ${NIGHT_LIVES}`:$('#dNight').disabled?'ステージをクリアすると「悪夢」が開く':'見つけた元素は、どのステージにも持ち越される';
+  $('#dNote').textContent=NIGHT?TT('nightNote',NIGHT_HP,NIGHT_LIVES):$('#dNight').disabled?TT('nightLocked'):TT('carry');
   const box=$('#slist');box.innerHTML='';
   STAGES.forEach((st,i)=>{
     const open=NIGHT?nightOpen(i):stageOpen(i),r=rec(i,NIGHT),b=document.createElement('button');
     b.className='stg';b.disabled=!open;
-    const state=!open?(NIGHT?'通常でクリアすると開く':'前のステージをクリアすると開く'):r.clear?'<em>✦ クリア済み</em>':r.best?`最高 第 ${r.best} 波`:'未挑戦';
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${st.name}</b><span>${st.note}</span><span>${state}</span></div>`;
+    const state=!open?TT(NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span></div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -929,9 +988,9 @@ function openStages(){
 /* ---------------- 共有 ---------------- */
 const SITE='https://shinpoyo.com/alchemerge_defense/';
 function shareLines(kind){
-  const st=STAGES[STAGE].name+(NIGHT?'（悪夢）':'');
-  const res=kind==='codex'?'':S.cleared?`全 ${MAX_WAVE} 波 クリア`:`第 ${S.wave} 波で陥落`;
-  return{title:'宵闇の錬金塔',st:kind==='codex'?'錬金図鑑':st,res,found:`発見 ${disc.size} / ${TOTAL}`};
+  const st=sn(STAGES[STAGE])+(NIGHT?TT('nightParen'):'');
+  const res=kind==='codex'?'':S.cleared?TT('shareClear',MAX_WAVE):TT('shareOver',S.wave);
+  return{title:TT('title'),st:kind==='codex'?TT('codexTitle'):st,res,found:TT('found',disc.size,TOTAL)};
 }
 function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×800）
   const L=shareLines(kind),c=document.createElement('canvas');c.width=c.height=800;const g=c.getContext('2d');
@@ -942,12 +1001,12 @@ function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×8
   gr=g.createLinearGradient(0,560,0,640);gr.addColorStop(0,'#fff6d8');gr.addColorStop(.6,'#e8c36a');gr.addColorStop(1,'#8a6a2a');
   g.font=FONT(78,800);g.shadowColor='#8b5cf6';g.shadowBlur=30;g.fillStyle=gr;g.fillText(L.res||L.st,400,600);g.shadowBlur=0;
   g.font=FONT(30,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,676);
-  g.font=FONT(24,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― マージ × タワーディフェンス`,400,735);
+  g.font=FONT(24,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― ${TT('genre')}`,400,735);
   g.font=FONT(19);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,770);
   return c;
 }
 async function share(btn,kind){
-  const L=shareLines(kind),text=`${L.title}｜${L.st}${L.res?' '+L.res:''}・${L.found}`;
+  const L=shareLines(kind),text=LANG==='ja'?`${L.title}｜${L.st}${L.res?' '+L.res:''}・${L.found}`:`${L.title} | ${L.st}${L.res?' — '+L.res:''} · ${L.found}`;
   const done=msg=>{const o=btn.textContent;btn.textContent=msg;btn.classList.add('done');setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1800)};
   sfx.ui();
   let file=null;
@@ -957,7 +1016,7 @@ async function share(btn,kind){
     if(navigator.share){await navigator.share({text,url:SITE});return}
   }catch(e){if(e&&e.name==='AbortError')return}
   // 共有の画面が出せない環境（PC など）は、文章をコピーして画像を保存する
-  try{await navigator.clipboard.writeText(text+'\n'+SITE);done('コピーしました')}catch(e){window.prompt('この文章をコピーしてください',text+' '+SITE)}
+  try{await navigator.clipboard.writeText(text+'\n'+SITE);done(TT('copied'))}catch(e){window.prompt(TT('copyThis'),text+' '+SITE)}
   if(file){const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download='yoiyami.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 }
 $('#bShare1').onclick=e=>share(e.currentTarget,'result');
@@ -969,7 +1028,17 @@ $('#bStart').onclick=()=>{audio();sfx.ui();openStages()};
 $('#bRetry').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
 $('#bAgain').onclick=$('#bStages1').onclick=()=>{audio();sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#bEndless').onclick=()=>{S.endless=true;S.cele=0;show(null);sfx.ui()};
-$('#t1').innerHTML=spanify('宵闇の')+'<br>'+spanify('錬金塔');
+function applyLang(){ // 画面の文言を、いまの言語に入れかえる
+  const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
+  document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
+  $('#t1').innerHTML=ja?spanify('宵闇の')+'<br>'+spanify('錬金塔'):spanify('ALCHEMERGE')+'<br>'+spanify('DEFENSE');
+  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');
+  set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
+  set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
+  orbCache=new Map();
+}
+$('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
+applyLang();
 
 /* ---------------- 描画 ---------------- */
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
@@ -1040,17 +1109,17 @@ function drawBtn(b,dt){
   ctx.textAlign='center';ctx.textBaseline='middle';
   if(BASES.includes(b.id)){
     ctx.globalAlpha=on?1:.35;ctx.drawImage(orb(b.id),cx-26,b.y-8,52,52);
-    ctx.font=FONT(11,800);ctx.textAlign='right';ctx.fillStyle='#ece7f7';ctx.fillText(ITEMS[b.id].name,cx-3,b.y+b.h-9);
+    ctx.font=FONT(11,800);ctx.textAlign='right';ctx.fillStyle='#ece7f7';ctx.fillText(nm(ITEMS[b.id]),cx-3,b.y+b.h-9);
     ctx.textAlign='left';ctx.fillStyle='#e8c36a';ctx.fillText('◆'+BASE_COST,cx,b.y+b.h-9);ctx.textAlign='center';
   }else if(b.id==='wave'){
     const pulse=on&&!S.over?.5+.5*Math.sin(S.time*4):0;
     if(on){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.12+pulse*.12;ctx.fillStyle='#e8c36a';rr(ctx,b.x,b.y,b.w,b.h,12);ctx.fill();ctx.globalCompositeOperation='source-over'}
     ctx.globalAlpha=on?1:.6;ctx.font=FONT(17,800);ctx.fillStyle=on?'#fff3cf':'#8d86a3';
     const left=S.queue.length+S.enemies.length;
-    ctx.fillText(S.active?`のこり ${left}`:`▶ 第 ${S.wave+1} 波`,cx,cy+1);
+    ctx.fillText(S.active?TT('left',left):TT('nextWave',S.wave+1),cx,cy+1);
   }else{
     ctx.font=FONT(b.id==='speed'?19:15,800);ctx.fillStyle=hot?'#ff8a9a':'#cfc8e6';
-    label={trash:'還す',codex:'図鑑',speed:'×'+S.speed,sound:muted?'無音':'音'}[b.id];
+    label={trash:TT('bTrash'),codex:TT('bCodex'),speed:'×'+S.speed,sound:TT(muted?'bMute':'bSound')}[b.id];
     ctx.fillText(label,cx,cy+(b.id==='codex'?-6:1));
     if(b.id==='codex'){ctx.font=FONT(10.5,800);ctx.fillStyle=disc.size>=TOTAL?'#ffe9a0':'#e8c36a';ctx.fillText(`${disc.size}/${TOTAL}`,cx,cy+11)}
   }
@@ -1078,14 +1147,14 @@ function drawShop(dt){
     ctx.strokeStyle=rgba(ok?d.c:'#3a3355',can?.6:.28);ctx.lineWidth=1.3;ctx.stroke();
     if(ok){
       ctx.globalAlpha=can?1:.38;ctx.drawImage(orb(d.id),cx-25,SHOP.y-6,50,50);
-      ctx.font=FONT(10.5,800);ctx.fillStyle='#ece7f7';ctx.fillText(d.name,cx,SHOP.y+40);
+      ctx.font=FONT(10.5,800);ctx.fillStyle='#ece7f7';ctx.fillText(nm(d),cx,SHOP.y+40);
       ctx.font=FONT(10.5,800);ctx.fillStyle='#e8c36a';ctx.fillText('◆'+cost,cx,SHOP.y+51.5);ctx.globalAlpha=1;
       if(SHOP.newId===d.id&&SHOP.newT>0){const pu=.5+.5*Math.sin(T*8);ctx.strokeStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT)*(.5+pu*.5));ctx.lineWidth=2.5;
         rr(ctx,x-1-pu*2,SHOP.y-1-pu*2,SHOP.bw+2+pu*4,SHOP.h+2+pu*4,12);ctx.stroke();
         ctx.font=FONT(9.5,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a';ctx.strokeText('NEW',cx+16,SHOP.y+7);ctx.fillStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT));ctx.fillText('NEW',cx+16,SHOP.y+7)}
     }else{
       ctx.strokeStyle='#3a3355';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(cx,SHOP.y+19,14,0,TAU);ctx.stroke();
-      ctx.font=FONT(15,800);ctx.fillStyle='#4f4870';ctx.fillText('？',cx,SHOP.y+20);ctx.font=FONT(9.5);ctx.fillText('未発見',cx,SHOP.y+45);
+      ctx.font=FONT(15,800);ctx.fillStyle='#4f4870';ctx.fillText('？',cx,SHOP.y+20);ctx.font=FONT(9.5);ctx.fillText(TT('unknown'),cx,SHOP.y+45);
     }
     ctx.restore();
   });
@@ -1099,13 +1168,13 @@ function drawHud(dt){
   S.manaShow+=(S.mana-S.manaShow)*Math.min(1,dt*10);
   ctx.textBaseline='middle';
   // 灯（残りライフ）
-  ctx.textAlign='left';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText('灯',14,25);
+  ctx.textAlign='left';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lives'),14,25);const lw=ctx.measureText(TT('lives')).width;
   ctx.font=FONT(22,800);ctx.fillStyle=S.lives<=5?'#ff3b6b':'#ffb0c0';
-  const ls=1+S.coreHit*.5;ctx.save();ctx.translate(34,25);ctx.scale(ls,ls);ctx.fillText(S.lives,0,1);ctx.restore();
+  const ls=1+S.coreHit*.5;ctx.save();ctx.translate(20+lw,25);ctx.scale(ls,ls);ctx.fillText(S.lives,0,1);ctx.restore();
   // 波
-  ctx.textAlign='center';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText('夜波',W/2-56,24);
+  ctx.textAlign='center';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
   ctx.font=FONT(22,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,23);
-  ctx.font=FONT(9.5);ctx.fillStyle=NIGHT?'#ff8a9a':'#8d86a3';ctx.fillText(STAGES[STAGE].name+(NIGHT?'・悪夢':''),W/2,42);
+  ctx.font=FONT(9.5);ctx.fillStyle=NIGHT?'#ff8a9a':'#8d86a3';ctx.fillText(sn(STAGES[STAGE])+(NIGHT?TT('nightDot'):''),W/2,42);
   // 魔力
   const mx=W-16,sc=1+S.manaBump*.35;
   ctx.save();ctx.translate(mx+(S.manaErr>0?Math.sin(S.manaErr*70)*5*S.manaErr:0),25);ctx.scale(sc,sc);
@@ -1224,10 +1293,10 @@ function render(dt){
   // 説明の帯（選んでいる・運んでいる元素）
   const inf=held?held.item:sel&&sel.item;
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${d.name} ${'★'.repeat(d.t)} ― ${d.desc}`,W/2,63.5)}
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5)}
   // 最初の手引き
   if(!S.started&&!held&&S.wave===0){const a=.55+.35*Math.sin(T*3);ctx.textAlign='center';ctx.font=FONT(13.5);ctx.fillStyle=rgba('#e9e4f5',a);
-    ctx.fillText('元素を重ねて錬成し、魔法陣へ運ぼう',W/2,508)}
+    ctx.fillText(TT('hint'),W/2,508)}
   // 運んでいる元素
   if(held){const it=held.item,y=ptr.y-(held.touch?26:0);it.rx=ptr.x;it.ry=y;
     ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(ITEMS[it.id].c),ptr.x-48,y-48,96,96);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
@@ -1242,7 +1311,7 @@ function render(dt){
     else if(f.ty==='wave'){if(f.t<0)continue;const k=f.t/f.dur;if(k>=1){fx.splice(i,1);continue}
       const a=k<.2?k/.2:k>.7?(1-k)/.3:1,ox=(1-Math.min(1,k/.2))**3*-160+(k>.7?((k-.7)/.3)**3*160:0);
       ctx.globalAlpha=a;ctx.fillStyle='#05040a99';ctx.fillRect(0,282,W,56);ctx.fillStyle='#ff3b6b';ctx.fillRect(0,282,W,1);ctx.fillRect(0,337,W,1);
-      ctx.font=FONT(30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||`第 ${f.n} 波${f.n%5===0?' ― 夜の主':''}`,W/2+ox,311);ctx.globalAlpha=1}
+      ctx.font=FONT(30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
   }
   ctx.restore();
   // 新発見の幕
@@ -1253,9 +1322,9 @@ function render(dt){
       for(let i=0;i<14;i++){const an=i/14*TAU+T*.7;ctx.fillStyle=rgba(d.c,.09);ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,190,an,an+.13);ctx.fill()}
       ctx.drawImage(glow(d.c),-100,-100,200,200);ctx.globalCompositeOperation='source-over';
       ctx.scale(sc*1.9,sc*1.9);ctx.drawImage(orb(b.id),-40,-40,80,80);ctx.restore();
-      ctx.textAlign='center';ctx.font=FONT(14,800);ctx.fillStyle='#e8c36a';ctx.fillText('―  新 発 見  ―',W/2,192);
-      ctx.font=FONT(28,800);ctx.fillStyle=d.c;ctx.fillText(d.name,W/2,340);ctx.font=FONT(13);ctx.fillStyle='#cfc8e6';ctx.fillText(d.desc,W/2,366);
-      ctx.font=FONT(12.5,800);ctx.fillStyle='#e8c36a';ctx.fillText(`次からは下の一覧で直接呼び出せる（◆${itemValue(d)}）`,W/2,394);ctx.globalAlpha=1}}
+      ctx.textAlign='center';ctx.font=FONT(14,800);ctx.fillStyle='#e8c36a';ctx.fillText(TT('newFound'),W/2,192);
+      ctx.font=FONT(28,800);ctx.fillStyle=d.c;ctx.fillText(nm(d),W/2,340);ctx.font=FONT(13);ctx.fillStyle='#cfc8e6';ctx.fillText(ds(d),W/2,366);
+      ctx.font=FONT(12.5,800);ctx.fillStyle='#e8c36a';ctx.fillText(TT('buyNext',itemValue(d)),W/2,394);ctx.globalAlpha=1}}
   if(S.flash>0){ctx.globalCompositeOperation='lighter';ctx.fillStyle=rgba(S.flashC,Math.min(.7,S.flash));ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over';S.flash-=dt*1.6}
   S.shake*=Math.exp(-dt*9);S.manaBump*=Math.exp(-dt*10);if(S.manaErr>0)S.manaErr-=dt;
 }
@@ -1281,7 +1350,7 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 reset();
-window.G={shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+window.G={setLang(l){LANG=l;applyLang()},shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>

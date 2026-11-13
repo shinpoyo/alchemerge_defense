@@ -15,6 +15,16 @@
 
 元素は全 54 種・レシピ 50 個。★はその元素のランク（1〜6）。一度見つけた元素は、画面下の一覧（★ごとのタブ）から直接呼び出せる（値段は 1 ランクごとに 2 倍）。図鑑では見つけた元素とレシピを確認できる。
 
+## そのほかの機能
+
+- **言語**：日本語／English。タイトル画面のボタンで切りかえ（最初は端末の言語に合わせる）
+- **共有**：クリア・陥落・図鑑の画面から、結果の文章と盤面の画像を共有できる
+- **記録**：ステージ×難易度ごとの最高到達波とクリア、見つけた元素、音と言語の設定を端末内に保存
+
+## English
+
+**Alchemerge Defense** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (54 elements, 50 recipes), place them on magic circles as towers, and put traps on the road. Three stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
+
 ## ファイル
 
 | パス | 内容 |
@@ -27,6 +37,7 @@
 
 | 見出しコメント | 内容 |
 |---|---|
+| 言語 | `TX`（画面の文言。日本語と英語）、`EN`（元素の英語名と説明） |
 | 元素（アイテム）の定義 | `ITEMS`（名前・ランク・色・攻撃の種類と数値）と `RECIPES`（組み合わせ） |
 | 盤面 | `STAGES`（ステージごとの道・魔法陣・罠マスの位置、体力の倍率）、作業台・ボタンの位置 |
 | 敵 | 敵の種類、体力の伸び（`HP0` `HP_GROW`）、波の組み立て（`buildWave`） |
@@ -34,6 +45,6 @@
 | 錬成 / 戦闘 | 重ねたときの処理、塔と罠の攻撃 |
 | クリア・ゲームオーバー | 花火・紙吹雪・夜明けの演出 |
 
-元素を足すときは、`ITEMS` に 1 行、`RECIPES` に 1 行、`ICON` に絵を 1 つ足す。
+元素を足すときは、`ITEMS` に 1 行、`EN` に英語名と説明、`RECIPES` に 1 行、`ICON` に絵を 1 つ足す。
 
-保存は端末内（localStorage）に、見つけた元素・最高到達波・音のオン／オフだけ。
+保存は端末内（localStorage）だけ。
