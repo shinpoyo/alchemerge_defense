@@ -55,7 +55,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .red h1{background:linear-gradient(180deg,#ffd0d0,#d0375a 60%,#5a1024);-webkit-background-clip:text;background-clip:text;
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
-#codex h2{margin:0;font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
+#codex h2,#stages h2{margin:0;font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #cnt{color:var(--dim);font-size:calc(var(--u)*12.5);margin-bottom:calc(var(--u)*6);line-height:1.6}
 #grid{flex:1;overflow-y:auto;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8);
   align-content:start;padding:calc(var(--u)*6) calc(var(--u)*2);touch-action:pan-y;overscroll-behavior:contain}
@@ -69,6 +69,23 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .card b{display:block;color:var(--ink);font-size:calc(var(--u)*13)}
 .card em{font-style:normal;color:var(--gold);display:block}
 .card img.o{border:0;background:none;box-shadow:none;width:calc(var(--u)*62);height:calc(var(--u)*62);margin:calc(var(--u)*-8) auto calc(var(--u)*-5);display:block}
+#stages{justify-content:flex-start;padding-top:calc(var(--u)*40)}
+.diff{margin:calc(var(--u)*10) 0 calc(var(--u)*2)}
+.diff .b.on{border-color:var(--gold);color:#fff3cf;box-shadow:0 0 calc(var(--u)*16) #8b5cf688}
+.diff #dNight.on{border-color:#ff3b6b;box-shadow:0 0 calc(var(--u)*16) #ff3b6b88}
+.diff .b:disabled{opacity:.35;cursor:default}
+#dNote{color:var(--dim);font-size:calc(var(--u)*12);min-height:calc(var(--u)*22);margin-bottom:calc(var(--u)*6)}
+#slist{width:100%;display:flex;flex-direction:column;gap:calc(var(--u)*10)}
+.stg{display:flex;align-items:center;gap:calc(var(--u)*14);text-align:left;font-family:inherit;color:var(--ink);cursor:pointer;
+  background:linear-gradient(180deg,#171230,#0b0916);border:1px solid #4a4070;border-radius:calc(var(--u)*14);
+  padding:calc(var(--u)*10) calc(var(--u)*14);transition:transform .12s cubic-bezier(.3,2,.5,1),box-shadow .2s,border-color .2s}
+.stg:hover{border-color:var(--gold);box-shadow:0 0 calc(var(--u)*18) #8b5cf666}
+.stg:active{transform:scale(.96)}
+.stg canvas{position:static;width:calc(var(--u)*96);height:calc(var(--u)*100);flex:none;border-radius:calc(var(--u)*8);background:#07060d}
+.stg b{display:block;font-size:calc(var(--u)*19);letter-spacing:.12em;color:#fff3cf}
+.stg span{display:block;font-size:calc(var(--u)*12);color:var(--dim);line-height:1.7}
+.stg em{font-style:normal;color:var(--gold)}
+.stg:disabled{opacity:.4;cursor:default;box-shadow:none;border-color:#2a2440}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
 </style>
 </head>
@@ -88,6 +105,13 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <button class="b" id="bStart">はじめる</button>
   </div>
 
+  <div class="ov" id="stages">
+    <h2>ステージ</h2>
+    <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
+    <div id="dNote"></div>
+    <div id="slist"></div>
+  </div>
+
   <div class="ov" id="codex">
     <h2>錬金図鑑</h2>
     <div id="cnt"></div>
@@ -99,13 +123,14 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <h1>陥 落</h1>
     <div class="sub" id="overSub"></div>
     <button class="b" id="bRetry">もう一度</button>
+    <button class="b s" id="bStages1">ステージ選択</button>
   </div>
 
   <div class="ov clear" id="clear">
     <h1 class="big" id="t2"></h1>
     <div class="sub" id="clearSub"></div>
     <button class="b" id="bEndless">さらに夜を越える</button>
-    <button class="b s" id="bAgain">最初から</button>
+    <button class="b s" id="bAgain">ステージ選択</button>
   </div>
 </div></div>
 
@@ -227,20 +252,40 @@ const isTrap=id=>ITEMS[id].kind==='trap';
 const fits=(id,sl)=>sl.bench||(sl.path?isTrap(id):!isTrap(id));
 
 /* ---------------- 盤面（道・魔法陣・作業台・ボタン） ---------------- */
-const PATH=[[-30,125],[375,125],[375,265],[75,265],[75,405],[425,405]];
-const SEG=[];let PLEN=0;
-for(let i=0;i<PATH.length-1;i++){const[ax,ay]=PATH[i],[bx,by]=PATH[i+1],l=Math.hypot(bx-ax,by-ay);SEG.push({ax,ay,bx,by,l,s:PLEN});PLEN+=l}
-function pathPoint(d){
-  for(const s of SEG){if(d<=s.s+s.l){const k=(d-s.s)/s.l;return[s.ax+(s.bx-s.ax)*k,s.ay+(s.by-s.ay)*k]}}
-  return PATH[PATH.length-1];
+// ステージ：道（複数あれば敵が交互に出る）・魔法陣・罠マスの位置と、敵の体力の倍率
+const STAGES=[
+  {name:'宵の回廊',note:'長い一本道',hp:1,
+   paths:[[[-30,125],[375,125],[375,265],[75,265],[75,405],[425,405]]],
+   field:[[75,195],[150,195],[225,195],[300,195],[150,335],[225,335],[300,335],[375,335],[115,470],[190,470],[265,470],[340,470]],
+   traps:[[225,125],[375,195],[225,265],[75,335],[240,405]]},
+  {name:'螺旋の庭',note:'渦を巻いて中心へ',hp:1.3,
+   paths:[[[-30,100],[390,100],[390,460],[60,460],[60,220],[270,220],[270,345]]],
+   field:[[130,160],[200,160],[270,160],[330,160],[330,228],[330,296],[330,370],[130,290],[200,290],[130,372],[200,372],[270,405]],
+   traps:[[200,100],[390,280],[225,460],[60,340],[165,220]]},
+  {name:'双つの門',note:'上下ふたつの入口',hp:1,
+   paths:[[[-30,95],[300,95],[300,190],[110,190],[110,290],[425,290]],[[-30,485],[300,485],[300,390],[110,390],[110,290],[425,290]]],
+   field:[[130,142],[200,142],[130,438],[200,438],[190,240],[260,240],[190,340],[260,340],[370,150],[370,225],[370,355],[370,430]],
+   traps:[[200,95],[200,485],[110,240],[110,340],[300,290]]},
+];
+const NIGHT_HP=1.5,NIGHT_LIVES=12; // 「悪夢」：敵の体力 1.5 倍・灯 12
+let STAGE=0,NIGHT=false;
+const PATHS=[],CORE={x:0,y:0},slots=[];
+function loadStage(i){
+  STAGE=i;const st=STAGES[i];PATHS.length=0;
+  for(const pts of st.paths){const seg=[];let len=0;
+    for(let k=0;k<pts.length-1;k++){const[ax,ay]=pts[k],[bx,by]=pts[k+1],l=Math.hypot(bx-ax,by-ay);seg.push({ax,ay,bx,by,l,s:len});len+=l}
+    PATHS.push({pts,seg,len})}
+  const end=st.paths[0][st.paths[0].length-1];CORE.x=end[0];CORE.y=end[1];
+  slots.length=0;
+  for(const[x,y]of st.field)slots.push({x,y,field:true,item:null});
+  for(const[x,y]of st.traps)slots.push({x,y,path:true,item:null});
+  for(let r=0;r<2;r++)for(let k=0;k<6;k++)slots.push({x:45+k*72,y:558+r*66,bench:true,item:null});
+  bgCanvas=null;
 }
-const CORE={x:425,y:405};
-const slots=[];
-for(const x of[75,150,225,300])slots.push({x,y:195,field:true,item:null});
-for(const x of[150,225,300,375])slots.push({x,y:335,field:true,item:null});
-for(const x of[115,190,265,340])slots.push({x,y:470,field:true,item:null});
-for(const[x,y]of[[225,125],[375,195],[225,265],[75,335],[240,405]])slots.push({x,y,path:true,item:null});
-for(let r=0;r<2;r++)for(let i=0;i<6;i++)slots.push({x:45+i*72,y:558+r*66,bench:true,item:null});
+function pathPoint(P,d){
+  for(const s of P.seg){if(d<=s.s+s.l){const k=(d-s.s)/s.l;return[s.ax+(s.bx-s.ax)*k,s.ay+(s.by-s.ay)*k]}}
+  return P.pts[P.pts.length-1];
+}
 const buttons=[{id:'wave',x:12,y:747,w:164,h:46,p:0},{id:'trash',x:182,y:747,w:60,h:46,p:0},{id:'codex',x:247,y:747,w:60,h:46,p:0},
   {id:'speed',x:312,y:747,w:60,h:46,p:0},{id:'sound',x:377,y:747,w:60,h:46,p:0}];
 const btn=id=>buttons.find(b=>b.id===id);
@@ -264,7 +309,7 @@ const ENEMY={
   boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
 };
 let HP0=80,HP_GROW=1.27;
-const waveHp=w=>HP0*HP_GROW**(w-1);
+const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*(NIGHT?NIGHT_HP:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};
@@ -278,17 +323,21 @@ function buildWave(w){
 }
 
 /* ---------------- 状態 ---------------- */
-let S,disc,best=0,muted=false,FX=true;
+let S,disc,prog={},muted=false,FX=true,bgCanvas=null;
 const SAVE='yoiyami-alchemy-v1';
-try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));best=d.best||0;muted=!!d.muted}catch(e){disc=new Set(BASES)}
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));prog=d.prog||{};if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],best,muted}))}catch(e){}}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted}))}catch(e){}}
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[]}}
+const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
+const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
+const stageOpen=i=>i===0||rec(i-1,false).clear;      // 前のステージをクリアすると開く
+const nightOpen=i=>stageOpen(i)&&rec(i,false).clear; // そのステージをクリアすると「悪夢」が開く
 function reset(){
-  S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:20,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
+  loadStage(STAGE);
+  S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:NIGHT?NIGHT_LIVES:20,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
      shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0};
-  for(const s of slots)s.item=null;
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;sel=null;drag=null;
@@ -586,7 +635,8 @@ function startWave(){
 }
 function spawnEnemy(q){
   const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m;
-  S.enemies.push({type:q.type,def:d,hp,max:hp,d:0,x:PATH[0][0],y:PATH[0][1],r:d.r*(q.m>1?1.25:1),
+  const P=PATHS[S.spawned++%PATHS.length];
+  S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:S.budget*d.w/S.wsum,dead:false});
 }
 function hurt(e,dmg){
@@ -620,7 +670,7 @@ function leak(e){
 function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   const a=[];
   for(const e of S.enemies){if(e.dead)continue;const dx=e.x-x,dy=e.y-y;if(dx*dx+dy*dy<=(R+e.r)*(R+e.r))a.push(e)}
-  a.sort((p,q)=>q.d-p.d);return max?a.slice(0,max):a;
+  a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
 }
 function towerFire(sl,it,dt){
   const d=ITEMS[it.id],m=1,R=d.range,x=sl.x,y=sl.y;
@@ -686,8 +736,8 @@ function update(dt){
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt);if(e.dead)continue;e.flash=0;if(FX&&Math.random()<dt*5)P(e.x+rnd(-e.r,e.r),e.y,0,-30,.5,3,e.dotC)}
     if(e.flash>0)e.flash-=dt;
     e.d+=e.def.spd*(e.slowT>0?1-e.slow:1)*dt;
-    if(e.d>=PLEN){leak(e);continue}
-    const p=pathPoint(e.d);e.x=p[0];e.y=p[1];
+    if(e.d>=e.P.len){leak(e);continue}
+    const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
   for(const sl of slots){
     const it=sl.item;if(!it)continue;
@@ -711,7 +761,7 @@ function update(dt){
 }
 function endWave(){
   S.active=false;const bonus=12+3*S.wave;S.mana+=bonus;
-  if(S.wave>best){best=S.wave;save()}
+  if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
   floatText(W/2,300,`第 ${S.wave} 波 撃退`,'#ffe9a0',22);floatText(W/2,328,`魔力 +${bonus}`,'#e8c36a',15);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
@@ -763,7 +813,7 @@ function gameOver(){
   if(!FX)return;
   sfx.over();burst(CORE.x,CORE.y,'#ff2a4a',70,320);sparks(CORE.x,CORE.y,'#ffd0d8',50,420);
   for(let i=0;i<4;i++)ring(CORE.x,CORE.y,'#ff2a4a',120+i*90,.6+i*.2,5);
-  setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=`第 ${S.wave} 波で砦は闇に沈んだ（最高 第 ${best} 波）`;show('over')},1300);
+  setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=`第 ${S.wave} 波で砦は闇に沈んだ（最高 第 ${rec().best} 波）`;show('over')},1300);
 }
 
 /* ---------------- 入力 ---------------- */
@@ -851,13 +901,39 @@ function openCodex(){
   g.innerHTML=h;g.scrollTop=keep;show('codex');
 }
 $('#bClose').onclick=()=>{sfx.ui();show(null)};
-$('#bStart').onclick=()=>{audio();sfx.merge(2);show(null)};
-$('#bRetry').onclick=$('#bAgain').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
+function miniMap(c,st){ // ステージの縮図
+  const g=c.getContext('2d'),k=c.width/450;g.setTransform(k,0,0,k,0,-42*k);g.lineJoin=g.lineCap='round';
+  for(const[w,col]of[[46,'#8b5cf666'],[34,'#151126']]){g.strokeStyle=col;g.lineWidth=w;g.beginPath();for(const p of st.paths)p.forEach((q,i)=>g[i?'lineTo':'moveTo'](q[0],q[1]));g.stroke()}
+  g.fillStyle='#8b5cf6';for(const[x,y]of st.field){g.beginPath();g.arc(x,y,15,0,TAU);g.fill()}
+  g.fillStyle='#e8c36a';for(const[x,y]of st.traps){g.beginPath();g.arc(x,y,9,0,TAU);g.fill()}
+  const e=st.paths[0][st.paths[0].length-1];g.fillStyle='#fff3cf';g.beginPath();g.moveTo(e[0],e[1]-30);g.lineTo(e[0]+20,e[1]);g.lineTo(e[0],e[1]+30);g.lineTo(e[0]-20,e[1]);g.fill();
+}
+function openStages(){
+  if(NIGHT&&!STAGES.some((_,i)=>nightOpen(i)))NIGHT=false;
+  $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT);
+  $('#dNight').disabled=!STAGES.some((_,i)=>nightOpen(i));
+  $('#dNote').textContent=NIGHT?`悪夢：敵の体力 ${NIGHT_HP} 倍・灯は ${NIGHT_LIVES}`:$('#dNight').disabled?'ステージをクリアすると「悪夢」が開く':'見つけた元素は、どのステージにも持ち越される';
+  const box=$('#slist');box.innerHTML='';
+  STAGES.forEach((st,i)=>{
+    const open=NIGHT?nightOpen(i):stageOpen(i),r=rec(i,NIGHT),b=document.createElement('button');
+    b.className='stg';b.disabled=!open;
+    const state=!open?(NIGHT?'通常でクリアすると開く':'前のステージをクリアすると開く'):r.clear?'<em>✦ クリア済み</em>':r.best?`最高 第 ${r.best} 波`:'未挑戦';
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${st.name}</b><span>${st.note}</span><span>${state}</span></div>`;
+    miniMap(b.querySelector('canvas'),st);
+    b.onclick=()=>{audio();STAGE=i;reset();show(null);sfx.merge(2)};
+    box.appendChild(b);
+  });
+  show('stages');
+}
+$('#dNorm').onclick=()=>{NIGHT=false;sfx.ui();openStages()};
+$('#dNight').onclick=()=>{NIGHT=true;sfx.ui();openStages()};
+$('#bStart').onclick=()=>{audio();sfx.ui();openStages()};
+$('#bRetry').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
+$('#bAgain').onclick=$('#bStages1').onclick=()=>{audio();sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#bEndless').onclick=()=>{S.endless=true;S.cele=0;show(null);sfx.ui()};
 $('#t1').innerHTML=spanify('宵闇の')+'<br>'+spanify('錬金塔');
 
 /* ---------------- 描画 ---------------- */
-let bgCanvas=null;
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function makeBg(){
   const c=document.createElement('canvas'),k=2;c.width=W*k;c.height=H*k;const g=c.getContext('2d');g.scale(k,k);
@@ -866,7 +942,7 @@ function makeBg(){
   for(let i=0;i<120;i++){g.fillStyle=rgba('#b9a8ff',rnd(.03,.2));g.fillRect(rnd(W),rnd(48,515),rnd(.5,1.6),rnd(.5,1.6))}
   for(let i=0;i<7;i++){const x=rnd(W),y=rnd(80,500),r=rnd(80,170);gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,rgba(i%2?'#3a1d6e':'#1d2a6e',.16));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
   // 道
-  const tr=()=>{g.beginPath();PATH.forEach((p,i)=>g[i?'lineTo':'moveTo'](p[0],p[1]))};
+  const tr=()=>{g.beginPath();for(const P of PATHS)P.pts.forEach((p,i)=>g[i?'lineTo':'moveTo'](p[0],p[1]))};
   g.lineJoin='round';g.lineCap='round';
   g.strokeStyle=rgba('#8b5cf6',.16);g.lineWidth=50;tr();g.stroke();
   g.strokeStyle=rgba('#8b5cf6',.5);g.lineWidth=42;tr();g.stroke();
@@ -874,7 +950,7 @@ function makeBg(){
   g.strokeStyle='#131022';g.lineWidth=30;tr();g.stroke();
   g.setLineDash([2,13]);g.strokeStyle=rgba('#c9b8ff',.3);g.lineWidth=2;tr();g.stroke();g.setLineDash([]);
   // 入口の裂け目
-  gr=g.createRadialGradient(0,125,0,0,125,60);gr.addColorStop(0,rgba('#b03cff',.55));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,60,70,130);
+  for(const P of PATHS){const y=P.pts[0][1];gr=g.createRadialGradient(0,y,0,0,y,60);gr.addColorStop(0,rgba('#b03cff',.55));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,y-65,70,130)}
   // 作業台
   g.fillStyle='#0b0915';rr(g,5,520,W-10,138,14);g.fill();g.strokeStyle='#2a2440';g.lineWidth=1;g.stroke();
   for(const s of slots){
@@ -989,8 +1065,9 @@ function drawHud(dt){
   ctx.font=FONT(22,800);ctx.fillStyle=S.lives<=5?'#ff3b6b':'#ffb0c0';
   const ls=1+S.coreHit*.5;ctx.save();ctx.translate(34,25);ctx.scale(ls,ls);ctx.fillText(S.lives,0,1);ctx.restore();
   // 波
-  ctx.textAlign='center';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText('夜波',W/2-56,26);
-  ctx.font=FONT(22,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,25);
+  ctx.textAlign='center';ctx.font=FONT(13);ctx.fillStyle='#8d86a3';ctx.fillText('夜波',W/2-56,24);
+  ctx.font=FONT(22,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,23);
+  ctx.font=FONT(9.5);ctx.fillStyle=NIGHT?'#ff8a9a':'#8d86a3';ctx.fillText(STAGES[STAGE].name+(NIGHT?'・悪夢':''),W/2,42);
   // 魔力
   const mx=W-16,sc=1+S.manaBump*.35;
   ctx.save();ctx.translate(mx+(S.manaErr>0?Math.sin(S.manaErr*70)*5*S.manaErr:0),25);ctx.scale(sc,sc);
@@ -1149,7 +1226,7 @@ function render(dt){
 let last=performance.now(),ambT=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on');
+  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on');
   if(!paused&&!S.over){
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
@@ -1166,7 +1243,7 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 reset();
-window.G={get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+window.G={start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
