@@ -49,6 +49,7 @@ button.b{font-family:inherit;font-weight:800;font-size:calc(var(--u)*18);letter-
   box-shadow:0 0 calc(var(--u)*22) #8b5cf688,inset 0 0 calc(var(--u)*12) #e8c36a33;transition:transform .12s cubic-bezier(.3,2,.5,1),box-shadow .2s}
 button.b:hover{box-shadow:0 0 calc(var(--u)*34) #a78bfa,inset 0 0 calc(var(--u)*14) #e8c36a55}
 button.b:active{transform:scale(.92)}
+button.b.done{border-color:#7df0c0;color:#7df0c0}
 button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24);border-color:#4a4070;color:var(--ink);box-shadow:none}
 .big{font-size:calc(var(--u)*58)}
 .clear .sub{color:#fff3cf;text-shadow:0 0 calc(var(--u)*8) #05040a,0 0 calc(var(--u)*3) #05040a;font-size:calc(var(--u)*14)}
@@ -116,21 +117,21 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <h2>錬金図鑑</h2>
     <div id="cnt"></div>
     <div id="grid"></div>
-    <button class="b s" id="bClose">とじる</button>
+    <div><button class="b s" id="bShare3">図鑑を共有</button><button class="b s" id="bClose">とじる</button></div>
   </div>
 
   <div class="ov red" id="over">
     <h1>陥 落</h1>
     <div class="sub" id="overSub"></div>
     <button class="b" id="bRetry">もう一度</button>
-    <button class="b s" id="bStages1">ステージ選択</button>
+    <div><button class="b s" id="bShare2">結果を共有</button><button class="b s" id="bStages1">ステージ選択</button></div>
   </div>
 
   <div class="ov clear" id="clear">
     <h1 class="big" id="t2"></h1>
     <div class="sub" id="clearSub"></div>
     <button class="b" id="bEndless">さらに夜を越える</button>
-    <button class="b s" id="bAgain">ステージ選択</button>
+    <div><button class="b s" id="bShare1">結果を共有</button><button class="b s" id="bAgain">ステージ選択</button></div>
   </div>
 </div></div>
 
@@ -925,6 +926,43 @@ function openStages(){
   });
   show('stages');
 }
+/* ---------------- 共有 ---------------- */
+const SITE='https://shinpoyo.com/alchemerge_defense/';
+function shareLines(kind){
+  const st=STAGES[STAGE].name+(NIGHT?'（悪夢）':'');
+  const res=kind==='codex'?'':S.cleared?`全 ${MAX_WAVE} 波 クリア`:`第 ${S.wave} 波で陥落`;
+  return{title:'宵闇の錬金塔',st:kind==='codex'?'錬金図鑑':st,res,found:`発見 ${disc.size} / ${TOTAL}`};
+}
+function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×800）
+  const L=shareLines(kind),c=document.createElement('canvas');c.width=c.height=800;const g=c.getContext('2d');
+  const k=cv.width/W;g.drawImage(cv,0,46*k,cv.width,474*k,0,0,800,800*474/450);
+  g.fillStyle='#07060d';g.fillRect(0,800*474/450-2,800,800);
+  let gr=g.createLinearGradient(0,380,0,800);gr.addColorStop(0,'rgba(5,4,9,0)');gr.addColorStop(.55,'rgba(5,4,9,.93)');gr.addColorStop(1,'#050409');g.fillStyle=gr;g.fillRect(0,380,800,420);
+  g.textAlign='center';g.textBaseline='middle';
+  gr=g.createLinearGradient(0,560,0,640);gr.addColorStop(0,'#fff6d8');gr.addColorStop(.6,'#e8c36a');gr.addColorStop(1,'#8a6a2a');
+  g.font=FONT(78,800);g.shadowColor='#8b5cf6';g.shadowBlur=30;g.fillStyle=gr;g.fillText(L.res||L.st,400,600);g.shadowBlur=0;
+  g.font=FONT(30,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,676);
+  g.font=FONT(24,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― マージ × タワーディフェンス`,400,735);
+  g.font=FONT(19);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,770);
+  return c;
+}
+async function share(btn,kind){
+  const L=shareLines(kind),text=`${L.title}｜${L.st}${L.res?' '+L.res:''}・${L.found}`;
+  const done=msg=>{const o=btn.textContent;btn.textContent=msg;btn.classList.add('done');setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1800)};
+  sfx.ui();
+  let file=null;
+  try{const blob=await new Promise(r=>shareCard(kind).toBlob(r,'image/png'));if(blob)file=new File([blob],'yoiyami.png',{type:'image/png'})}catch(e){}
+  try{
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:text+'\n'+SITE});return}
+    if(navigator.share){await navigator.share({text,url:SITE});return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  // 共有の画面が出せない環境（PC など）は、文章をコピーして画像を保存する
+  try{await navigator.clipboard.writeText(text+'\n'+SITE);done('コピーしました')}catch(e){window.prompt('この文章をコピーしてください',text+' '+SITE)}
+  if(file){const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download='yoiyami.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+}
+$('#bShare1').onclick=e=>share(e.currentTarget,'result');
+$('#bShare2').onclick=e=>share(e.currentTarget,'result');
+$('#bShare3').onclick=e=>share(e.currentTarget,'codex');
 $('#dNorm').onclick=()=>{NIGHT=false;sfx.ui();openStages()};
 $('#dNight').onclick=()=>{NIGHT=true;sfx.ui();openStages()};
 $('#bStart').onclick=()=>{audio();sfx.ui();openStages()};
@@ -1243,7 +1281,7 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 reset();
-window.G={start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+window.G={shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
