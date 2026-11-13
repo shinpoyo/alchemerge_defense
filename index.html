@@ -426,7 +426,27 @@ function noise(d,v=.1,freq=1200,delay=0){
   s.connect(f).connect(g).connect(AC.destination);s.start(t);s.stop(t+d);
 }
 const N=s=>440*2**(s/12);
-let lastKill=0,lastShot=0;
+let lastKill=0,lastShot=0,lastHit=0;
+/* 元素の系統：音色の土台（波形・基準音程・ノイズの帯域） */
+const FAM={
+  flame:{w:'sawtooth',f:280,nf:1800},water:{w:'sine',f:420,nf:900},
+  earth:{w:'triangle',f:150,nf:500}, wind:{w:'sine',f:640,nf:3200},
+  volt: {w:'square',  f:880,nf:5200},ice:  {w:'sine',f:980,nf:4200},
+  poison:{w:'sawtooth',f:200,nf:700},dark: {w:'triangle',f:180,nf:600},
+  metal:{w:'square',  f:240,nf:2600},light:{w:'sine',f:760,nf:3600},
+  dragon:{w:'sawtooth',f:130,nf:1100},
+};
+const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame',ragnarok:'flame',phoenix:'flame',crater:'flame',heat:'flame',wisp:'flame',
+  water:'water',pond:'water',sea:'water',steam:'water',tsunami:'water',mist:'water',
+  earth:'earth',rock:'earth',mountain:'earth',peak:'earth',sand:'earth',quicksand:'earth',sandstorm:'earth',golem:'earth',colossus:'earth',swamp:'earth',
+  wind:'wind',gust:'wind',tornado:'wind',typhoon:'wind',
+  bolt:'volt',storm:'volt',cataclysm:'volt',magnet:'volt',railgun:'volt',
+  ice:'ice',blizzard:'ice',frost:'ice',crystal:'ice',glass:'ice',
+  miasma:'poison',spore:'poison',bog:'poison',abyss:'poison',
+  curse:'dark',reaper:'dark',obsidian:'dark',
+  iron:'metal',titan:'metal',engine:'metal',
+  star:'light',stone:'light',genesis:'light',dragon:'dragon'};
+const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
   pick(){tone(520,.07,'triangle',.08,820)},
   drop(){tone(320,.09,'sine',.1,190)},
@@ -435,7 +455,24 @@ const sfx={
   disc(){[0,4,7,11,14,19,23].forEach((s,i)=>tone(N(s-5),.6,'sine',.07,null,i*.07))},
   fail(){tone(150,.16,'sawtooth',.05,85)},
   kill(){if(S.time-lastKill<.05)return;lastKill=S.time;tone(rnd(500,900),.06,'square',.02,220)},
-  shot(f){if(S.time-lastShot<.06)return;lastShot=S.time;tone(f,.04,'sine',.012,f*.6)},
+  shoot(d){ // アイテムごとの発射音：系統×攻撃タイプ×ティアで合成する
+    if(S.time-lastShot<.05)return;lastShot=S.time;
+    const F=FAM[FAMOF[d.id]]||FAM.earth,t=d.t;
+    const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.06,.028+t*.006);
+    if(t>=4)tone(f/2,.16,'sine',v*.7,f/3); // 高ティアは低音の芯を足す
+    switch(d.kind){
+      case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.6,f*.5);break;
+      case 'pulse':tone(f*.9,.22,'sine',v*1.7,f*.3);noise(.18,v*.8,F.nf);break;
+      case 'beam':tone(f,.08,'sine',v*.8);tone(f*1.5,.08,'sine',v*.45);if(t>=5)tone(f*2,.1,'sine',v*.3);break;
+      case 'pierce':noise(.11,v,F.nf);tone(f*.7,.1,F.w,v,f*1.9);break;
+      default:tone(f*1.35,.09,F.w,v,f*.75);noise(.05,v*.6,F.nf);
+        if(d.splash){noise(.16,v*1.2,420);tone(f*.5,.18,'sine',v*1.1,f*.22)}
+    }
+  },
+  hit(d){ // 範囲攻撃の着弾音
+    if(S.time-lastHit<.07)return;lastHit=S.time;
+    const v=Math.min(.09,.04+d.t*.01);noise(.14,v,380);tone(90+d.t*8,.16,'sine',v,40);
+  },
   leak(){tone(95,.5,'sawtooth',.13,38);noise(.4,.12,500)},
   wave(){tone(98,.7,'sawtooth',.06,147);tone(147,.7,'sawtooth',.04,196,.12)},
   waveEnd(){[0,7,12].forEach((s,i)=>tone(N(s-9),.35,'triangle',.07,null,i*.09))},
@@ -908,7 +945,7 @@ function towerFire(sl,it,dt){
   if(d.kind==='beam'){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;
     for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m*dt);if(FX&&Math.random()<dt*14)sparks(e.x,e.y,d.c,1,90)}
-    if(ts.length){it.kick=Math.max(it.kick,.35);if(Math.random()<dt*6)sfx.shot(1400)}
+    if(ts.length){it.kick=Math.max(it.kick,.35);if(Math.random()<dt*6)sfx.shoot(d)}
     return;
   }
   it.cd-=dt;if(it.cd>0)return;
@@ -916,7 +953,7 @@ function towerFire(sl,it,dt){
   it.cd+=1/d.rate;if(it.cd<0)it.cd=0;it.kick=1;
   if(d.kind==='pulse'){
     for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m)}
-    if(FX)pulseFx(VIS[it.id],x,y,R,d);sfx.shot(300);return;
+    if(FX)pulseFx(VIS[it.id],x,y,R,d);sfx.shoot(d);return;
   }
   // 毒・氷・呪いは、まだ効いていない敵を先に狙う
   let tg=ts[0];
@@ -935,25 +972,25 @@ function towerFire(sl,it,dt){
       for(const p of pts.slice(1)){sparks(p[0],p[1],d.c,3,120);
         if(d.knock)ring(p[0],p[1],d.c,3,.3,3,26);        // 磁石：輪がすぼまって引き寄せる
         if(d.slow){flakes(p[0],p[1],2,70);ring(p[0],p[1],'#bfeaff',18,.3,2)}}}
-    sfx.shot(1800);return;
+    sfx.shoot(d);return;
   }
   if(d.kind==='pierce'){
     const a=Math.atan2(tg.y-y,tg.x-x),L=R*1.25,ex=x+Math.cos(a)*L,ey=y+Math.sin(a)*L;
     for(const e of S.enemies){if(e.dead)continue;
       const k=clamp(((e.x-x)*(ex-x)+(e.y-y)*(ey-y))/(L*L),0,1),px=x+(ex-x)*k,py=y+(ey-y)*k;
       if((e.x-px)**2+(e.y-py)**2<(e.r+9)**2){applyHit(e,d,m,d.c);hurt(e,d.dmg*m);if(FX)sparks(e.x,e.y,d.c,3,140)}}
-    if(FX)pierceFx(VIS[it.id],x,y,ex,ey,d,a);sfx.shot(500);return;
+    if(FX)pierceFx(VIS[it.id],x,y,ex,ey,d,a);sfx.shoot(d);return;
   }
   const vis=VIS[it.id]||'orb',sh={x,y,tx:tg.x,ty:tg.y,tg,d,m,vis,h:0,a:Math.atan2(tg.y-y,tg.x-x),rot:rnd(TAU),seed:rnd(99),
     spd:d.fast?900:vis==='bullet'?720:vis==='blade'?560:LOB[vis]?310:d.splash?350:480};
   if(vis==='meteor'){sh.x=tg.x-100;sh.y=tg.y-330;sh.spd=640}                 // 終焉：空から落ちてくる
   if(vis==='snipe'&&FX)fx.push({ty:'line',x,y,ex:tg.x,ey:tg.y,color:d.c,t:0,dur:.14});
   sh.d0=Math.max(30,Math.hypot(tg.x-sh.x,tg.y-sh.y));S.shots.push(sh);
-  sfx.shot(d.splash?220:900);
+  sfx.shoot(d);
 }
 function shotHit(s){
   const d=s.d,dm=d.dmg*s.m;
-  if(d.splash){
+  if(d.splash){sfx.hit(d);
     for(const e of S.enemies){if(e.dead)continue;if((e.x-s.x)**2+(e.y-s.y)**2<(d.splash+e.r)**2){applyHit(e,d,s.m,d.c);hurt(e,dm)}}
   }else if(s.tg&&!s.tg.dead){
     applyHit(s.tg,d,s.m,d.c);hurt(s.tg,dm);
