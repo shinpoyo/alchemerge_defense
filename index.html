@@ -56,7 +56,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
 #codex h2{margin:0;font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
-#cnt{color:var(--dim);font-size:calc(var(--u)*12.5);margin-bottom:calc(var(--u)*6)}
+#cnt{color:var(--dim);font-size:calc(var(--u)*12.5);margin-bottom:calc(var(--u)*6);line-height:1.6}
 #grid{flex:1;overflow-y:auto;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8);
   align-content:start;padding:calc(var(--u)*6) calc(var(--u)*2);touch-action:pan-y;overscroll-behavior:contain}
 .tier{grid-column:1/-1;font-size:calc(var(--u)*11.5);letter-spacing:.4em;color:var(--dim);margin-top:calc(var(--u)*6);
@@ -69,6 +69,15 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .card b{display:block;color:var(--ink);font-size:calc(var(--u)*13)}
 .card em{font-style:normal;color:var(--gold);display:block}
 .card img.o{border:0;background:none;box-shadow:none;width:calc(var(--u)*62);height:calc(var(--u)*62);margin:calc(var(--u)*-8) auto calc(var(--u)*-5);display:block}
+.card.buy{position:relative;cursor:pointer;transition:transform .12s cubic-bezier(.3,2,.5,1)}
+.card.buy:active{transform:scale(.93)}
+.card.no{opacity:.42}
+.card .pr{position:absolute;top:calc(var(--u)*4);right:calc(var(--u)*6);color:var(--gold);font-weight:800;font-size:calc(var(--u)*11.5)}
+.card.ok{animation:ok .45s ease}
+.card.ng{animation:ng .3s ease}
+@keyframes ok{0%{transform:scale(1.12);border-color:var(--c);box-shadow:0 0 calc(var(--u)*22) var(--c)}100%{transform:none}}
+@keyframes ng{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#cnt b{color:var(--gold)}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
 </style>
 </head>
@@ -510,15 +519,15 @@ function mergeDone(f){
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',13);
   if(f.isNew){S.banner={id:n.id,t:0,dur:2.1};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c}
 }
-function spawnBase(id,b){
-  const free=slots.find(s=>s.bench&&!s.item);
-  if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,530,'作業台がいっぱい','#ff8a9a',14);return false}
-  if(S.mana<BASE_COST){S.manaErr=.5;sfx.fail();return false}
-  S.mana-=BASE_COST;
+function spawnBase(id,b){ // 失敗したら理由（'full'／'mana'）を返す
+  const free=slots.find(s=>s.bench&&!s.item),cost=itemValue({id});
+  if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,530,'作業台がいっぱい','#ff8a9a',14);return'full'}
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();return'mana'}
+  S.mana-=cost;
   const it=mkItem(id,b?b.x+b.w/2:free.x,b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;
-  sfx.spawn(BASES.indexOf(id));buzz(6);
+  sfx.spawn(Math.max(0,BASES.indexOf(id))+ITEMS[id].t-1);buzz(6);
   if(FX)sparks(it.rx,it.ry,ITEMS[id].c,6,140);
-  return true;
+  return'';
 }
 function sell(slot){
   const it=slot.item;if(!it)return;
@@ -769,22 +778,32 @@ function press(b){
 const spanify=t=>[...t].map((c,i)=>`<span style="animation-delay:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join('');
 function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle('on',o.id===id))}
 function openCodex(){
-  const all=Object.values(ITEMS);$('#cnt').textContent=`発見 ${disc.size} / ${all.length}`;
+  const all=Object.values(ITEMS),free=slots.filter(s=>s.bench&&!s.item).length,mana=Math.floor(S.mana);
+  $('#cnt').innerHTML=`発見 ${disc.size} / ${all.length}　<b>◆ ${mana}</b>　作業台の空き ${free}<br>見つけた元素は、タップで直接呼び出せる`;
   let h='';
   for(let t=1;t<=6;t++){
     h+=`<div class="tier">${'★'.repeat(t)}</div>`;
     for(const d of all.filter(d=>d.t===t)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${d.name}</b>${mk?`<em>${ITEMS[mk[0]].name} ＋ ${ITEMS[mk[1]].name}</em>`:''}${d.desc}</div>`;
+        const v=itemValue(d);
+        h+=`<div class="card buy${v>mana||!free?' no':''}" data-id="${d.id}" style="--c:${d.c}"><span class="pr">◆${v}</span><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${d.name}</b>${mk?`<em>${ITEMS[mk[0]].name} ＋ ${ITEMS[mk[1]].name}</em>`:''}${d.desc}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
         const hint=mk&&disc.has(mk[0])&&disc.has(mk[1])?`${ITEMS[mk[0]].name} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${t<6?'まだ見つけていない':'すべての果て'}</div>`;
       }
     }
   }
-  $('#grid').innerHTML=h;$('#grid').scrollTop=0;show('codex');
+  const g=$('#grid'),keep=$('#codex').classList.contains('on')?g.scrollTop:0;
+  g.innerHTML=h;g.scrollTop=keep;show('codex');
 }
+$('#grid').addEventListener('click',ev=>{
+  const c=ev.target.closest('.card.buy');if(!c)return;
+  const why=spawnBase(c.dataset.id);
+  if(why){c.classList.remove('ng');void c.offsetWidth;c.classList.add('ng');return}
+  S.manaShow=S.mana;openCodex();
+  const n=$(`#grid .card[data-id="${c.dataset.id}"]`);if(n)n.classList.add('ok');
+});
 $('#bClose').onclick=()=>{sfx.ui();show(null)};
 $('#bStart').onclick=()=>{audio();sfx.merge(2);show(null)};
 $('#bRetry').onclick=$('#bAgain').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
