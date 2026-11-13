@@ -20,6 +20,7 @@
 |---|---|
 | `index.html` | ゲーム本体（HTML・CSS・JavaScript を 1 ファイルに収めている） |
 | `docs/worklog.md` | 作業履歴 |
+| `docs/competitors.md` | 競合調査（2026-11-13） |
 
 ## コードの場所（`index.html` の中）
 
