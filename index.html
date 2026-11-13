@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>宵闇の錬金塔 — マージ×タワーディフェンス</title>
+<title>アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス</title>
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="宵闇の錬金塔 — マージ×タワーディフェンス">
+<meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
 <meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全54種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
@@ -31,7 +31,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ov.on{display:flex;animation:fade .45s ease both}
 .ov.clear{background:radial-gradient(ellipse at 50% 40%,#0a071499 0%,#05040900 62%)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-h1{font-size:calc(var(--u)*46);margin:0;letter-spacing:.14em;font-weight:800;line-height:1.25;
+h1{font-size:calc(var(--u)*54);margin:0;letter-spacing:.14em;font-weight:800;line-height:1.25;
   background:linear-gradient(180deg,#fff6d8,#e8c36a 55%,#8a6a2a);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 calc(var(--u)*18) #8b5cf699)}
 h1 span{display:inline-block;background:inherit;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rise .9s cubic-bezier(.2,1.4,.4,1) both}
@@ -52,7 +52,7 @@ button.b:active{transform:scale(.92)}
 button.b.done{border-color:#7df0c0;color:#7df0c0}
 button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24);border-color:#4a4070;color:var(--ink);box-shadow:none}
 .big{font-size:calc(var(--u)*58)}
-.en h1{font-size:calc(var(--u)*39);letter-spacing:.08em}
+.en h1{font-size:calc(var(--u)*41);letter-spacing:.07em}
 .en .big{font-size:calc(var(--u)*54)}
 .en .how li{font-size:calc(var(--u)*13.5)}
 .en .stg b{letter-spacing:.04em}
@@ -154,7 +154,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 <script>
 'use strict';
 /* ============================================================
-   宵闇の錬金塔 — マージ×タワーディフェンス
+   アルケマージ（Alchemerge） — マージ×タワーディフェンス
    画面は 450×800 の論理座標で描き、表示サイズに合わせて拡大する
    ============================================================ */
 const W=450,TAU=Math.PI*2,H_MIN=800,H_MAX=940;
@@ -182,8 +182,8 @@ addEventListener('resize',resize);resize();
 let LANG='ja';
 try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.lang||((navigator.language||'ja').startsWith('ja')?'ja':'en')}catch(e){}
 const TX={ // [日本語, English]。{0}{1}… に値が入る
-  title:['宵闇の錬金塔','Alchemerge Defense'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
-  docTitle:['宵闇の錬金塔 — マージ×タワーディフェンス','Alchemerge Defense — Merge × Tower Defense'],
+  title:['アルケマージ','Alchemerge'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
+  docTitle:['アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge — Merge × Tower Defense'],
   how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li><li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
        '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you discover</b> can be summoned directly next time</li><li><i>2</i><b>Stack</b> two elements to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
@@ -688,7 +688,7 @@ function orb(id,named){
   orbCache.set(key,c);return c;
 }
 if(document.fonts&&document.fonts.load){
-  document.fonts.load('800 25px "Shippori Mincho"',Object.values(ITEMS).map(d=>d.name).join('')+'第波宵闇錬金塔').then(()=>{orbCache=new Map();bgCanvas=null}).catch(()=>{});
+  document.fonts.load('800 25px "Shippori Mincho"',Object.values(ITEMS).map(d=>d.name).join('')+'第波アルケマージ').then(()=>{orbCache=new Map();bgCanvas=null}).catch(()=>{});
 }
 function drawItem(it,x,y,sc=1,alpha=1){
   const d=ITEMS[it.id],s=sc*it.s*(1+it.kick*.14);
@@ -1296,7 +1296,7 @@ $('#bEndless').onclick=()=>{S.endless=true;S.cele=0;show(null);sfx.ui()};
 function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
   document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
-  $('#t1').innerHTML=ja?spanify('宵闇の')+'<br>'+spanify('錬金塔'):spanify('ALCHEMERGE')+'<br>'+spanify('DEFENSE');
+  $('#t1').innerHTML=spanify(ja?'アルケマージ':'ALCHEMERGE');
   set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
