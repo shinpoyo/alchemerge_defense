@@ -1114,12 +1114,17 @@ function press(b){
   sfx.ui();
   if(b.id==='speed')S.speed=S.speed===1?2:1;
   if(b.id==='sound'){muted=!muted;save();if(!muted){audio();sfx.ui()}}
-  if(b.id==='codex')openCodex();
+  if(b.id==='codex'){openCodex();shownAt=performance.now()}
 }
 
 /* ---------------- 重ね合わせの画面（DOM） ---------------- */
 const spanify=t=>[...t].map((c,i)=>`<span style="animation-delay:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join('');
+let shownAt=0;
 function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle('on',o.id===id))}
+// スマホでは、タップのあとにブラウザが同じ場所へ「クリック」も送る。盤面のボタンで開いた画面が、
+// その遅れてきたクリックで即座に閉じられないよう、開いた直後のクリックは捨てる
+document.addEventListener('click',e=>{if(performance.now()-shownAt<400&&e.target.closest&&e.target.closest('.ov')){e.stopPropagation();e.preventDefault()}},true);
+cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
 function openCodex(){
   const all=Object.values(ITEMS);
   $('#cnt').textContent=TT('found',disc.size,all.length);
