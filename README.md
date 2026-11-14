@@ -13,7 +13,7 @@
 4. **20 の夜波** を退ければクリア。その先はエンドレス
 5. ステージは 3 つ（宵の回廊・螺旋の庭・双つの門）。クリアすると次のステージと、難しい「悪夢」が開く。見つけた元素はどのステージにも持ち越される
 
-元素は全 54 種・レシピ 50 個。★はその元素のランク（1〜6）。一度見つけた元素は、画面下の一覧（★ごとのタブ）から直接呼び出せる（値段は 1 ランクごとに 2 倍）。図鑑では見つけた元素とレシピを確認できる。
+元素は全 60 種・レシピ 56 個。★はその元素のランク（1〜6）。一度見つけた元素は、画面下の一覧（★ごとのタブ）から直接呼び出せる（値段は 1 ランクごとに 2 倍）。図鑑では見つけた元素とレシピを確認できる。
 
 ## そのほかの機能
 
@@ -25,7 +25,7 @@
 
 ## English
 
-**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (54 elements, 50 recipes), place them on magic circles as towers, and put traps on the road. Three stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
+**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (60 elements, 56 recipes), place them on magic circles as towers, and put traps on the road. Three stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
 
 ## ファイル
 

@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全54種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全60種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -211,7 +211,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['魔力◆で元素を呼び出し、さらに重ねよう','Spend mana ◆ to summon more, then keep merging'],
-  waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
+  waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王（通せば陥落）',' — Night King (must not pass)'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['次からは下の一覧で直接呼び出せる（◆{0}）','Now you can summon it from the list below (◆{0})'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
   stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],
@@ -230,6 +230,8 @@ const EN={ // 英語の名前と説明
   iron:['Iron','Fires heavy slugs'],mist:['Mist','Slows and weakens nearby foes'],golem:['Golem','Punches foes backward'],sandstorm:['Sandstorm','Grinds and slows nearby foes'],
   wisp:['Wisp','Fire that keeps burning'],magnet:['Magnet','Pulls foes backward'],spore:['Spore','Spreads poison spores'],heat:['Heatwave','Burning wind in a line'],
   frost:['Ice Sheet','Trap: nearly freezes foes'],
+  mire:['Blight','Trap: strong poison and slow'],antlion:['Sand Pit','Trap: drags foes back down'],purgatory:['Purgatory','Trap: burns foes fiercely'],
+  permafrost:['Permafrost','Trap: foes barely move'],hellmouth:['Hell Gate','Trap: hellfire and curse'],stasis:['Stasis','Trap: time almost stops'],
   sun:['Sun','Scorches a wide area'],tsunami:['Tsunami','Sweeps a whole line'],peak:['Holy Peak','Crushes everything'],typhoon:['Typhoon','Batters all nearby foes'],
   cataclysm:['Cataclysm','Freezing bolts hit 9 foes'],star:['Star','Three burning beams'],abyss:['Abyss','Spreads poison and curse'],titan:['Cannon','Fires huge blasts'],
   railgun:['Railgun','Pierces across the map'],reaper:['Reaper','Curses and drains life'],colossus:['Colossus','Smashes foes backward'],
@@ -285,6 +287,10 @@ const ITEMS={
   heat:    {name:'熱風',    t:3,c:'#ff9a5a',kind:'pierce',dmg:32,rate:1,   range:140,dot:8,dotT:2,              desc:'一直線に焼く風'},
   frost:   {name:'氷床',    t:3,c:'#a8ecff',kind:'trap',                   range:36, slow:.7,slowT:.3,          desc:'罠：凍った道で動けなくする'},
   // ★4
+  mire:    {name:'腐海',    t:4,c:'#7ad63a',kind:'trap',                   range:38, slow:.45,slowT:.3,dot:60,dotT:2.5,desc:'罠：猛毒で蝕み、遅くする'},
+  antlion: {name:'蟻地獄',  t:4,c:'#e8a850',kind:'trap',                   range:38, slow:.75,slowT:.3,knock:8,   desc:'罠：引きずり戻し、大きく遅くする'},
+  purgatory:{name:'煉獄',   t:4,c:'#ff5a1a',kind:'trap',                   range:38, dot:110,dotT:2.5,          desc:'罠：踏んだ敵を激しく焼く'},
+  permafrost:{name:'永久凍土',t:4,c:'#c8f4ff',kind:'trap',                 range:40, slow:.8,slowT:.3,          desc:'罠：ほとんど進めなくする'},
   railgun: {name:'電磁砲',  t:4,c:'#8ad8ff',kind:'pierce',dmg:300,rate:.5, range:230,                           desc:'画面の端まで貫く'},
   reaper:  {name:'死神',    t:4,c:'#b8a0ff',kind:'bolt', dmg:90, rate:1,   range:150,curse:1.6,dot:30,dotT:4,   desc:'呪い、命を削る'},
   colossus:{name:'巨像',    t:4,c:'#e0b888',kind:'pulse',dmg:190,rate:.6,  range:85, knock:18,                  desc:'近くの敵をまとめて叩き返す'},
@@ -297,6 +303,8 @@ const ITEMS={
   abyss:   {name:'冥府',    t:4,c:'#c070ff',kind:'pulse',dmg:25, rate:1,   range:120,dot:45,dotT:4,curse:1.4,   desc:'毒と呪いをまき散らす'},
   titan:   {name:'巨砲',    t:4,c:'#ff8a4a',kind:'bolt', dmg:150,rate:1.1, range:160,splash:60,                 desc:'大爆発を撃ちこむ'},
   // ★5
+  hellmouth:{name:'地獄門', t:5,c:'#ff3a2a',kind:'trap',                   range:40, dot:300,dotT:2.5,curse:1.5,desc:'罠：業火で焼き、呪う'},
+  stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,knock:8, desc:'罠：時がほとんど止まる'},
   stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,curse:1.3,slow:.3,slowT:1,desc:'すべてを照らす光'},
   ragnarok:{name:'終焉',    t:5,c:'#ff5a7a',kind:'bolt', dmg:420,rate:1.3, range:190,splash:80,dot:60,dotT:3,   desc:'夜ごと焼きつくす'},
   phoenix: {name:'不死鳥',  t:5,c:'#ff9a3c',kind:'bolt', dmg:260,rate:2,   range:180,splash:50,dot:80,dotT:3,   desc:'炎の羽を降らせる'},
@@ -309,6 +317,8 @@ const RECIPES=[
   // おなじもの同士
   ['fire','fire','flame'],['water','water','pond'],['earth','earth','rock'],['wind','wind','gust'],
   ['flame','flame','inferno'],['pond','pond','sea'],['rock','rock','mountain'],['gust','gust','tornado'],
+  ['bog','bog','mire'],['quicksand','quicksand','antlion'],['crater','crater','purgatory'],['frost','frost','permafrost'],
+  ['purgatory','mire','hellmouth'],['permafrost','antlion','stasis'],
   ['swamp','swamp','bog'],['sand','sand','quicksand'],['lava','lava','crater'],
   ['inferno','inferno','sun'],['sea','sea','tsunami'],['mountain','mountain','peak'],['tornado','tornado','typhoon'],
   // ちがうもの同士
@@ -345,7 +355,7 @@ const STAGES=[
    paths:[[[-30,100],[390,100],[390,460],[60,460],[60,220],[270,220],[270,345]]],
    field:[[130,160],[200,160],[270,160],[330,160],[330,228],[330,296],[330,370],[130,290],[200,290],[130,372],[200,372],[270,405]],
    traps:[[200,100],[390,280],[225,460],[60,340],[165,220]]},
-  {name:'双つの門',note:'上下ふたつの入口',en:'Twin Gates',noteEn:'Two entrances, top and bottom',hp:1,
+  {name:'双つの門',note:'上下ふたつの入口',en:'Twin Gates',noteEn:'Two entrances, top and bottom',hp:.85,
    paths:[[[-30,95],[300,95],[300,190],[110,190],[110,290],[425,290]],[[-30,485],[300,485],[300,390],[110,390],[110,290],[425,290]]],
    field:[[130,142],[200,142],[130,438],[200,438],[190,240],[260,240],[190,340],[260,340],[370,150],[370,225],[370,355],[370,430]],
    traps:[[200,95],[200,485],[110,240],[110,340],[300,290]]},
@@ -404,17 +414,17 @@ const ENEMY={
   mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#9a4ae0'},
   boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
 };
-let HP0=80,HP_GROW=1.27;
+let HP0=80,HP_GROW=1.28,FINAL_M=2.2;
 const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*(NIGHT?NIGHT_HP:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};
   const gap=Math.max(.38,.95-w*.028);
   if(w>=3&&w%3===0){add('mite',8+w,gap*.38);t+=1}
-  add('shade',5+w,gap);
+  add('shade',5+Math.floor(w*1.25),gap);
   if(w>=2)add('wisp',1+(w>>1),gap*.7);
-  if(w>=4)add('golem',Math.floor(w/3),gap*1.6);
-  if(w%5===0){t+=1;add('boss',1,1,w>=20?2.2:w===5?.75:1)}
+  if(w>=4)add('golem',Math.floor(w/2.5),gap*1.6);
+  if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」は、通したら陥落
   return q;
 }
 
@@ -669,6 +679,20 @@ const ICON={
   spore(g,c){g.fillStyle='#f0ead8';g.fillRect(-3,-1,6,12);g.fillStyle=c;g.beginPath();g.ellipse(0,0,12.5,10.5,0,Math.PI,TAU);g.closePath();g.fill();
     g.fillStyle='#ffffffc0';dot(g,-5,-5,2);dot(g,3,-7,1.6);dot(g,7,-3,1.3);g.fillStyle=c;dot(g,-11,7,1.3);dot(g,10,9,1.2);dot(g,12,3,1)},
   heat(g,c){g.lineWidth=2.4;[-7.5,0,7.5].forEach((y,i)=>{g.globalAlpha=i===1?1:.75;g.beginPath();g.moveTo(-13,y);g.bezierCurveTo(-8,y-6,-3,y+6,3,y);g.lineTo(11,y);g.stroke();line(g,11,y,7,y-3.2);line(g,11,y,7,y+3.2)})},
+  mire(g,c){g.fillStyle=rgba(c,.55);g.beginPath();g.ellipse(0,9,15,6,0,0,TAU);g.fill();g.lineWidth=1.4;g.stroke();
+    g.fillStyle=c;g.beginPath();g.arc(0,-5,8.5,0,TAU);g.fill();g.fillRect(-4.5,1,9,6);g.fillStyle=DARK;dot(g,-3.4,-5,2.4);dot(g,3.4,-5,2.4);poly(g,[0,-2,1.5,1,-1.5,1]);g.fill();
+    g.strokeStyle=DARK;g.lineWidth=1.1;line(g,-1.6,3.5,-1.6,7);line(g,1.6,3.5,1.6,7);g.fillStyle=c;dot(g,-11,-9,2);dot(g,11,-7,1.6);dot(g,-9,1,1.3);dot(g,10,2,1.4)},
+  antlion(g,c){g.lineWidth=2;for(const[y,w,h]of[[-2,14.5,7],[1,10.5,5],[4,6.5,3.2]]){g.beginPath();g.ellipse(0,y,w,h,0,0,TAU);g.stroke()}
+    g.fillStyle=DARK;g.beginPath();g.ellipse(0,6,3.4,1.8,0,0,TAU);g.fill();g.strokeStyle='#fff3cf';g.lineWidth=2.2;g.beginPath();g.arc(-4,10,5.5,-1.5,.2);g.stroke();g.beginPath();g.arc(4,10,5.5,Math.PI-.2,Math.PI+1.5);g.stroke()},
+  purgatory(g,c){for(const[x,y,k,r]of[[-9,6,.5,-.3],[9,6,.5,.3],[-4.5,2,.72,-.12],[4.5,2,.72,.12],[0,-2,.95,0]]){g.save();g.translate(x,y);g.rotate(r);g.scale(k,k);flame(g);g.fill();g.restore()}
+    g.translate(0,4);g.scale(.5,.5);flame(g);g.fillStyle='#fff3c0';g.fill()},
+  permafrost(g,c){g.fillStyle=rgba(c,.45);g.beginPath();g.ellipse(0,10,15,5,0,0,TAU);g.fill();g.fillStyle=rgba(c,.85);g.lineWidth=1.3;
+    for(const[x,h,w]of[[-9,13,4],[-3,20,5],[4,24,5.5],[10,15,4]]){poly(g,[x-w,10,x,10-h,x+w,10]);g.fill();g.stroke()}g.strokeStyle='#fff';line(g,2.5,2,4,-8);line(g,-4,3,-3,-5)},
+  hellmouth(g,c){g.fillStyle='#200808';g.beginPath();g.moveTo(-12,13);g.lineTo(-12,-2);g.arc(0,-2,12,Math.PI,0);g.lineTo(12,13);g.closePath();g.fill();g.lineWidth=2;g.stroke();
+    g.fillStyle=c;g.save();g.translate(0,5);g.scale(.62,.62);flame(g);g.fill();g.restore();g.fillStyle='#ffe9a0';g.save();g.translate(0,8);g.scale(.32,.32);flame(g);g.fill();g.restore();
+    g.fillStyle='#fff3cf';for(const x of[-8,-4,4,8]){poly(g,[x-2,-9+Math.abs(x)*.35,x+2,-9+Math.abs(x)*.35,x,-4+Math.abs(x)*.35]);g.fill()}},
+  stasis(g,c){g.lineWidth=1.6;g.beginPath();g.arc(0,0,13.5,0,TAU);g.stroke();for(let i=0;i<12;i++){const a=i/12*TAU;line(g,Math.cos(a)*11,Math.sin(a)*11,Math.cos(a)*13.5,Math.sin(a)*13.5)}
+    g.lineWidth=2.2;g.strokeStyle='#fff';line(g,0,0,0,-9);line(g,0,0,6,3);g.fillStyle='#fff';dot(g,0,0,1.8);g.strokeStyle=c;g.lineWidth=1.2;for(const x of[-7,7])line(g,x,-11.5,x,11.5)},
   frost(g,c){g.fillStyle=rgba(c,.5);g.beginPath();g.ellipse(0,7,14,6.5,0,0,TAU);g.fill();g.lineWidth=1.5;g.stroke();g.strokeStyle='#fff';g.lineWidth=1.1;line(g,-8,7,-2,5,3,9,9,6);
     g.lineWidth=1.8;g.strokeStyle=c;g.translate(0,-7);for(let i=0;i<3;i++){g.rotate(TAU/6);line(g,0,-6,0,6)}},
   railgun(g,c){g.save();g.rotate(-.4);g.fillRect(-13,-4.5,27,3);g.fillRect(-13,1.5,27,3);g.fillRect(-14,-6.5,9,13);g.strokeStyle='#fff';g.lineWidth=1.6;line(g,-4,0,15,0);g.restore();
@@ -886,7 +910,7 @@ const VIS={
   miasma:'fog',abyss:'fog',mist:'fog',golem:'slam',colossus:'slam',
   obsidian:'blade2',tsunami:'tide',heat:'heat',railgun:'rail',dragon:'breath',
 };
-const POISON=new Set(['miasma','abyss','bog','spore','reaper']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
+const POISON=new Set(['miasma','abyss','bog','spore','reaper','mire']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
 const LOB={rock:1,glob:1,puff:1,shell:1};                        // 山なりに飛ぶ弾
 const flameP=(x,y,c,n=1,sp=8)=>{for(let i=0;i<n;i++)P(x+rnd(-sp,sp),y+rnd(-sp,sp)*.6,rnd(-18,18),rnd(-80,-30),rnd(.3,.6),rnd(4,8),Math.random()<.3?'#ffe9a0':c,{g:-60,drag:1})};
 const smoke=(x,y,c,n=6,sp=20,size=8,life=.8,al=1)=>{for(let i=0;i<n;i++){const a=rnd(TAU),r=rnd(sp);P(x+Math.cos(a)*r,y+Math.sin(a)*r*.7,rnd(-12,12),rnd(-30,-8),rnd(life*.6,life),rnd(size*.6,size),c,{ty:'d',drag:.8,al})}};
@@ -965,20 +989,26 @@ function pierceFx(v,x,y,ex,ey,d,a){ // 一直線に貫く攻撃
 }
 function trapFx(s,it,d,T,dt){ // 罠ごとの地面の様子
   const R=d.range,x=s.x,y=s.y,id=it.id;
-  if(id==='swamp'||id==='bog'){ // ぶくぶく泡立つ
+  if(id==='swamp'||id==='bog'||id==='mire'){ // ぶくぶく泡立つ
     if(Math.random()<dt*4)ring(x+rnd(-R,R)*.7,y+rnd(-R,R)*.35,d.c,rnd(4,7),.5,1.4,1);
-    if(id==='bog'&&Math.random()<dt*5)smoke(x+rnd(-R,R)*.6,y,d.c,1,4,6,.9,.5);
-  }else if(id==='quicksand'){ // 渦を巻いて吸いこむ
+    if(id!=='swamp'&&Math.random()<dt*(id==='mire'?11:5))smoke(x+rnd(-R,R)*.6,y,d.c,1,4,6,.9,.5);
+  }else if(id==='quicksand'||id==='antlion'){ // 渦を巻いて吸いこむ
     ctx.save();ctx.translate(x,y);ctx.scale(1,.62);ctx.rotate(T*1.6);ctx.strokeStyle=rgba(d.c,.7);ctx.lineWidth=2;
     for(const[r,a]of[[R*.85,0],[R*.55,2.2],[R*.28,4.1]]){ctx.beginPath();ctx.arc(0,0,r,a,a+2.4);ctx.stroke()}ctx.restore();
     if(Math.random()<dt*6){const a=rnd(TAU);P(x+Math.cos(a)*R,y+Math.sin(a)*R*.6,-Math.cos(a)*40,-Math.sin(a)*24,.6,2,d.c,{drag:.5})}
-  }else if(id==='crater'){ // 火が噴き上がる
+  }else if(id==='crater'||id==='purgatory'||id==='hellmouth'){ // 火が噴き上がる
     ctx.fillStyle='#ffb04066';ctx.beginPath();ctx.ellipse(x,y,R*.7,R*.42,0,0,TAU);ctx.fill();
-    if(Math.random()<dt*14)flameP(x+rnd(-R,R)*.6,y+rnd(-6,6),d.c,1,4);
-  }else if(id==='frost'){ // 凍った地面のひびときらめき
+    if(Math.random()<dt*(id==='crater'?14:id==='purgatory'?30:46))flameP(x+rnd(-R,R)*.7,y+rnd(-8,8),d.c,1,4);
+    if(id==='hellmouth'&&Math.random()<dt*4)smoke(x+rnd(-R,R)*.5,y,'#3a1020',1,4,9,.9,.6);
+  }else if(id==='stasis'){ // 時計の針がゆっくり回り、輪が脈打つ
+    ctx.save();ctx.translate(x,y);ctx.scale(1,.62);ctx.strokeStyle=rgba(d.c,.75);ctx.lineWidth=1.5;
+    for(let i=0;i<12;i++){const a=i/12*TAU;ctx.beginPath();ctx.moveTo(Math.cos(a)*R*.82,Math.sin(a)*R*.82);ctx.lineTo(Math.cos(a)*R*.95,Math.sin(a)*R*.95);ctx.stroke()}
+    ctx.lineWidth=2.2;for(const[sp,L]of[[.25,.75],[.03,.5]]){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(T*sp)*R*L,Math.sin(T*sp)*R*L);ctx.stroke()}ctx.restore();
+    if(Math.random()<dt*2)ring(x,y,d.c,R,.9,1.5,4);
+  }else if(id==='frost'||id==='permafrost'){ // 凍った地面のひびときらめき
     ctx.strokeStyle='#ffffffb0';ctx.lineWidth=1;const q=it.ph;
     for(let i=0;i<4;i++){const a=q+i*1.7;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*R*.15,y+Math.sin(a)*R*.1);ctx.lineTo(x+Math.cos(a+.3)*R*.5,y+Math.sin(a+.3)*R*.3);ctx.lineTo(x+Math.cos(a)*R*.85,y+Math.sin(a)*R*.5);ctx.stroke()}
-    if(Math.random()<dt*3)P(x+rnd(-R,R)*.7,y+rnd(-R,R)*.4,0,0,.5,4,'#ffffff',{ty:'x',rot:rnd(TAU),vr:3,drag:0});
+    if(Math.random()<dt*(id==='frost'?3:8))P(x+rnd(-R,R)*.7,y+rnd(-R,R)*.4,0,0,.5,4,'#ffffff',{ty:'x',rot:rnd(TAU),vr:3,drag:0});
   }
 }
 function drawShot(s){ // 飛んでいる弾
@@ -1057,10 +1087,10 @@ function startWave(){
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
 function spawnEnemy(q){
-  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m;
+  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m,final=!!q.final;
   const P=PATHS[S.spawned++%PATHS.length];
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
-    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:S.budget*d.w/S.wsum,dead:false});
+    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:S.budget*d.w/S.wsum,dead:false,final});
 }
 function hurt(e,dmg){
   if(e.dead)return;
@@ -1085,7 +1115,7 @@ function kill(e){
   for(let i=0;i<n;i++)fx.push({ty:'mana',x:e.x,y:e.y,cx:e.x+rnd(-60,60),cy:e.y+rnd(-70,-20),t:-i*.05,dur:rnd(.5,.75)});
 }
 function leak(e){
-  e.dead=true;S.lives-=e.def.life;S.coreHit=1;
+  e.dead=true;S.lives-=e.final?S.lives:e.def.life;S.coreHit=1;
   shake(8);S.flash=.3;S.flashC='#ff2a4a';sfx.leak();buzz(60);
   burst(CORE.x,CORE.y,'#ff2a4a',24,180);ring(CORE.x,CORE.y,'#ff2a4a',80,.5,4);
   if(S.lives<=0&&!S.over){S.lives=0;gameOver()}
@@ -1808,7 +1838,7 @@ function render(dt){
     else if(f.ty==='wave'){if(f.t<0)continue;const k=f.t/f.dur;if(k>=1){fx.splice(i,1);continue}
       const a=k<.2?k/.2:k>.7?(1-k)/.3:1,ox=(1-Math.min(1,k/.2))**3*-160+(k>.7?((k-.7)/.3)**3*160:0);
       ctx.globalAlpha=a;ctx.fillStyle='#05040a99';ctx.fillRect(0,282,W,56);ctx.fillStyle='#ff3b6b';ctx.fillRect(0,282,W,1);ctx.fillRect(0,337,W,1);
-      ctx.font=FONT(30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
+      ctx.font=FONT(f.n%20===0&&!f.txt?(LANG==='ja'?22:19):30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%20===0?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
   }
   ctx.restore();
   // 新発見の幕
@@ -1848,7 +1878,7 @@ function frame(now){
 }
 ready=true;layout();
 reset();
-window.G={async audioTest(name,sec,arg,battle){
+window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},async audioTest(name,sec,arg,battle){
   const sr=44100,keep=[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle];muted=false;FX=true;
   buildAudio(new OfflineAudioContext(2,sr*sec,sr));
   S.time+=1;if(name==='music'){musT=0;musStep=0;musBattle=battle?1:0;MUS.gain.value=MUS_VOL;musicSchedule(sec,battle)}else sfx[name](arg);
