@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全85種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全108種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -246,6 +246,13 @@ const EN={ // 英語の名前と説明
   fortress:['Fortress','Every cannon fires at once'],thunderlord:['Thunder Lord','Bolts strike 12'],hyakki:['Night Parade','A horde of spirits'],
   yggdrasil:['World Tree','Binds and drains life'],holysword:['Holy Sword','A blade of light'],
   myth:['Myth','A blow of the gods'],eternity:['Eternity','Endless lightning and curse'],
+  ryugu:['Sea Palace','Pulls foes under, slowing them'],thunderstorm:['Thunderstorm','Rain and bolts hit 7'],particle:['Particle Gun','Burns with a stream of light'],
+  icespear:['Ice Spear','Pierces and chills'],foxfire:['Foxfire','Eerie flames cling on'],bottomless:['Sinkhole','Trap: sinks, slows and weakens'],seaserpent:['Sea Serpent','Coils and shocks 6'],
+  galaxy:['Galaxy','Bands of starlight burn'],poseidon:['Sea God','Floods a whole line'],absolutezero:['Absolute Zero','Cold that stops all'],solarflare:['Solar Flare','Erupting solar fire'],
+  kyoshin:['Giant God','Stomps foes backward'],fujinraijin:['Wind & Thunder','Wind and bolts hit 10'],ninetails:['Nine Tails','Nine foxfires curse and burn'],photon:['Photon Cannon','Twin beams of light'],
+  naraku:['Abyss Pit','Trap: drags foes to the depths'],paradise:['Paradise','Wraps foes in flowers and water'],
+  cosmos:['Cosmos','The light of all stars'],kamikaze:['Divine Storm','A god storm hits 18'],rinne:['Rebirth','Fire that burns and returns'],gaia:['Earth Mother','The earth swallows foes'],
+  chaos:['Chaos','Fire and ice in a vortex'],mugen:['Endless Hell','Trap: no way out'],
 };
 const nm=d=>LANG==='ja'?d.name:EN[d.id][0],ds=d=>LANG==='ja'?d.desc:EN[d.id][1];
 const sn=st=>LANG==='ja'?st.name:st.en,snote=st=>LANG==='ja'?st.note:st.noteEn;
@@ -314,6 +321,13 @@ const ITEMS={
   eruption:{name:'噴火',    t:4,c:'#ff5a2a',kind:'bolt', dmg:170,rate:.6,  range:150,splash:70,dot:30,dotT:3,   desc:'大噴火で広く焼く'},
   raijin:  {name:'雷神',    t:4,c:'#ffd84a',kind:'chain',dmg:85, rate:1.2, range:155,chain:8,                  desc:'8体に大雷を落とす'},
   katana:  {name:'名刀',    t:4,c:'#e0e8f8',kind:'pierce',dmg:150,rate:1.2,range:160,                          desc:'一閃で斬り抜ける'},
+  ryugu:   {name:'竜宮',    t:4,c:'#5ac8e8',kind:'pulse',dmg:40, rate:1,   range:125,slow:.45,slowT:1.5,        desc:'海の底へ引きこみ、遅くする'},
+  thunderstorm:{name:'雷雨',t:4,c:'#b8c8ff',kind:'chain',dmg:60, rate:1.2, range:150,chain:7,slow:.3,slowT:1,  desc:'雨と雷が7体を打つ'},
+  particle:{name:'粒子砲',  t:4,c:'#ff8af0',kind:'beam', dmg:90,           range:160,beams:1,                   desc:'光の粒で焼き続ける'},
+  icespear:{name:'氷槍',    t:4,c:'#b0e8ff',kind:'pierce',dmg:140,rate:.9, range:175,slow:.4,slowT:1.5,          desc:'氷の槍で貫き、凍えさせる'},
+  foxfire: {name:'狐火',    t:4,c:'#5af0c8',kind:'bolt', dmg:30, rate:1.6, range:150,dot:40,dotT:3,             desc:'妖しい火がまとわりつく'},
+  bottomless:{name:'底なし沼',t:4,c:'#8a7a4a',kind:'trap',                range:40, slow:.7,slowT:.3,curse:1.35, desc:'罠：沈めて遅くし、もろくする'},
+  seaserpent:{name:'海蛇',  t:4,c:'#4ab8c8',kind:'chain',dmg:55, rate:1.2, range:140,chain:6,slow:.35,slowT:1, desc:'6体に巻きついてしびれさせる'},
   mire:    {name:'腐海',    t:4,c:'#7ad63a',kind:'trap',                   range:38, slow:.45,slowT:.3,dot:60,dotT:2.5,desc:'罠：猛毒で蝕み、遅くする'},
   antlion: {name:'蟻地獄',  t:4,c:'#e8a850',kind:'trap',                   range:38, slow:.75,slowT:.3,knock:8,   desc:'罠：引きずり戻し、大きく遅くする'},
   purgatory:{name:'煉獄',   t:4,c:'#ff5a1a',kind:'trap',                   range:38, dot:110,dotT:2.5,          desc:'罠：踏んだ敵を激しく焼く'},
@@ -335,6 +349,16 @@ const ITEMS={
   hyakki:  {name:'百鬼夜行',t:5,c:'#c88aff',kind:'pulse',dmg:70, rate:1,   range:140,dot:80,dotT:4,curse:1.5,   desc:'妖が群れをなして襲う'},
   yggdrasil:{name:'世界樹', t:5,c:'#8af08a',kind:'pulse',dmg:110,rate:1,   range:150,dot:60,dotT:3,slow:.35,slowT:1.2,desc:'根で縛り、命を吸う'},
   holysword:{name:'聖剣',   t:5,c:'#fff2b0',kind:'pierce',dmg:620,rate:1.1,range:210,                          desc:'光の刃で貫く'},
+  galaxy:  {name:'銀河',    t:5,c:'#c8a8ff',kind:'beam', dmg:260,          range:200,beams:3,                   desc:'星の帯で焼き払う'},
+  poseidon:{name:'海神',    t:5,c:'#3a9cff',kind:'pierce',dmg:560,rate:1,  range:205,slow:.5,slowT:2,           desc:'大波で一直線に押し流す'},
+  absolutezero:{name:'絶対零度',t:5,c:'#e0f8ff',kind:'pulse',dmg:160,rate:.8,range:150,slow:.75,slowT:1.5,     desc:'すべてを止める冷気'},
+  solarflare:{name:'紅炎',  t:5,c:'#ff7a3a',kind:'pulse',dmg:200,rate:.8,  range:155,dot:70,dotT:3,             desc:'灼熱の炎を噴き上げる'},
+  kyoshin: {name:'巨神',    t:5,c:'#d8b080',kind:'pulse',dmg:450,rate:.6,  range:100,knock:20,                  desc:'大地を踏みならし、押し返す'},
+  fujinraijin:{name:'風神雷神',t:5,c:'#a8f0c8',kind:'chain',dmg:220,rate:1.3,range:185,chain:10,slow:.3,slowT:1,desc:'風と雷で10体を撃つ'},
+  ninetails:{name:'九尾',   t:5,c:'#7af8d8',kind:'bolt', dmg:140,rate:1.8, range:180,dot:90,dotT:3,curse:1.4,   desc:'九つの狐火で呪い焼く'},
+  photon:  {name:'光子砲',  t:5,c:'#ffb0f8',kind:'beam', dmg:320,          range:220,beams:2,                   desc:'二筋の光で貫く'},
+  naraku:  {name:'奈落',    t:5,c:'#6a5aa8',kind:'trap',                   range:42, slow:.8,slowT:.3,dot:150,dotT:2.5,curse:1.4,desc:'罠：底へ引きずりこむ'},
+  paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'pulse',dmg:150,rate:1,   range:160,slow:.4,slowT:1.2,dot:50,dotT:3,desc:'花と水で包みこむ'},
   hellmouth:{name:'地獄門', t:5,c:'#ff3a2a',kind:'trap',                   range:40, dot:300,dotT:2.5,curse:1.5,desc:'罠：業火で焼き、呪う'},
   stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,knock:8, desc:'罠：時がほとんど止まる'},
   stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,curse:1.3,slow:.3,slowT:1,desc:'すべてを照らす光'},
@@ -344,6 +368,12 @@ const ITEMS={
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
   eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,curse:1.5,slow:.3,slowT:1,desc:'終わらない雷と呪い'},
+  cosmos:  {name:'宇宙',    t:6,c:'#c0b0ff',kind:'beam', dmg:820,          range:230,beams:5,                   desc:'星々の光で焼きつくす'},
+  kamikaze:{name:'神嵐',    t:6,c:'#c8fff0',kind:'chain',dmg:700,rate:1.4, range:220,chain:18,slow:.4,slowT:1,  desc:'神の嵐が18体を撃つ'},
+  rinne:   {name:'輪廻',    t:6,c:'#ffa060',kind:'bolt', dmg:850,rate:1.6, range:210,splash:70,dot:150,dotT:3, desc:'焼かれては蘇る炎'},
+  gaia:    {name:'地母神',  t:6,c:'#b8e08a',kind:'pulse',dmg:420,rate:.8,  range:175,slow:.5,slowT:1.5,dot:100,dotT:3,desc:'大地が敵を飲みこむ'},
+  chaos:   {name:'混沌',    t:6,c:'#e08aff',kind:'pulse',dmg:500,rate:.8,  range:175,dot:120,dotT:3,slow:.6,slowT:1.2,curse:1.4,desc:'炎と氷が渦を巻く'},
+  mugen:   {name:'無間',    t:6,c:'#ff4a6a',kind:'trap',                   range:44, slow:.88,slowT:.3,dot:400,dotT:2.5,curse:1.6,knock:8,desc:'罠：抜け出せない地獄'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,curse:1.5,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
 };
 for(const k in ITEMS)ITEMS[k].id=k;
@@ -374,6 +404,12 @@ const RECIPES=[
   ['thunderbird','storm','raijin'],['obsidian','iron','katana'],
   ['tank','titan','fortress'],['raijin','cataclysm','thunderlord'],['wraith','reaper','hyakki'],['forest','sun','yggdrasil'],['katana','railgun','holysword'],
   ['holysword','fortress','myth'],['thunderlord','hyakki','eternity'],
+  ['hotspring','sea','ryugu'],['raincloud','storm','thunderstorm'],['plasma','magnet','particle'],['icicle','crystal','icespear'],['blueflame','wisp','foxfire'],
+  ['mud','quicksand','bottomless'],['eel','sea','seaserpent'],
+  ['star','sun','galaxy'],['tsunami','seaserpent','poseidon'],['iceage','icespear','absolutezero'],['eruption','sun','solarflare'],['colossus','peak','kyoshin'],
+  ['typhoon','thunderstorm','fujinraijin'],['foxfire','wraith','ninetails'],['particle','railgun','photon'],['bottomless','mire','naraku'],['ryugu','forest','paradise'],
+  ['galaxy','photon','cosmos'],['poseidon','fujinraijin','kamikaze'],['ninetails','phoenix','rinne'],['kyoshin','yggdrasil','gaia'],['absolutezero','solarflare','chaos'],
+  ['naraku','stasis','mugen'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -618,7 +654,9 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   star:'light',stone:'light',genesis:'light',dragon:'dragon',
   hotspring:'water',raincloud:'water',geyser:'water',plasma:'volt',thunderbird:'volt',eel:'volt',raijin:'volt',thunderlord:'volt',eternity:'dark',
   glacier:'ice',icicle:'ice',iceage:'ice',volcano:'flame',eruption:'flame',blueflame:'flame',mud:'earth',
-  tank:'metal',katana:'metal',fortress:'metal',wraith:'dark',hyakki:'dark',forest:'poison',yggdrasil:'light',holysword:'light',myth:'light'};
+  tank:'metal',katana:'metal',fortress:'metal',wraith:'dark',hyakki:'dark',forest:'poison',yggdrasil:'light',holysword:'light',myth:'light',
+  ryugu:'water',seaserpent:'water',poseidon:'water',paradise:'water',thunderstorm:'volt',fujinraijin:'volt',kamikaze:'volt',particle:'light',photon:'light',galaxy:'light',cosmos:'light',
+  icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
   pick(){tone(560,.1,'triangle',.17,880,0,{rev:.25});noise(.03,.06,5000,0,{type:'highpass',rev:0})},
@@ -709,6 +747,58 @@ const flame=g=>{g.beginPath();g.moveTo(0,-14);g.bezierCurveTo(2,-7,10,-3,9,5);g.
 const cloud=(g,y)=>{g.beginPath();g.arc(-6,y+1,5.5,0,TAU);g.arc(0,y-3,7,0,TAU);g.arc(7,y+1,5.5,0,TAU);g.rect(-6,y+1,13,5.5);g.fill()};
 const DARK='#0a0814';
 const ICON={
+  ryugu(g,c){g.strokeStyle=rgba(c,.8);g.lineWidth=2;g.beginPath();g.moveTo(-14,-9);for(let x=-14;x<14;x+=7){g.quadraticCurveTo(x+1.75,-13,x+3.5,-9);g.quadraticCurveTo(x+5.25,-5,x+7,-9)}g.stroke();
+    g.fillStyle=c;poly(g,[-13,1,0,-5,13,1]);g.fill();g.fillStyle='#e8c870';g.fillRect(-9,1,18,9);poly(g,[-8,-2,0,-9,8,-2]);g.fill();
+    g.fillStyle=DARK;g.beginPath();g.moveTo(-2.5,10);g.lineTo(-2.5,5.5);g.arc(0,5.5,2.5,Math.PI,0);g.lineTo(2.5,10);g.fill();g.fillStyle=c;g.fillRect(-14,10,28,3)},
+  thunderstorm(g,c){g.fillStyle='#8a94b0';cloud(g,-7);g.strokeStyle='#8ab8ff';g.lineWidth=1.6;for(const[x,y]of[[-10,4],[-6,8],[8,4],[11,9]])line(g,x,y,x-2,y+4);
+    g.fillStyle='#ffe45c';poly(g,[3,-1,-4,7,0,7,-3,14,6,4,2,4]);g.fill()},
+  particle(g,c){g.save();g.rotate(-.6);g.fillStyle='#4a3a6a';g.fillRect(-14,-3.5,14,7);g.fillStyle=c;g.fillRect(-1,-5,4,10);g.restore();
+    g.globalAlpha=.85;g.lineWidth=3;line(g,1,-1,14,-9);g.globalAlpha=1;g.fillStyle='#fff';for(const[x,y]of[[5,-4],[9,-6.5],[13,-9]])dot(g,x,y,1.6);
+    g.strokeStyle=c;g.lineWidth=1;g.beginPath();g.ellipse(-6,4,6,2.5,.5,0,TAU);g.stroke()},
+  icespear(g,c){g.save();g.rotate(.75);g.fillStyle='#8a6a4a';g.fillRect(-1.3,-2,2.6,17);g.fillStyle=rgba(c,.9);poly(g,[0,-16,4.5,-4,0,-1,-4.5,-4]);g.fill();
+    g.strokeStyle='#fff';g.lineWidth=1;line(g,0,-14,0,-3);g.restore()},
+  foxfire(g,c){for(const[x,y,k]of[[-7,4,.55],[7,4,.55],[0,-4,.7]]){g.save();g.translate(x,y);g.scale(k,k);flame(g);g.fillStyle=c;g.fill();g.translate(0,5);g.scale(.5,.5);flame(g);g.fillStyle='#e8fff8';g.fill();g.restore()}
+    g.fillStyle=c;poly(g,[-4,11,-2,7,0,10,2,7,4,11]);g.fill()},
+  bottomless(g,c){g.fillStyle=rgba(c,.75);g.beginPath();g.ellipse(0,4,14.5,8.5,0,0,TAU);g.fill();g.fillStyle='#1a1408';g.beginPath();g.ellipse(0,4,9,5,0,0,TAU);g.fill();
+    g.strokeStyle=c;g.lineWidth=1.3;g.beginPath();g.ellipse(0,4,5.5,3,0,.4,5.5);g.stroke();g.fillStyle=c;dot(g,-11,-6,1.8);dot(g,10,-8,1.6);g.strokeStyle='#d8c8a0';g.lineWidth=1.6;line(g,6,-1,9,-11)},
+  seaserpent(g,c){g.strokeStyle=rgba(c,.6);g.lineWidth=2;g.beginPath();g.moveTo(-14,10);for(let x=-14;x<14;x+=7)g.quadraticCurveTo(x+3.5,6,x+7,10);g.stroke();
+    g.lineWidth=5;g.strokeStyle=c;g.beginPath();g.moveTo(-10,8);g.quadraticCurveTo(-10,-4,-3,-3);g.quadraticCurveTo(4,-2,4,6);g.moveTo(4,6);g.quadraticCurveTo(5,-12,12,-8);g.stroke();
+    g.fillStyle=DARK;dot(g,11,-9,1.3);g.fillStyle=c;poly(g,[-8,-6,-5,-12,-3,-5]);g.fill()},
+  galaxy(g,c){for(let k=0;k<2;k++)for(let i=0;i<18;i++){const t=i/18,a=k*Math.PI+t*4.2,r=2+t*12.5;g.globalAlpha=1-t*.6;dot(g,Math.cos(a)*r,Math.sin(a)*r*.75,2.2-t*1.2)}
+    g.globalAlpha=1;g.fillStyle='#fff';dot(g,0,0,3.2)},
+  poseidon(g,c){g.lineWidth=2.4;line(g,0,-6,0,15);g.beginPath();g.moveTo(-9,-13);g.lineTo(-9,-5);g.quadraticCurveTo(-9,0,0,0);g.quadraticCurveTo(9,0,9,-5);g.lineTo(9,-13);g.moveTo(0,-15);g.lineTo(0,-1);g.stroke();
+    for(const x of[-9,0,9]){poly(g,[x-2.6,-11,x,-16,x+2.6,-11]);g.fill()}g.strokeStyle='#e8c870';g.lineWidth=2;line(g,-3,6,3,6)},
+  absolutezero(g,c){g.lineWidth=1.6;g.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU+Math.PI/6;g.lineTo(Math.cos(a)*14,Math.sin(a)*14)}g.closePath();g.stroke();
+    g.lineWidth=1.8;g.strokeStyle='#fff';for(let i=0;i<6;i++){g.rotate(TAU/6);line(g,0,0,0,-9);line(g,-2.5,-6.5,0,-4,2.5,-6.5)}},
+  solarflare(g,c){g.fillStyle='#ffc040';dot(g,-2,3,8.5);g.fillStyle='#fff3c0';dot(g,-3.5,1.5,3.5);
+    g.lineWidth=3.2;g.strokeStyle=c;g.beginPath();g.moveTo(3,-4);g.bezierCurveTo(8,-17,16,-12,10,-1);g.stroke();g.lineWidth=2;g.beginPath();g.moveTo(-8,-3);g.bezierCurveTo(-12,-13,-4,-16,-3,-6);g.stroke()},
+  kyoshin(g,c){dot(g,0,-9,4.5);poly(g,[-11,-2,11,-2,13,9,7,9,6,3,3,15,-3,15,-6,3,-7,9,-13,9]);g.fill();g.fillStyle='#ffe9a0';g.fillRect(-2.6,-10,5.2,1.6);
+    g.fillStyle='#00000040';poly(g,[2,-2,11,-2,13,9,7,9,6,3,3,15,1,15]);g.fill()},
+  fujinraijin(g,c){g.strokeStyle='#a8f0c8';g.lineWidth=2.4;g.beginPath();g.arc(-6,0,7,.5,5.8);g.stroke();g.beginPath();g.arc(-6,0,3.5,1.5,6.5);g.stroke();
+    g.strokeStyle='#ffd84a';g.lineWidth=1.6;g.beginPath();g.arc(7,0,6.5,0,TAU);g.stroke();g.fillStyle='#ffd84a';for(let i=0;i<6;i++){const a=i/6*TAU;dot(g,7+Math.cos(a)*6.5,Math.sin(a)*6.5,1.8)}
+    poly(g,[8,-4,4,1,7,1,5,5,10,0,7,0]);g.fill()},
+  ninetails(g,c){for(let i=0;i<9;i++){const a=Math.PI+.25+i/8*(Math.PI-.5);g.globalAlpha=.75;g.lineWidth=3;line(g,0,5,Math.cos(a)*15,5+Math.sin(a)*12);g.globalAlpha=1;dot(g,Math.cos(a)*15,5+Math.sin(a)*12,1.9)}
+    g.fillStyle='#fff8e8';poly(g,[-6,1,-7,-8,-2,-3,2,-3,7,-8,6,1,0,9]);g.fill();g.fillStyle=DARK;dot(g,-2.6,1,1.2);dot(g,2.6,1,1.2);g.fillStyle=c;dot(g,0,6,1.2)},
+  photon(g,c){g.lineWidth=2;g.beginPath();g.arc(-6,0,7,0,TAU);g.stroke();g.fillStyle='#fff';dot(g,-6,0,3);
+    g.lineWidth=3;for(const y of[-4,4])line(g,0,y,14,y);g.strokeStyle='#fff';g.lineWidth=1.2;for(const y of[-4,4])line(g,1,y,14,y)},
+  naraku(g,c){for(const[r,a]of[[14,.25],[10.5,.45],[7,.7],[3.5,1]]){g.globalAlpha=a;g.beginPath();g.ellipse(0,2+(14-r)*.35,r,r*.62,0,0,TAU);g.fillStyle=r===3.5?'#05040a':rgba(c,.5);g.fill();g.lineWidth=1.3;g.stroke()}
+    g.globalAlpha=1;g.fillStyle='#ff6a8a';dot(g,-1.5,7,.9);dot(g,1.5,7,.9)},
+  paradise(g,c){g.fillStyle=rgba('#7ad8e8',.55);g.beginPath();g.ellipse(0,9,14,4.5,0,0,TAU);g.fill();g.fillStyle=c;
+    for(let i=0;i<5;i++){const a=i/5*TAU-TAU/4;g.beginPath();g.ellipse(Math.cos(a)*5.5,-3+Math.sin(a)*5.5,4,2.6,a,0,TAU);g.fill()}
+    g.fillStyle='#ffe9a0';dot(g,0,-3,2.8);g.strokeStyle='#8ae08a';g.lineWidth=1.6;line(g,0,3,0,9)},
+  cosmos(g,c){g.fillStyle=c;dot(g,0,0,7.5);g.fillStyle='#ffffff60';dot(g,-2.5,-2.5,2.6);g.lineWidth=2;g.strokeStyle='#fff3cf';g.beginPath();g.ellipse(0,0,14,4,-.35,0,TAU);g.stroke();
+    g.fillStyle=c;dot(g,0,0,0);g.fillStyle='#fff';for(const[x,y]of[[-11,-10],[11,-11],[12,9],[-12,10]])dot(g,x,y,1.2)},
+  kamikaze(g,c){g.lineWidth=2.6;for(let k=0;k<3;k++){g.beginPath();for(let i=0;i<=14;i++){const t=i/14,r=3+t*11,a=k*TAU/3+t*3;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.stroke()}
+    g.fillStyle='#ffe45c';poly(g,[3,-8,-3,0,0,0,-2,8,4,-1,1,-1]);g.fill()},
+  rinne(g,c){g.lineWidth=2.4;g.beginPath();g.arc(0,0,12,.4,TAU-.3);g.stroke();poly(g,[12,-5,7.5,1,15,1]);g.fill();
+    g.save();g.translate(0,1);g.scale(.55,.55);flame(g);g.fill();g.translate(0,5);g.scale(.5,.5);flame(g);g.fillStyle='#fff3c0';g.fill();g.restore()},
+  gaia(g,c){g.fillStyle='#4a8ad8';dot(g,0,2,11);g.fillStyle=c;g.beginPath();g.ellipse(-4,0,4.5,6,.4,0,TAU);g.fill();g.beginPath();g.ellipse(5,5,4,3,0,0,TAU);g.fill();
+    g.strokeStyle='#8ae08a';g.lineWidth=1.8;line(g,0,-9,0,-14);g.fillStyle='#8ae08a';g.beginPath();g.ellipse(3.5,-13.5,3.5,1.8,-.4,0,TAU);g.fill();g.beginPath();g.ellipse(-3,-12,3,1.6,.4,0,TAU);g.fill()},
+  chaos(g,c){g.fillStyle='#ff6a3a';g.beginPath();g.arc(0,0,13,-Math.PI/2,Math.PI/2);g.arc(0,6.5,6.5,Math.PI/2,-Math.PI/2,true);g.arc(0,-6.5,6.5,Math.PI/2,-Math.PI/2);g.fill();
+    g.fillStyle='#8ad8ff';g.beginPath();g.arc(0,0,13,Math.PI/2,-Math.PI/2);g.arc(0,-6.5,6.5,-Math.PI/2,Math.PI/2,true);g.arc(0,6.5,6.5,-Math.PI/2,Math.PI/2);g.fill();
+    g.fillStyle='#8ad8ff';dot(g,0,-6.5,2.2);g.fillStyle='#ff6a3a';dot(g,0,6.5,2.2);g.lineWidth=1.4;g.beginPath();g.arc(0,0,13,0,TAU);g.stroke()},
+  mugen(g,c){g.fillStyle='#14060c';dot(g,0,0,10);for(let i=0;i<8;i++){const a=i/8*TAU;g.save();g.translate(Math.cos(a)*11,Math.sin(a)*11);g.rotate(a+Math.PI/2);g.scale(.32,.32);flame(g);g.fill();g.restore()}
+    g.strokeStyle='#a8a0b8';g.lineWidth=2;line(g,-6,-6,6,6);line(g,6,-6,-6,6);g.fillStyle=c;dot(g,0,0,2)},
   hotspring(g,c){g.fillStyle=rgba(c,.55);g.beginPath();g.ellipse(0,8,13.5,6,0,0,TAU);g.fill();g.lineWidth=1.6;g.stroke();
     g.strokeStyle='#eef4fb';g.lineWidth=2.2;for(const x of[-6,0,6]){g.beginPath();g.moveTo(x,4);g.bezierCurveTo(x-4,-1,x+4,-5,x,-12);g.stroke()}},
   raincloud(g,c){g.fillStyle='#b9c4dc';cloud(g,-6);g.strokeStyle=c;g.lineWidth=2;for(const[x,y]of[[-8,5],[-2,8],[4,5],[10,8],[-5,12],[7,13]])line(g,x,y,x-2,y+4)},
@@ -1004,6 +1094,8 @@ const VIS={
   hotspring:'steam',raincloud:'rain',glacier:'rock',volcano:'glob',blueflame:'fireball',geyser:'geyser',icicle:'blade2',
   tank:'shell',wraith:'ghost',forest:'fog',iceage:'snow',eruption:'glob',katana:'blade2',
   fortress:'shell',hyakki:'fog',yggdrasil:'fog',holysword:'rail',myth:'meteor',
+  ryugu:'ripple',icespear:'blade2',foxfire:'ghost',poseidon:'tide',absolutezero:'snow',solarflare:'flames',kyoshin:'slam',ninetails:'ghost',paradise:'ripple',
+  rinne:'feather',gaia:'slam',chaos:'spin',
 };
 const POISON=new Set(['miasma','abyss','bog','spore','reaper','mire','forest','yggdrasil']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
 const LOB={rock:1,glob:1,puff:1,shell:1};                        // 山なりに飛ぶ弾
@@ -1087,17 +1179,17 @@ function pierceFx(v,x,y,ex,ey,d,a){ // 一直線に貫く攻撃
 }
 function trapFx(s,it,d,T,dt){ // 罠ごとの地面の様子
   const R=d.range,x=s.x,y=s.y,id=it.id;
-  if(id==='swamp'||id==='bog'||id==='mire'){ // ぶくぶく泡立つ
+  if(id==='swamp'||id==='bog'||id==='mire'||id==='mud'||id==='bottomless'){ // ぶくぶく泡立つ
     if(Math.random()<dt*4)ring(x+rnd(-R,R)*.7,y+rnd(-R,R)*.35,d.c,rnd(4,7),.5,1.4,1);
     if(id!=='swamp'&&Math.random()<dt*(id==='mire'?11:5))smoke(x+rnd(-R,R)*.6,y,d.c,1,4,6,.9,.5);
-  }else if(id==='quicksand'||id==='antlion'){ // 渦を巻いて吸いこむ
+  }else if(id==='quicksand'||id==='antlion'||id==='naraku'){ // 渦を巻いて吸いこむ
     ctx.save();ctx.translate(x,y);ctx.scale(1,.62);ctx.rotate(T*1.6);ctx.strokeStyle=rgba(d.c,.7);ctx.lineWidth=2;
     for(const[r,a]of[[R*.85,0],[R*.55,2.2],[R*.28,4.1]]){ctx.beginPath();ctx.arc(0,0,r,a,a+2.4);ctx.stroke()}ctx.restore();
     if(Math.random()<dt*6){const a=rnd(TAU);P(x+Math.cos(a)*R,y+Math.sin(a)*R*.6,-Math.cos(a)*40,-Math.sin(a)*24,.6,2,d.c,{drag:.5})}
-  }else if(id==='crater'||id==='purgatory'||id==='hellmouth'){ // 火が噴き上がる
+  }else if(id==='crater'||id==='purgatory'||id==='hellmouth'||id==='mugen'){ // 火が噴き上がる
     ctx.fillStyle='#ffb04066';ctx.beginPath();ctx.ellipse(x,y,R*.7,R*.42,0,0,TAU);ctx.fill();
     if(Math.random()<dt*(id==='crater'?14:id==='purgatory'?30:46))flameP(x+rnd(-R,R)*.7,y+rnd(-8,8),d.c,1,4);
-    if(id==='hellmouth'&&Math.random()<dt*4)smoke(x+rnd(-R,R)*.5,y,'#3a1020',1,4,9,.9,.6);
+    if((id==='hellmouth'||id==='mugen')&&Math.random()<dt*4)smoke(x+rnd(-R,R)*.5,y,'#3a1020',1,4,9,.9,.6);
   }else if(id==='stasis'){ // 時計の針がゆっくり回り、輪が脈打つ
     ctx.save();ctx.translate(x,y);ctx.scale(1,.62);ctx.strokeStyle=rgba(d.c,.75);ctx.lineWidth=1.5;
     for(let i=0;i<12;i++){const a=i/12*TAU;ctx.beginPath();ctx.moveTo(Math.cos(a)*R*.82,Math.sin(a)*R*.82);ctx.lineTo(Math.cos(a)*R*.95,Math.sin(a)*R*.95);ctx.stroke()}
