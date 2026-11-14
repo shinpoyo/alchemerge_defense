@@ -211,7 +211,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['魔力◆で元素を呼び出し、さらに重ねよう','Spend mana ◆ to summon more, then keep merging'],
-  waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王（通せば陥落）',' — Night King (must not pass)'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
+  waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['次からは下の一覧で直接呼び出せる（◆{0}）','Now you can summon it from the list below (◆{0})'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
   stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],
@@ -414,7 +414,7 @@ const ENEMY={
   mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#9a4ae0'},
   boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
 };
-let HP0=80,HP_GROW=1.28,FINAL_M=2.2;
+let HP0=80,HP_GROW=1.28,FINAL_M=2;
 const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*(NIGHT?NIGHT_HP:1);
 function buildWave(w){
   const q=[];let t=0;
@@ -424,7 +424,7 @@ function buildWave(w){
   add('shade',5+Math.floor(w*1.25),gap);
   if(w>=2)add('wisp',1+(w>>1),gap*.7);
   if(w>=4)add('golem',Math.floor(w/2.5),gap*1.6);
-  if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」は、通したら陥落
+  if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」
   return q;
 }
 
@@ -1114,8 +1114,17 @@ function kill(e){
   const n=boss?12:Math.min(3,1+(e.reward/6|0));
   for(let i=0;i<n;i++)fx.push({ty:'mana',x:e.x,y:e.y,cx:e.x+rnd(-60,60),cy:e.y+rnd(-70,-20),t:-i*.05,dur:rnd(.5,.75)});
 }
+// 灯への攻撃：夜の王は 1 回で 2、主は 1。主は 8 回攻撃すると去る（これまでの「通すと 8 減る」と同じ上限）。王は倒すまで去らない
+const SIEGE_FIRST=1.4,SIEGE_EVERY=1.1,SIEGE_MAX=8;
+function siegeHit(e){
+  const dmg=e.final?2:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
+  shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
+  burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',17);
+  if(S.lives<=0&&!S.over){S.lives=0;gameOver();return}
+  if(!e.final&&e.hits>=SIEGE_MAX){e.dead=true;if(FX){burst(e.x,e.y,e.def.rim,20,160);smoke(e.x,e.y,'#1a1230',8,20,10,.8,.7)}}
+}
 function leak(e){
-  e.dead=true;S.lives-=e.final?S.lives:e.def.life;S.coreHit=1;
+  e.dead=true;S.lives-=e.def.life;S.coreHit=1;
   shake(8);S.flash=.3;S.flashC='#ff2a4a';sfx.leak();buzz(60);
   burst(CORE.x,CORE.y,'#ff2a4a',24,180);ring(CORE.x,CORE.y,'#ff2a4a',80,.5,4);
   if(S.lives<=0&&!S.over){S.lives=0;gameOver()}
@@ -1196,7 +1205,13 @@ function update(dt){
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
     if(e.flash>0)e.flash-=dt;
     e.d+=e.def.spd*(e.slowT>0?1-e.slow:1)*dt;
-    if(e.d>=e.P.len){leak(e);continue}
+    if(e.d>=e.P.len){
+      if(e.type!=='boss'){leak(e);continue}
+      // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
+      e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',15);sfx.wave(5)}}
+      e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
+      if(e.atk<=0){e.atk+=SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
+    }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
   for(const sl of slots){
@@ -1533,7 +1548,9 @@ function drawEnemy(e){
   const t=S.time,r=e.r,boss=e.type==='boss';
   const bob=e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
         sway=e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
-  ctx.save();ctx.translate(e.x+sway,e.y+bob);
+  if(e.siege){const k=clamp(1-e.atk/SIEGE_EVERY,0,1);ctx.save();ctx.translate(e.x-30,e.y);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
+    ctx.beginPath();ctx.arc(0,0,r+9,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();ctx.restore()}
+  ctx.save();ctx.translate(e.x+sway-(e.siege?30-Math.max(0,e.lunge||0)*14:0),e.y+bob);
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
@@ -1838,7 +1855,7 @@ function render(dt){
     else if(f.ty==='wave'){if(f.t<0)continue;const k=f.t/f.dur;if(k>=1){fx.splice(i,1);continue}
       const a=k<.2?k/.2:k>.7?(1-k)/.3:1,ox=(1-Math.min(1,k/.2))**3*-160+(k>.7?((k-.7)/.3)**3*160:0);
       ctx.globalAlpha=a;ctx.fillStyle='#05040a99';ctx.fillRect(0,282,W,56);ctx.fillStyle='#ff3b6b';ctx.fillRect(0,282,W,1);ctx.fillRect(0,337,W,1);
-      ctx.font=FONT(f.n%20===0&&!f.txt?(LANG==='ja'?22:19):30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%20===0?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
+      ctx.font=FONT(30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%20===0?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
   }
   ctx.restore();
   // 新発見の幕
