@@ -200,7 +200,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],rankDiff:['★の数がちがうと重ならない','Only same ★ can merge'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -457,6 +457,15 @@ const RECIPES=[
   ['typhoon','thunderstorm','fujinraijin'],['foxfire','wraith','ninetails'],['particle','railgun','photon'],['bottomless','mire','naraku'],['ryugu','forest','paradise'],
   ['galaxy','photon','cosmos'],['poseidon','fujinraijin','kamikaze'],['ninetails','phoenix','rinne'],['kyoshin','yggdrasil','gaia'],['absolutezero','solarflare','chaos'],
   ['naraku','stasis','mugen'],
+  // もう 1 つの作り方（名前から想像できる組み合わせ）
+  ['venom','swamp','bog'],['venom','steam','miasma'],['tomb','shadow','curse'],['tomb','flame','wisp'],['thicket','swamp','spore'],
+  ['gem','ice','crystal'],['sand','swamp','quicksand'],['steam','pond','mist'],['twilight','shadow','nightfall'],['bat','tomb','vampire'],
+  ['blackflame','lava','gokuen'],['gem','rock','diamond'],['thicket','leaves','jungle'],['flash','ray','laser'],['ice','ice','glacier'],
+  ['steam','steam','raincloud'],['bolt','bolt','storm'],
+  ['bog','toxin','mire'],['jungle','jungle','forest'],['nightfall','curse','abyss'],['holylight','nightfall','star'],['holylight','inferno','sun'],
+  ['holylight','laser','tenkou'],['jungle','mist','jukai'],['sea','tornado','typhoon'],['volcano','volcano','eruption'],['glacier','glacier','iceage'],
+  ['thunderbird','thunderbird','raijin'],
+  ['forest','jukai','yggdrasil'],['sun','sun','solarflare'],['star','star','galaxy'],['tsunami','tsunami','poseidon'],['raijin','raijin','thunderlord'],
   // 木・光・闇（あとから解放される基本元素）
   ['wood','wood','thicket'],['wood','fire','charcoal'],['wood','water','flower'],['wood','earth','root'],['wood','wind','leaves'],
   ['light','light','flash'],['light','fire','ray'],['light','water','rainbow'],['light','earth','gem'],['light','wind','aurora'],['light','wood','firefly'],
@@ -467,7 +476,7 @@ const RECIPES=[
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
-for(const[a,b,r]of RECIPES){RECIPE[rkey(a,b)]=r;MADE_BY[r]=[a,b]}
+for(const[a,b,r]of RECIPES){RECIPE[rkey(a,b)]=r;(MADE_BY[r]=MADE_BY[r]||[]).push([a,b])} // 1 つの元素に作り方が複数あってよい
 const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
 const UNLOCK={wood:8,light:16,dark:24};
@@ -1137,7 +1146,8 @@ function drawItem(it,x,y,sc=1,alpha=1){
 /* ---------------- 錬成 ---------------- */
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
-  return r?{id:r}:{fail:TT('noReact')};
+  if(r)return{id:r};
+  return{fail:TT(ITEMS[a.id].t!==ITEMS[b.id].t?'rankDiff':'noReact')}; // ★の数がちがうものは重ならない
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
 function dropOn0(from,to){
@@ -1693,9 +1703,12 @@ function openCodex(){
     for(const d of all.filter(d=>d.t===tr)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${mk?`<em>${nm(ITEMS[mk[0]])} ＋ ${nm(ITEMS[mk[1]])}</em>`:''}${ds(d)}</div>`;
+        // 作り方は、材料をどちらも見つけているものを先に、最大 3 通り
+        const rs=mk?[...mk].sort((x,y)=>(disc.has(y[0])&&disc.has(y[1]))-(disc.has(x[0])&&disc.has(x[1]))).slice(0,3):[];
+        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
-        const hint=UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):mk&&disc.has(mk[0])&&disc.has(mk[1])?`${nm(ITEMS[mk[0]])} ＋ ？`:'？ ＋ ？';
+        const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
+        const hint=UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
     }
