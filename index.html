@@ -501,6 +501,18 @@ const STAGES=[
    paths:[[[-30,95],[300,95],[300,190],[110,190],[110,290],[425,290]],[[-30,485],[300,485],[300,390],[110,390],[110,290],[425,290]]],
    field:[[130,142],[200,142],[130,438],[200,438],[190,240],[260,240],[190,340],[260,340],[370,150],[370,225],[370,355],[370,430]],
    traps:[[200,95],[200,485],[110,240],[110,340],[300,290]]},
+  {name:'三叉の谷',note:'三つの入口が真ん中で合流',en:'Three Forks',noteEn:'Three entrances merge',hp:.55,
+   paths:[[[-30,95],[170,95],[170,290],[425,290]],[[-30,290],[425,290]],[[-30,485],[170,485],[170,290],[425,290]]],
+   field:[[60,190],[120,190],[60,390],[120,390],[240,190],[320,190],[400,190],[240,390],[320,390],[400,390],[285,110],[285,470]],
+   traps:[[95,95],[95,485],[95,290],[170,240],[300,290]]},
+  {name:'迷いの森',note:'いちばん長く折れ曲がる道',en:'Lost Woods',noteEn:'The longest winding road',hp:1.35,
+   paths:[[[-30,80],[60,80],[60,480],[160,480],[160,80],[260,80],[260,480],[360,480],[360,200],[425,200]]],
+   field:[[110,150],[110,280],[110,410],[210,150],[210,280],[210,410],[310,150],[310,280],[310,410],[410,110],[410,330],[410,440]],
+   traps:[[60,215],[160,345],[260,215],[110,480],[210,80]]},
+  {name:'王の間',note:'左上と右下から中央の灯へ',en:'Throne Room',noteEn:'Two roads close in on the center',hp:.66,
+   paths:[[[-30,90],[400,90],[400,290],[225,290]],[[480,490],[50,490],[50,290],[225,290]]],
+   field:[[100,170],[180,170],[260,170],[340,170],[150,235],[300,235],[150,345],[300,345],[120,410],[200,410],[280,410],[360,410]],
+   traps:[[200,90],[400,190],[250,490],[50,390],[100,290]]},
 ];
 const NIGHT_HP=1.5,NIGHT_LIVES=12; // 「悪夢」：敵の体力 1.5 倍・灯 12
 let STAGE=0,NIGHT=false;
@@ -1835,7 +1847,7 @@ function makeBg(){
   g.strokeStyle='#131022';g.lineWidth=30;tr();g.stroke();
   g.setLineDash([2,13]);g.strokeStyle=rgba('#c9b8ff',.3);g.lineWidth=2;tr();g.stroke();g.setLineDash([]);
   // 入口の裂け目
-  for(const P of PATHS){const y=P.pts[0][1];gr=g.createRadialGradient(0,y,0,0,y,60);gr.addColorStop(0,rgba('#b03cff',.55));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,y-65,70,130)}
+  for(const P of PATHS){const y=P.pts[0][1],x0=clamp(P.pts[0][0],0,W);gr=g.createRadialGradient(x0,y,0,x0,y,60);gr.addColorStop(0,rgba('#b03cff',.55));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x0-70,y-65,140,130)}
   for(let i=0;i<4;i++){const x=rnd(40,410),y=rnd(430,512),r=rnd(60,120);gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(160,140,255,.05)');gr.addColorStop(1,'rgba(160,140,255,0)');g.fillStyle=gr;g.fillRect(x-r,y-r*.4,r*2,r*.8)}
   // 作業台
   gr=g.createLinearGradient(0,LY.top,0,LY.top+LY.panelH);gr.addColorStop(0,'#100c1f');gr.addColorStop(1,'#060510');g.fillStyle=gr;rr(g,5,LY.top,W-10,LY.panelH,14);g.fill();g.strokeStyle='#2a2440';g.lineWidth=1;g.stroke();
@@ -1884,9 +1896,10 @@ function drawEnemy(e){
   const t=S.time,r=e.r,boss=e.type==='boss';
   const bob=e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
         sway=e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
-  if(e.siege){const k=clamp(1-e.atk/SIEGE_EVERY,0,1);ctx.save();ctx.translate(e.x-30,e.y);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
+  const sg=e.P.seg[e.P.seg.length-1],ux=(sg.bx-sg.ax)/sg.l,uy=(sg.by-sg.ay)/sg.l,back=e.siege?30-Math.max(0,e.lunge||0)*14:0;
+  if(e.siege){const k=clamp(1-e.atk/SIEGE_EVERY,0,1);ctx.save();ctx.translate(e.x-ux*30,e.y-uy*30);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(0,0,r+9,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();ctx.restore()}
-  ctx.save();ctx.translate(e.x+sway-(e.siege?30-Math.max(0,e.lunge||0)*14:0),e.y+bob);
+  ctx.save();ctx.translate(e.x+sway-ux*back,e.y+bob-uy*back);
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）

@@ -11,7 +11,7 @@
 2. 元素を **重ねる** と新しい元素になる。ちがうもの同士（火＋水＝蒸気）でも、おなじもの同士（水＋水＝池、池＋池＝海）でも変わる
 3. できた元素を **魔法陣** に置くと塔になって戦う。沼などの **罠は道の上** に置く
 4. **20 の夜波** を退ければクリア。その先はエンドレス
-5. ステージは 3 つ（宵の回廊・螺旋の庭・双つの門）。クリアすると次のステージと、難しい「悪夢」が開く。見つけた元素はどのステージにも持ち越される
+5. ステージは 6 つ（宵の回廊・螺旋の庭・双つの門・三叉の谷・迷いの森・王の間）。クリアすると次のステージと、難しい「悪夢」が開く。見つけた元素はどのステージにも持ち越される
 
 元素は全 142 種・レシピ 168 個（1 つの元素に作り方が複数あるものも）。★はその元素のランク（1〜6）。一度見つけた元素は、画面下の一覧（★ごとのタブ）から直接呼び出せる（値段は 1 ランクごとに 2 倍）。図鑑では見つけた元素とレシピを確認できる。
 
@@ -25,7 +25,7 @@
 
 ## English
 
-**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (142 elements, 168 recipes), place them on magic circles as towers, and put traps on the road. Three stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
+**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (142 elements, 168 recipes), place them on magic circles as towers, and put traps on the road. Six stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
 
 ## ファイル
 
