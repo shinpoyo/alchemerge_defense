@@ -621,8 +621,8 @@ function shopShow(id){ // その元素のボタンが見える位置までタブ
 const ENEMY={
   shade:{hp:1,   spd:44,r:11,w:1,  life:1,rim:'#7d5cf0'},
   wisp: {hp:.55, spd:82,r:8, w:.8, life:1,rim:'#e05ad8'},
-  golem:{hp:3.6, spd:27,r:15,w:2.5,life:2,rim:'#c0384a'},
-  mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#9a4ae0'},
+  golem:{hp:3.6, spd:27,r:15,w:2.5,life:2,rim:'#e0913a'},
+  mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#3ad6a0'},
   boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
   // 通常の波に混ざる、くせのある敵
   runner:  {hp:1.1,spd:80,r:9, w:1.1,life:1,rim:'#ffd84a',res:.7},   // 駆ける影：減速が効きにくい（効き目が 3 割になる）
@@ -2061,7 +2061,7 @@ function drawEnemy(e){
   }
   ePath(e,t,r);
   if(e.flash>0)ctx.fillStyle='#ffffff';
-  else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r);bg2.addColorStop(0,'#181230');bg2.addColorStop(.6,'#0a0716');bg2.addColorStop(1,'#040309');ctx.fillStyle=bg2}
+  else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r),fc={shade:['#2a1e5c','#070512'],wisp:['#6b1e63','#14061e'],golem:['#6e4a26','#150d05'],mite:['#14523f','#03110c'],boss:['#57152c','#0d0307'],runner:['#5c4a12','#121003'],flyer:['#174a63','#04121a'],splitter:['#1d5226','#04140a']}[e.type];bg2.addColorStop(0,fc[0]);bg2.addColorStop(1,fc[1]);ctx.fillStyle=bg2}
   ctx.fill();
   ctx.strokeStyle=e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):e.def.rim;ctx.lineWidth=(boss?2.5:1.6)+(e.slowT>0||e.dotT>0?.8:0);ctx.stroke();
   if(e.dotT>0&&e.dotK){ctx.fillStyle='#a8f06a55';ctx.fill()} // 毒：体が緑がかる
@@ -2070,14 +2070,19 @@ function drawEnemy(e){
     ctx.strokeStyle=rgba(e.def.rim,.85);ctx.lineWidth=1.4;ctx.beginPath();for(let i=0;i<=4;i++){const mx=-r*.3+i*r*.15;ctx[i?'lineTo':'moveTo'](mx,r*.08+((i%2)?r*.09:0))}ctx.stroke()}
   if(e.type==='golem'){ // 岩の面とひび、怒り眉
     ctx.fillStyle='rgba(255,255,255,.07)';ctx.beginPath();ctx.moveTo(-.55*r,-.95*r);ctx.lineTo(.5*r,-1*r);ctx.lineTo(.1*r,-.2*r);ctx.lineTo(-.7*r,-.3*r);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,190,90,.34)';ctx.beginPath();ctx.moveTo(-r*.82,-r*.56);ctx.lineTo(r*.82,-r*.56);ctx.lineTo(r*.64,-r*.32);ctx.lineTo(-r*.64,-r*.32);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#ffe1ad';for(const bx of[-.55,0,.55]){ctx.beginPath();ctx.arc(bx*r,-r*.44,Math.max(1.2,r*.07),0,TAU);ctx.fill()}
     ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-r*.2,-r*.9);ctx.lineTo(-r*.05,-r*.4);ctx.lineTo(-r*.3,r*.1);ctx.moveTo(r*.55,r*.2);ctx.lineTo(r*.3,r*.55);ctx.stroke();
     ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.6;for(const sx of[-1,1]){ctx.beginPath();ctx.moveTo(sx*r*.1,-r*.34);ctx.lineTo(sx*r*.52,-r*.22);ctx.stroke()}
   }
-  if(e.type==='mite'){ // 小さな脚と背のトゲ
-    ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.3;ctx.lineCap='round';
+  if(e.type==='mite'){ // 小さな脚と背のトゲ、触角
+    ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.5;ctx.lineCap='round';
     for(const sx of[-1,1])for(let i=0;i<3;i++){const y0=r*.5+i*r*.17,wg=Math.sin(t*18+i*1.7+e.ph)*1.6;
-      ctx.beginPath();ctx.moveTo(sx*r*.8,y0);ctx.lineTo(sx*(r+4.5),y0+3.5+wg);ctx.stroke()}
+      ctx.beginPath();ctx.moveTo(sx*r*.8,y0);ctx.lineTo(sx*(r+5.5),y0+3.5+wg);ctx.stroke()}
     ctx.fillStyle=e.def.rim;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*r*.45-r*.14,-r*.8);ctx.lineTo(i*r*.45,-r*1.3);ctx.lineTo(i*r*.45+r*.14,-r*.8);ctx.fill()}
+    ctx.strokeStyle=e.def.rim;ctx.lineWidth=1.2;for(const sx of[-1,1]){const wg=Math.sin(t*14+e.ph+sx)*1.3;
+      ctx.beginPath();ctx.moveTo(sx*r*.28,-r*.82);ctx.quadraticCurveTo(sx*r*.5,-r*1.4,sx*r*.85,-r*1.32+wg);ctx.stroke();
+      ctx.fillStyle=e.def.rim;ctx.beginPath();ctx.arc(sx*r*.85,-r*1.32+wg,1.4,0,TAU);ctx.fill()}
   }
   if(e.type==='wisp'){ // 内側の炎
     ctx.save();ctx.scale(.55,.62);ctx.translate(0,r*.28);
@@ -2085,12 +2090,18 @@ function drawEnemy(e){
     ctx.bezierCurveTo(r*.75,-r*.55,r*.85,r*.25,r*.55,r*.7);ctx.quadraticCurveTo(0,r*1.05,-r*.55,r*.7);
     ctx.bezierCurveTo(-r*.85,r*.25,-r*.75,-r*.55,0,-r*1.25+fl2);ctx.closePath();
     ctx.fillStyle=rgba(e.def.rim,.5);ctx.fill();ctx.restore();
+    for(const sx of[-1,1]){const tf=Math.sin(t*13+sx*2.1+e.ph)*r*.1;ctx.fillStyle=rgba(e.def.rim,.6);
+      ctx.beginPath();ctx.moveTo(sx*r*.9,r*.3);ctx.quadraticCurveTo(sx*r*1.45,r*.05+tf,sx*r*1.1,r*.8);ctx.quadraticCurveTo(sx*r*.78,r*.55,sx*r*.9,r*.3);ctx.fill()}
   }
   if(e.type==='shade'){ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(0,-r*.3,r*.52,r*.42,0,0,TAU);ctx.fill()}
-  const eyC=e.type==='wisp'?'#ffd0ff':e.type==='golem'?'#ffb03a':'#ff3b6b';ctx.fillStyle=eyC;
-  if(e.type==='mite'){ctx.beginPath();ctx.arc(0,-r*.1,Math.max(1.4,r*.22),0,TAU);ctx.fill()}
+  const eyC=e.type==='wisp'?'#ffd0ff':e.type==='golem'?'#ffb03a':e.type==='mite'?'#c9ffe9':e.type==='runner'?'#fff3b0':e.type==='flyer'?'#e6f7ff':e.type==='splitter'?'#eaffea':'#ff3b6b';ctx.fillStyle=eyC;
+  if(e.type==='mite'){for(const sx of[-1,1]){ctx.beginPath();ctx.arc(sx*r*.34,-r*.08,Math.max(1.2,r*.2),0,TAU);ctx.fill()}}
   else if(e.type==='golem'){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.32,-r*.08,r*.17,r*.07,-.15*sx,0,TAU);ctx.fill()}}
   else if(e.type==='wisp'){const er=Math.max(1.6,r*.2);ctx.beginPath();ctx.arc(-r*.32,-r*.05,er,0,TAU);ctx.arc(r*.32,-r*.05,er,0,TAU);ctx.fill()}
+  else if(e.type==='runner'){ctx.save();ctx.rotate(-.35);ctx.beginPath();ctx.ellipse(0,-r*.12,Math.max(1.6,r*.34),Math.max(1.2,r*.13),0,0,TAU);ctx.fill();ctx.restore()}
+  else if(e.type==='flyer'){const er=Math.max(1.5,r*.17);ctx.beginPath();ctx.arc(-r*.3,-r*.05,er,0,TAU);ctx.arc(r*.3,-r*.05,er,0,TAU);ctx.fill();ctx.fillStyle=e.def.rim;ctx.beginPath();ctx.moveTo(-r*.14,r*.16);ctx.lineTo(r*.14,r*.16);ctx.lineTo(0,r*.48);ctx.closePath();ctx.fill()}
+  else if(e.type==='splitter'){for(const q of[[-.5,.3],[.5,.3],[0,-.45]]){ctx.beginPath();ctx.arc(q[0]*r,q[1]*r,Math.max(1.3,r*.15),0,TAU);ctx.fill()}}
+  else if(boss){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.36,-r*.12,Math.max(1.4,r*.1),Math.max(2.4,r*.26),0,0,TAU);ctx.fill()}ctx.beginPath();ctx.ellipse(0,-r*.5,Math.max(1.6,r*.13),Math.max(2.6,r*.3),0,0,TAU);ctx.fill()}
   else{for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.34,-r*.18,Math.max(1.2,r*.09),Math.max(2,r*.24),0,0,TAU);ctx.fill()}}
   if(e.curseT>0){ // 呪い：回る輪と、頭上の印
     ctx.strokeStyle='#d05aff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,r+4,t*3,t*3+4);ctx.stroke();
