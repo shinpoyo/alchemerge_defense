@@ -591,7 +591,7 @@ function resumeRun(){
   STAGE=r.stage;NIGHT=!!r.night;reset();
   for(const sl of slots)sl.item=null;
   r.items.forEach(([i,id],n)=>{const sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
-  S.wave=r.wave;S.mana=S.manaShow=r.mana;S.lives=r.lives;S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
+  S.wave=r.wave;S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=r.lives;S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
 }
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[]}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
@@ -1438,7 +1438,7 @@ function applyHit(e,d,m,color){
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0}
 }
 function kill(e){
-  e.dead=true;S.mana+=e.reward;
+  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
   burst(e.x,e.y,e.def.rim,boss?50:10,boss?260:110);burst(e.x,e.y,'#1a1230',6,60,{ty:'d'});
@@ -2053,7 +2053,7 @@ function drawHud(dt){
   const mx=W-16,sc=1+S.manaBump*.35;
   ctx.save();ctx.translate(mx+(S.manaErr>0?Math.sin(S.manaErr*70)*5*S.manaErr:0),25);ctx.scale(sc,sc);
   ctx.textAlign='right';ctx.font=FONT(22,800);ctx.fillStyle=S.manaErr>0?'#ff3b6b':'#ffe9a0';
-  const tx=Math.round(S.manaShow)+'';ctx.fillText(tx,0,1);
+  const tx=(Math.abs(S.mana-S.manaShow)<.5?Math.floor(S.mana):Math.round(S.manaShow))+'';ctx.fillText(tx,0,1);
   const tw=ctx.measureText(tx).width;ctx.font=FONT(14);ctx.fillStyle='#e8c36a';ctx.fillText('◆',-tw-5,1);
   ctx.restore();
 }
