@@ -107,7 +107,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <div class="sub">MERGE × TOWER DEFENSE</div>
     <ul class="how" id="how">
       <li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li>
-      <li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li>
+      <li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li>
       <li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li>
       <li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 54 種、★はランク</li>
     </ul>
@@ -186,8 +186,8 @@ try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.
 const TX={ // [日本語, English]。{0}{1}… に値が入る
   title:['アルケマージ','Alchemerge'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
   docTitle:['アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge — Merge × Tower Defense'],
-  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li><li><i>二</i>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
-       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you discover</b> can be summoned directly next time</li><li><i>2</i><b>Stack</b> two elements to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
+  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
+       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you discover</b> can be summoned directly next time</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
   stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],
   nightNote:['悪夢：敵の体力 {0} 倍・灯は {1}','Nightmare: enemy HP ×{0}, only {1} lives'],
@@ -196,11 +196,11 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
   codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
-  found:['発見 {0} / {1}','Found {0} / {1}'],notYet:['まだ見つけていない','Not found yet'],theEnd:['すべての果て','The end of all'],
+  found:['発見 {0} / {1}','Found {0} / {1}'],codexRule:['★の数が同じ元素どうしを重ねると、★がひとつ上の元素ができる','Stack two elements with the same ★ to make one with ★ one higher'],notYet:['まだ見つけていない','Not found yet'],theEnd:['すべての果て','The end of all'],
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],rankDiff:['★の数が同じものどうしで錬成できる','Only elements with the same ★ can merge'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -1148,7 +1148,7 @@ function drawItem(it,x,y,sc=1,alpha=1){
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
   if(r)return{id:r};
-  return{fail:TT(ITEMS[a.id].t!==ITEMS[b.id].t?'rankDiff':'noReact')}; // ★の数がちがうものどうしは錬成できない
+  return{fail:TT('noReact')}; // ★の数がちがうものどうしは錬成できない（決まりはタイトル画面と図鑑に書いてある）
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
 function dropOn0(from,to){
@@ -1697,7 +1697,7 @@ document.addEventListener('click',e=>{if(performance.now()-shownAt<400&&e.target
 cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
 function openCodex(){
   const all=Object.values(ITEMS);
-  $('#cnt').textContent=TT('found',disc.size,all.length);
+  $('#cnt').innerHTML=TT('found',disc.size,all.length)+'<br><small>'+TT('codexRule')+'</small>';
   let h='';
   for(let tr=1;tr<=6;tr++){
     h+=`<div class="tier">${'★'.repeat(tr)}</div>`;
