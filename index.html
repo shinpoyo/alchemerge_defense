@@ -60,6 +60,25 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .red h1{background:linear-gradient(180deg,#ffd0d0,#d0375a 60%,#5a1024);-webkit-background-clip:text;background-clip:text;
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
+#detail{justify-content:flex-start;padding-top:calc(var(--u)*14);padding-bottom:calc(var(--u)*10)}
+#dBody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*13.5);line-height:1.6;padding:0 calc(var(--u)*4)}
+.dh{display:flex;align-items:center;gap:calc(var(--u)*10);margin-bottom:calc(var(--u)*6)}
+.dh img{width:calc(var(--u)*84);height:calc(var(--u)*84);flex:none;margin:calc(var(--u)*-8)}
+.dh b{display:block;font-size:calc(var(--u)*24);color:var(--c);letter-spacing:.08em;line-height:1.3}
+.dh span{color:var(--gold);font-size:calc(var(--u)*14)}
+.dh i{font-style:normal;display:inline-block;margin-left:calc(var(--u)*6);padding:0 calc(var(--u)*8);border:1px solid #4a4070;border-radius:calc(var(--u)*10);color:var(--ink);font-size:calc(var(--u)*11.5)}
+.dd{color:var(--ink);margin-bottom:calc(var(--u)*8)}
+.dsec{color:var(--gold);font-size:calc(var(--u)*12);letter-spacing:.25em;border-bottom:1px solid #2a2440;margin:calc(var(--u)*12) 0 calc(var(--u)*6);padding-bottom:calc(var(--u)*2)}
+.dst{display:grid;grid-template-columns:auto 1fr;gap:calc(var(--u)*3) calc(var(--u)*12);color:var(--dim)}
+.dst b{color:var(--ink);font-weight:700}
+.bar{display:inline-block;vertical-align:middle;width:calc(var(--u)*90);height:calc(var(--u)*5);background:#1c1830;border-radius:calc(var(--u)*3);margin-left:calc(var(--u)*8);overflow:hidden}
+.bar u{display:block;height:100%;background:var(--c)}
+.rc{display:flex;align-items:center;flex-wrap:wrap;gap:calc(var(--u)*2);margin:calc(var(--u)*3) 0;color:var(--dim)}
+.rc img{width:calc(var(--u)*34);height:calc(var(--u)*34);margin:calc(var(--u)*-4)}
+.rc span{color:var(--ink);font-size:calc(var(--u)*12.5);margin-right:calc(var(--u)*4)}
+.rc.go{cursor:pointer}
+.dn{color:var(--dim);font-size:calc(var(--u)*12.5)}
+.dn b{color:#a890ff}
 #menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
 #menu #mClose{margin-top:calc(var(--u)*22)}
@@ -95,6 +114,8 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .stg em{font-style:normal;color:var(--gold)}
 .stg.res{border-color:var(--gold);box-shadow:0 0 calc(var(--u)*16) #e8c36a44}
 .stg:disabled{opacity:.4;cursor:default;box-shadow:none;border-color:#2a2440}
+.card.tap{cursor:pointer}
+.card.tap:active{transform:scale(.95)}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
 </style>
 </head>
@@ -120,6 +141,11 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
+  </div>
+
+  <div class="ov" id="detail">
+    <div id="dBody"></div>
+    <button class="b s" id="dClose">とじる</button>
   </div>
 
   <div class="ov" id="menu">
@@ -196,7 +222,19 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
   codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
-  found:['発見 {0} / {1}','Found {0} / {1}'],codexRule:['★の数が同じ元素どうしを重ねると、★がひとつ上の元素ができる','Stack two elements with the same ★ to make one with ★ one higher'],notYet:['まだ見つけていない','Not found yet'],theEnd:['すべての果て','The end of all'],
+  k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],
+  dStats:['強さ','Stats'],dEffects:['敵にかける効果','Effects on foes'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
+  dDmg:['威力','Damage'],dPerSec:['毎秒 {0}','{0} / sec'],dRate:['連射','Rate'],dTimes:['毎秒 {0} 回','{0} / sec'],dDps:['1 体への毎秒の威力','Damage per sec (1 foe)'],
+  dRange:['射程','Range'],dArea:['効く広さ','Area'],dSplash:['爆発の広さ','Blast radius'],dChain:['跳ねる数','Jumps to'],dBeams:['同時に狙う数','Targets at once'],dBodies:['{0} 体','{0} foes'],
+  dTarget:['当たる相手','Hits'],dAllIn:['射程内の敵すべて','All foes in range'],dLine:['一直線上の敵すべて','All foes in a line'],
+  dDot:['毎秒 {0} を {1} 秒','{0} / sec for {1}s'],dSlow:['{0}% 遅く、{1} 秒','{0}% slower for {1}s'],dSlowTrap:['{0}% 遅く（上にいる間）','{0}% slower (while on it)'],
+  dCurse:['受ける傷が {0} 倍、4 秒','Takes ×{0} damage for 4s'],dKnock:['道の手前へ戻す（主・王には無効）','Pushes back (not bosses)'],
+  dPlaceTower:['魔法陣に置く','Goes on a magic circle'],dPlaceTrap:['道の上の罠マスに置く（飛ぶ影には効かない）','Goes on a trap tile on the road (no effect on flyers)'],
+  dBuyYes:['一覧から呼び出せる','Can be summoned now'],dBuyNo:['一覧から呼ぶには：この戦いで作るか、工房レベル {0}','To summon: make it this battle, or Workshop Lv{0}'],
+  dBase:['基本元素。一覧から呼び出す','A base element. Summon it from the list'],dMoreWays:['ほかに、まだ知らない作り方が {0} 通り','{0} more way(s) not found yet'],
+  dNoUse:['これ以上は錬成できない','Cannot be merged further'],dUnknown:['<b>まだ見つけていない錬成が {0} 個</b>','<b>{0} merge(s) not found yet</b>'],dAllKnown:['この元素を使う錬成は、すべて発見済み','All merges with this are found'],
+  dKnownN:['（発見 {0} / {1}）','(found {0} / {1})'],lpTip:['長押しで詳細','Hold for details'],
+  found:['発見 {0} / {1}','Found {0} / {1}'],codexRule:['★の数が同じ元素どうしを重ねると、★がひとつ上の元素ができる。カードをタップで詳細','Stack two elements with the same ★ to make one with ★ one higher. Tap a card for details'],notYet:['まだ見つけていない','Not found yet'],theEnd:['すべての果て','The end of all'],
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
@@ -1679,7 +1717,9 @@ function gameOver(){
 }
 
 /* ---------------- 入力 ---------------- */
-let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0};
+let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null;
+const LONG_MS=480; // これだけ押し続けると詳細を開く
+const lpClear=()=>{if(lpT){clearTimeout(lpT);lpT=null}};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
 const slotAt=(x,y,need)=>{let b=null,bd=40*40;for(const s of slots){if(need&&!s.item)continue;const q=(s.x-x)**2+(s.y-y)**2;if(q<bd){bd=q;b=s}}return b};
 const inBtn=(b,x,y)=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h;
@@ -1692,20 +1732,25 @@ cv.addEventListener('pointerdown',ev=>{
   const tb=p.y>=TABS[0].y-3&&p.y<TABS[0].y+TABS[0].h+2&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);
   if(tb){if(SHOP.tab!==tb.t){SHOP.tab=tb.t;sfx.ui()}return}
   if(inBtn(SHOP,p.x,p.y)){strip={sx:p.x,s0:SHOP.scroll[SHOP.tab],moved:false,i:Math.floor((p.x-SHOP.x+SHOP.scroll[SHOP.tab])/SHOP.pitch)};
-    SHOP.press=strip.i;SHOP.pressT=1;return}
+    SHOP.press=strip.i;SHOP.pressT=1;
+    lpClear();lpT=setTimeout(()=>{if(strip&&!strip.moved){const d=shopList(SHOP.tab)[strip.i];if(d&&!d.ws&&disc.has(d.id)){strip=null;SHOP.press=null;buzz(12);openDetail(d.id,'game')}}},LONG_MS);
+    return}
   const b=buttons.find(b=>inBtn(b,p.x,p.y));
   if(b){pressed=b;b.p=1;return}
   const s=slotAt(p.x,p.y,true);
-  if(s&&s.item.hide<=0){drag={slot:s,item:s.item,sx:p.x,sy:p.y,moved:false,touch:ev.pointerType==='touch'};s.item.held=true;s.item.sv=5;sfx.pick();buzz(5);return}
+  if(s&&s.item.hide<=0){drag={slot:s,item:s.item,sx:p.x,sy:p.y,moved:false,touch:ev.pointerType==='touch'};s.item.held=true;s.item.sv=5;sfx.pick();buzz(5);
+    lpClear();lpT=setTimeout(()=>{if(drag&&!drag.moved){const id=drag.item.id;drag.item.held=false;drag=null;sel=null;buzz(12);openDetail(id,'game')}},LONG_MS);
+    return}
   if(sel){const t=slotAt(p.x,p.y);if(t)dropOn(sel,t);sel=null}
 });
 cv.addEventListener('pointermove',ev=>{
   const p=pos(ev);ptr=p;
-  if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null}
+  if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null;lpClear()}
     if(strip.moved)SHOP.scroll[SHOP.tab]=clamp(strip.s0-dx,0,shopMax(SHOP.tab))}
-  if(drag&&!drag.moved&&Math.hypot(p.x-drag.sx,p.y-drag.sy)>9){drag.moved=true;sel=null}
+  if(drag&&!drag.moved&&Math.hypot(p.x-drag.sx,p.y-drag.sy)>9){drag.moved=true;sel=null;lpClear()}
 });
 function release(ev,cancel){
+  lpClear();
   const p=ev?pos(ev):ptr;
   if(strip){const st=strip;strip=null;SHOP.press=null;
     if(cancel||st.moved)return;
@@ -1751,6 +1796,49 @@ function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle
 // その遅れてきたクリックで即座に閉じられないよう、開いた直後のクリックは捨てる
 document.addEventListener('click',e=>{if(performance.now()-shownAt<400&&e.target.closest&&e.target.closest('.ov')){e.stopPropagation();e.preventDefault()}},true);
 cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
+// 元素の詳細（盤面や一覧で長押し、または図鑑のカードをタップ）
+const USES={};for(const[a,b,r]of RECIPES){(USES[a]=USES[a]||[]).push([b,r]);if(a!==b)(USES[b]=USES[b]||[]).push([a,r])}
+const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKMAX[d.t]||{dps:1,range:1};m.dps=Math.max(m.dps,dpsOf(d));m.range=Math.max(m.range,d.range)}
+function dpsOf(d){return d.kind==='trap'?0:d.kind==='beam'?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
+let detailFrom=null;
+function openDetail(id,from){
+  const d=ITEMS[id],pz=POISON.has(id),R=RANKMAX[d.t],img=i=>`<img alt="" src="${orb(i).toDataURL()}">`,num=v=>+(+v).toFixed(1);
+  const bar=(v,max)=>`<span class="bar"><u style="width:${Math.round(clamp(v/max,.03,1)*100)}%"></u></span>`;
+  const st=[];
+  if(d.kind!=='trap'){
+    st.push([TT('dDmg'),d.kind==='beam'?TT('dPerSec',num(d.dmg)):num(d.dmg)]);
+    if(d.rate)st.push([TT('dRate'),TT('dTimes',num(d.rate))]);
+    st.push([TT('dDps'),num(dpsOf(d))+bar(dpsOf(d),R.dps)]);
+  }
+  st.push(d.kind==='trap'?[TT('dArea'),d.range]:[TT('dRange'),d.range+bar(d.range,R.range)]);
+  if(d.splash)st.push([TT('dSplash'),d.splash]);
+  if(d.chain)st.push([TT('dChain'),TT('dBodies',d.chain)]);
+  if(d.beams>1)st.push([TT('dBeams'),TT('dBodies',d.beams)]);
+  if(d.kind==='pulse')st.push([TT('dTarget'),TT('dAllIn')]);
+  if(d.kind==='pierce')st.push([TT('dTarget'),TT('dLine')]);
+  const fx2=[];
+  if(d.dot)fx2.push([TT(pz?'stPoison':'stBurn'),TT('dDot',num(d.dot),num(d.dotT))]);
+  if(d.slow)fx2.push([TT('stSlow'),d.kind==='trap'?TT('dSlowTrap',Math.round(d.slow*100)):TT('dSlow',Math.round(d.slow*100),num(d.slowT))]);
+  if(d.curse)fx2.push([TT('stCurse'),TT('dCurse',d.curse)]);
+  if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
+  const mk=MADE_BY[id]||[],mkK=mk.filter(m=>disc.has(m[0])&&disc.has(m[1])),us=USES[id]||[],usK=us.filter(u=>disc.has(u[1])&&disc.has(u[0])),usU=us.length-usK.length;
+  const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${img(a)}<span>${nm(ITEMS[a])}</span>＋${img(b)}<span>${nm(ITEMS[b])}</span>＝${img(r)}<span>${nm(ITEMS[r])}</span></div>`;
+  let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i><i>◆${itemValue(d)}</i></div></div>`;
+  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
+  h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
+  if(fx2.length)h+=`<div class="dsec">${TT('dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
+  h+=`<div class="dsec">${TT('dMadeBy')}</div>`;
+  if(d.t===1)h+=`<div class="dn">${TT('dBase')}</div>`;
+  else{h+=mkK.map(m=>row(m[0],m[1],id)).join('');if(mk.length>mkK.length)h+=`<div class="dn">${TT('dMoreWays',mk.length-mkK.length)}</div>`}
+  h+=`<div class="dsec">${TT('dUses')}</div>`;
+  if(!us.length)h+=`<div class="dn">${TT('dNoUse')}</div>`;
+  else{h+=usK.map(u=>row(id,u[0],u[1],u[1])).join('');h+=`<div class="dn">${usU?TT('dUnknown',usU):TT('dAllKnown')}　${TT('dKnownN',usK.length,us.length)}</div>`}
+  $('#dBody').innerHTML=h;$('#dBody').scrollTop=0;$('#dClose').textContent=TT('close');
+  if(from!==undefined)detailFrom=from;
+  show('detail');shownAt=performance.now();sfx.ui();
+}
+$('#dBody').addEventListener('click',ev=>{const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
+$('#dClose').onclick=()=>{sfx.ui();if(detailFrom==='codex')openCodex();else show(null);detailFrom=null};
 function openCodex(){
   const all=Object.values(ITEMS);
   $('#cnt').innerHTML=TT('found',disc.size,all.length)+'<br><small>'+TT('codexRule')+'</small>';
@@ -1762,7 +1850,7 @@ function openCodex(){
       if(disc.has(d.id)){
         // 作り方は、材料をどちらも見つけているものを先に、最大 3 通り
         const rs=mk?[...mk].sort((x,y)=>(disc.has(y[0])&&disc.has(y[1]))-(disc.has(x[0])&&disc.has(x[1]))).slice(0,3):[];
-        h+=`<div class="card" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
+        h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
         const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
         const hint=UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
@@ -1781,6 +1869,7 @@ function miniMap(c,st){ // ステージの縮図
   g.fillStyle='#e8c36a';for(const[x,y]of st.traps){g.beginPath();g.arc(x,y,9,0,TAU);g.fill()}
   const e=st.paths[0][st.paths[0].length-1];g.fillStyle='#fff3cf';g.beginPath();g.moveTo(e[0],e[1]-30);g.lineTo(e[0]+20,e[1]);g.lineTo(e[0],e[1]+30);g.lineTo(e[0]-20,e[1]);g.fill();
 }
+$('#grid').addEventListener('click',ev=>{const c=ev.target.closest('.card.tap');if(c)openDetail(c.dataset.id,'codex')});
 function openStages(){
   if(NIGHT&&!STAGES.some((_,i)=>nightOpen(i)))NIGHT=false;
   $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT);
@@ -2261,7 +2350,7 @@ function render(dt){
   // 説明の帯（選んでいる・運んでいる元素）
   const inf=held?held.item:sel&&sel.item;
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5)}
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5);ctx.font=FONT(10.5);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84)}
   // 最初の手引き
   if(S.tut<9&&!held&&!S.banner&&!S.over)drawTut(T);
   // 運んでいる元素
@@ -2300,7 +2389,7 @@ function render(dt){
 let last=performance.now(),ambT=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on')||$('#menu').classList.contains('on');
+  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on')||$('#menu').classList.contains('on')||$('#detail').classList.contains('on');
   if(!paused&&!S.over){
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
