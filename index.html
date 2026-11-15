@@ -200,7 +200,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],rankDiff:['★の数がちがうと重ならない','Only same ★ can merge'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],rankDiff:['★の数が同じものどうしで錬成できる','Only elements with the same ★ can merge'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -805,7 +805,8 @@ function sparks(x,y,color,n=8,sp=200){
   for(let i=0;i<n;i++){const a=rnd(TAU),v=rnd(sp*.3,sp);P(x,y,Math.cos(a)*v,Math.sin(a)*v,rnd(.2,.5),1.6,color,{ty:'s',drag:3})}
 }
 function ring(x,y,color,r1=50,dur=.4,lw=3,r0=6){if(FX)fx.push({ty:'ring',x,y,color,r0,r1,dur,lw,t:0})}
-function floatText(x,y,txt,color='#e9e4f5',size=14){if(FX)fx.push({ty:'text',x,y,txt,color,size,t:0,dur:1})}
+function floatText(x,y,txt,color='#e9e4f5',size=14){ // 長い文字は画面の端からはみ出さないよう寄せる
+  const hw=Math.min(W/2-4,String(txt).length*size*.55);x=clamp(x,hw+4,W-hw-4);if(FX)fx.push({ty:'text',x,y,txt,color,size,t:0,dur:1})}
 function shake(v){if(FX)S.shake=Math.max(S.shake,v)}
 
 /* ---------------- 元素のアイコン（±14 の枠にベクターで描く） ---------------- */
@@ -1147,7 +1148,7 @@ function drawItem(it,x,y,sc=1,alpha=1){
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
   if(r)return{id:r};
-  return{fail:TT(ITEMS[a.id].t!==ITEMS[b.id].t?'rankDiff':'noReact')}; // ★の数がちがうものは重ならない
+  return{fail:TT(ITEMS[a.id].t!==ITEMS[b.id].t?'rankDiff':'noReact')}; // ★の数がちがうものどうしは錬成できない
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
 function dropOn0(from,to){
