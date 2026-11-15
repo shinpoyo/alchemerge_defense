@@ -106,7 +106,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <h1 id="t1"></h1>
     <div class="sub">MERGE × TOWER DEFENSE</div>
     <ul class="how" id="how">
-      <li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li>
+      <li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>はその戦いの間、一覧から呼び出せる。<b>工房レベル</b>を上げると図鑑の元素も</li>
       <li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li>
       <li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li>
       <li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 54 種、★はランク</li>
@@ -186,8 +186,8 @@ try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.
 const TX={ // [日本語, English]。{0}{1}… に値が入る
   title:['アルケマージ','Alchemerge'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
   docTitle:['アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge — Merge × Tower Defense'],
-  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>見つけた元素</b>は、次から直接呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
-       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you discover</b> can be summoned directly next time</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
+  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>はその戦いの間、一覧から呼び出せる。<b>工房レベル</b>を上げると図鑑の元素も</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
+       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you make</b> can be summoned for the rest of the battle; raise the <b>Workshop level</b> to summon anything in your codex</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
   stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],
   nightNote:['悪夢：敵の体力 {0} 倍・灯は {1}','Nightmare: enemy HP ×{0}, only {1} lives'],
@@ -214,7 +214,9 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   lockN:['図鑑{0}種','{0} found'],
   newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['図鑑 {0} 種で解放（いま {1}）','Unlocks at {0} found (now {1})'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
-  buyNext:['次からは下の一覧で直接呼び出せる（◆{0}）','Now you can summon it from the list below (◆{0})'],
+  buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
+  wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],
+  needMake:['この戦いで作るか、工房レベル{0}で呼び出せる','Make it this battle, or reach Workshop Lv{0}'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
   stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],
   resume:['つづきから','Continue'],resumeNote:['第 {0} 波から ・ 灯 {1} ・ ◆{2}','From wave {0} · Lives {1} · ◆{2}'],
@@ -552,7 +554,23 @@ const btn=id=>buttons.find(b=>b.id===id);
 // 呼び出し一覧：ランクのタブと、横に流せるボタンの列。見つけた元素はここから直接呼び出せる
 const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
 const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:19}));
-function shopList(t){const a=Object.values(ITEMS).filter(d=>d.t===t);return a.filter(d=>disc.has(d.id)).concat(a.filter(d=>!disc.has(d.id)))}
+// 一覧から買える元素：★1（解放済みの基本元素）／この戦いで作ったもの／工房レベル以下の★で、図鑑にあるもの
+const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
+const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
+function shopList(t){
+  const a=Object.values(ITEMS).filter(d=>d.t===t);
+  const head=t>1&&S.ws<t?[{id:'__ws',ws:t}]:[]; // まだ届いていない★のタブの先頭に、工房レベルを上げる札
+  return head.concat(a.filter(d=>canBuy(d.id)),a.filter(d=>disc.has(d.id)&&!canBuy(d.id)),a.filter(d=>!disc.has(d.id)));
+}
+function upgradeWs(t,b){
+  if(t!==S.ws+1){sfx.fail();floatText(b.x+b.w/2,SHOP.y-10,TT('wsFirst',t-1),'#b9b1d0',12.5);return}
+  const cost=WS_COST[t];
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',12.5);return}
+  S.mana-=cost;S.ws=t;S.manaBump=1;sfx.merge(t);buzz(20);
+  const cx=b.x+b.w/2,cy=b.y+b.h/2;if(FX){burst(cx,cy,'#e8c36a',24,160);ring(cx,cy,'#ffe9a0',60,.5,3);sparks(cx,cy,'#fff',12,220)}
+  floatText(W/2,SHOP.y-18,TT('wsUp',t),'#ffe9a0',13);floatText(W-34,48,'−'+cost,'#ffb89a',14);SHOP.scroll[t]=0;
+  if(!S.active)saveRun();
+}
 const shopMax=t=>Math.max(0,shopList(t).length*SHOP.pitch-5-SHOP.w);
 const shopBtnX=i=>SHOP.x+i*SHOP.pitch-SHOP.scroll[SHOP.tab];
 function shopShow(id){ // その元素のボタンが見える位置までタブと列を動かす
@@ -593,7 +611,7 @@ function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],pro
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
 function saveRun(){
   if(!FX||S.over||(S.cleared&&!S.endless))return;
-  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,
+  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,
        items:slots.map((sl,i)=>sl.item?[i,sl.item.id]:null).filter(Boolean)};
   save();
 }
@@ -604,6 +622,7 @@ function resumeRun(){
   for(const sl of slots)sl.item=null;
   r.items.forEach(([i,id],n)=>{const sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=r.wave;S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=r.lives;S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
+  S.made=new Set((r.made||[]).filter(i=>ITEMS[i]));S.ws=r.ws||1;
 }
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[]}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
@@ -614,7 +633,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:NIGHT?NIGHT_LIVES:20,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;sel=null;drag=null;
@@ -1197,6 +1216,7 @@ function mergeDone(f){
   ring(f.x,f.y,d.c,46+d.t*14,.45,3);ring(f.x,f.y,'#ffffff',30+d.t*8,.28,1.5);
   shake(2+d.t*1.2);buzz(15+d.t*6);sfx.merge(d.t-1);
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',13);
+  S.made.add(n.id);
   if(S.tut===0)S.tut=1;
   if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:TT('allFound',TOTAL)});setTimeout(()=>sfx.clear(),2400)}
   if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c;
@@ -1669,6 +1689,9 @@ function release(ev,cancel){
   if(strip){const st=strip;strip=null;SHOP.press=null;
     if(cancel||st.moved)return;
     const d=shopList(SHOP.tab)[st.i];if(!d)return;
+    const bx={x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h};
+    if(d.ws){upgradeWs(d.ws,bx);return}
+    if(disc.has(d.id)&&!canBuy(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT('needMake',d.t),'#b9b1d0',12.5);return}
     if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):TT('findFirst'),'#b9b1d0',12.5);return}
     spawnBase(d.id,{x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h});return}
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
@@ -1988,6 +2011,7 @@ function drawShop(dt){
     ctx.fillStyle=on?'#2a2148':'#0d0b18';rr(ctx,t.x,t.y,t.w,t.h,11);ctx.fill();
     ctx.strokeStyle=on?'#e8c36a':rgba('#8b5cf6',has?.5:.2);ctx.lineWidth=1.2;ctx.stroke();
     ctx.font=FONT(Math.min(13*LY.k,58/t.t),800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#5d5580';ctx.fillText('★'.repeat(t.t),t.x+t.w/2,t.y+t.h/2+.5);
+    if(t.t>1&&t.t<=S.ws){ctx.fillStyle=rgba('#e8c36a',.8);ctx.fillRect(t.x+10,t.y+t.h-3,t.w-20,1.6)}
     if(SHOP.dotT[t.t]>0){SHOP.dotT[t.t]-=dt;if(on)SHOP.dotT[t.t]=Math.min(SHOP.dotT[t.t],1.2);
       ctx.fillStyle=rgba('#ffe9a0',.6+.4*Math.sin(T*9));ctx.beginPath();ctx.arc(t.x+t.w-5,t.y+3,3.2,0,TAU);ctx.fill()}}
   const tab=SHOP.tab,list=shopList(tab),max=shopMax(tab);SHOP.scroll[tab]=clamp(SHOP.scroll[tab],0,max);
@@ -1995,7 +2019,20 @@ function drawShop(dt){
   ctx.save();ctx.beginPath();ctx.rect(SHOP.x-2,SHOP.y-10,SHOP.w+4,SHOP.h+14);ctx.clip();
   list.forEach((d,i)=>{
     const x=shopBtnX(i);if(x>SHOP.x+SHOP.w||x+SHOP.bw<SHOP.x)return;
-    const ok=disc.has(d.id),cost=itemValue(d),can=ok&&S.mana>=cost,cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
+    const cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
+    if(d.ws){ // 工房レベルを上げる札
+      const next=d.ws===S.ws+1,cost=WS_COST[d.ws],can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=11.5*LY.k;
+      ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
+      const g2=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);g2.addColorStop(0,next?'#3a2a14':'#16120e');g2.addColorStop(1,'#0a0814');
+      ctx.fillStyle=g2;rr(ctx,x,SHOP.y,SHOP.bw,SHOP.h,11);ctx.fill();
+      const pu=can?.5+.5*Math.sin(T*4):0;ctx.strokeStyle=rgba('#e8c36a',next?.55+pu*.45:.25);ctx.lineWidth=next?1.8:1.2;ctx.stroke();
+      ctx.globalAlpha=next?1:.45;
+      ctx.font=FONT(fz*.95,800);ctx.fillStyle='#e8c36a';ctx.fillText(TT('wsName'),cx,SHOP.y+SHOP.h*.22);
+      ctx.font=FONT(fz*1.45,800);ctx.fillStyle='#fff3cf';ctx.fillText('Lv'+d.ws,cx,SHOP.y+SHOP.h*.5);
+      ctx.font=FONT(fz,800);ctx.fillStyle=next?(S.mana>=cost?'#e8c36a':'#a08a6a'):'#8d86a3';ctx.fillText(next?'◆'+cost:TT('wsFirstShort',d.ws-1),cx,SHOP.y+SHOP.h-fz*.7);
+      ctx.globalAlpha=1;ctx.restore();return;
+    }
+    const ok=disc.has(d.id),buy=ok&&canBuy(d.id),cost=itemValue(d),can=buy&&S.mana>=cost;
     const sc=1-(SHOP.press===i?SHOP.pressT*.1:0);
     ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
     const gr=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);gr.addColorStop(0,ok?'#191430':'#0e0c19');gr.addColorStop(1,'#0a0814');
@@ -2005,7 +2042,7 @@ function drawShop(dt){
       const iz=Math.min(64,SHOP.h-8),fz=11.5*LY.k;
       ctx.globalAlpha=can?1:.38;ctx.drawImage(orb(d.id),cx-iz/2,SHOP.y-iz*.12,iz,iz);
       ctx.font=FONT(LANG==='ja'?fz:fz*.9,800);ctx.fillStyle='#ece7f7';ctx.fillText(nm(d),cx,SHOP.y+SHOP.h-fz*1.75);
-      ctx.font=FONT(fz,800);ctx.fillStyle='#e8c36a';ctx.fillText('◆'+cost,cx,SHOP.y+SHOP.h-fz*.7);ctx.globalAlpha=1;
+      ctx.font=FONT(fz,800);ctx.fillStyle=buy?'#e8c36a':'#a890ff';ctx.fillText(buy?'◆'+cost:'Lv'+d.t,cx,SHOP.y+SHOP.h-fz*.7);ctx.globalAlpha=1;
       if(SHOP.newId===d.id&&SHOP.newT>0){const pu=.5+.5*Math.sin(T*8);ctx.strokeStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT)*(.5+pu*.5));ctx.lineWidth=2.5;
         rr(ctx,x-1-pu*2,SHOP.y-1-pu*2,SHOP.bw+2+pu*4,SHOP.h+2+pu*4,12);ctx.stroke();
         ctx.font=FONT(9.5,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a';ctx.strokeText('NEW',cx+16,SHOP.y+7);ctx.fillStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT));ctx.fillText('NEW',cx+16,SHOP.y+7)}
