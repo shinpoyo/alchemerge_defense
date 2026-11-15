@@ -213,6 +213,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['魔力◆で元素を呼び出し、さらに重ねよう','Spend mana ◆ to summon more, then keep merging'],
   lockN:['図鑑{0}種','{0} found'],
   newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['図鑑 {0} 種で解放（いま {1}）','Unlocks at {0} found (now {1})'],
+  e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],
@@ -491,7 +492,7 @@ const fits=(id,sl)=>sl.bench||(sl.path?isTrap(id):!isTrap(id));
 /* ---------------- 盤面（道・魔法陣・作業台・ボタン） ---------------- */
 // ステージ：道（複数あれば敵が交互に出る）・魔法陣・罠マスの位置と、敵の体力の倍率
 const STAGES=[
-  {name:'宵の回廊',note:'長い一本道',en:'Dusk Corridor',noteEn:'One long road',hp:1,
+  {name:'宵の回廊',note:'長い一本道',en:'Dusk Corridor',noteEn:'One long road',hp:1,spice:.5,
    paths:[[[-30,125],[375,125],[375,265],[75,265],[75,405],[425,405]]],
    field:[[75,195],[150,195],[225,195],[300,195],[150,335],[225,335],[300,335],[375,335],[115,470],[190,470],[265,470],[340,470]],
    traps:[[225,125],[375,195],[225,265],[75,335],[240,405]]},
@@ -585,6 +586,10 @@ const ENEMY={
   golem:{hp:3.6, spd:27,r:15,w:2.5,life:2,rim:'#c0384a'},
   mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#9a4ae0'},
   boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
+  // 通常の波に混ざる、くせのある敵
+  runner:  {hp:1.1,spd:80,r:9, w:1.1,life:1,rim:'#ffd84a',res:.7},   // 駆ける影：減速が効きにくい（効き目が 3 割になる）
+  flyer:   {hp:1.15,spd:53,r:10,w:1.2,life:1,rim:'#6ad8ff',fly:true}, // 飛ぶ影：道を無視して入口から灯へ一直線。罠にかからない
+  splitter:{hp:2.2,spd:36,r:14,w:2,  life:2,rim:'#7ae08a',split:3},  // 分かれる影：倒すと小さい 3 体に分かれる
 };
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
 const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*(NIGHT?NIGHT_HP:1);
@@ -596,6 +601,10 @@ function buildWave(w){
   add('shade',5+Math.floor(w*1.25),gap);
   if(w>=2)add('wisp',1+(w>>1),gap*.7);
   if(w>=4)add('golem',Math.floor(w/2.5),gap*1.6);
+  const sp=STAGES[STAGE].spice??1; // くせのある敵の多さ（最初のステージは半分）
+  if(w>=6)add('runner',Math.ceil((2+Math.floor((w-6)*.5))*sp),gap*.8);
+  if(w>=8)add('flyer',Math.ceil((2+Math.floor((w-8)*.5))*sp),gap);
+  if(w>=11)add('splitter',Math.ceil((1+Math.floor((w-11)/2))*sp),gap*1.7);
   if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」
   return q;
 }
@@ -633,7 +642,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:NIGHT?NIGHT_LIVES:20,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{}};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;sel=null;drag=null;
@@ -1453,7 +1462,12 @@ function startWave(){
 }
 function spawnEnemy(q){
   const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m,final=!!q.final;
-  const P=PATHS[S.spawned++%PATHS.length];
+  let P=PATHS[S.spawned++%PATHS.length];
+  if(d.fly){ // 飛ぶ敵は、その道の入口から灯までの直線を進む
+    if(!P.air){const a=P.pts[0],b=P.pts[P.pts.length-1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);P.air={pts:[a,b],seg:[{ax:a[0],ay:a[1],bx:b[0],by:b[1],l,s:0}],len:l}}
+    P=P.air;
+  }
+  if(!S.seen[q.type]&&TX['e_'+q.type]){S.seen[q.type]=1;if(FX)fx.push({ty:'text',x:W/2,y:96,txt:TT('e_'+q.type),color:d.rim,size:13,t:0,dur:3.2})} // 初めて出た種類は一言で紹介
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:S.budget*d.w/S.wsum,dead:false,final});
 }
@@ -1470,6 +1484,12 @@ function applyHit(e,d,m,color){
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0}
 }
 function kill(e){
+  if(e.def.split&&!e.dead){ // 分かれる影：倒れた場所から小さい影が出る（魔力は親のぶんだけ）
+    for(let i=0;i<e.def.split;i++){const hp=e.max*.3;
+      S.enemies.push({type:'mite',def:ENEMY.mite,P:e.P,hp,max:hp,d:Math.max(0,e.d-i*9),x:e.x,y:e.y,r:ENEMY.mite.r*1.15,
+        slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false})}
+    if(FX){ring(e.x,e.y,e.def.rim,34,.35,3);burst(e.x,e.y,e.def.rim,12,150)}
+  }
   e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
@@ -1489,6 +1509,7 @@ function siegeHit(e){
   if(!e.final&&e.hits>=SIEGE_MAX){e.dead=true;if(FX){burst(e.x,e.y,e.def.rim,20,160);smoke(e.x,e.y,'#1a1230',8,20,10,.8,.7)}}
 }
 function leak(e){
+  S.leaks[e.type]=(S.leaks[e.type]||0)+1; // 種類ごとに、抜けた数を数える（調整用）
   e.dead=true;S.lives-=e.def.life;S.coreHit=1;
   shake(8);S.flash=.3;S.flashC='#ff2a4a';sfx.leak();buzz(60);
   burst(CORE.x,CORE.y,'#ff2a4a',24,180);ring(CORE.x,CORE.y,'#ff2a4a',80,.5,4);
@@ -1569,7 +1590,7 @@ function update(dt){
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
     if(e.flash>0)e.flash-=dt;
-    e.d+=e.def.spd*(e.slowT>0?1-e.slow:1)*dt;
+    e.d+=e.def.spd*(e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*dt;
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
@@ -1584,7 +1605,7 @@ function update(dt){
     if(it.hide>0||it.held||sl.bench){it.beamT.length=0;continue}
     if(sl.path){ // 罠：上を通る敵にかかり続ける
       const d=ITEMS[it.id];
-      for(const e of S.enemies){if(!e.dead&&(e.x-sl.x)**2+(e.y-sl.y)**2<(d.range+e.r*.5)**2)applyHit(e,d,1,d.c)}
+      for(const e of S.enemies){if(!e.dead&&!e.def.fly&&(e.x-sl.x)**2+(e.y-sl.y)**2<(d.range+e.r*.5)**2)applyHit(e,d,1,d.c)} // 飛ぶ敵は罠にかからない
       continue;
     }
     towerFire(sl,it,dt);
@@ -1907,6 +1928,18 @@ function ePath(e,t,r){ // 敵の輪郭：種類ごとのシルエットを描く
     ctx.beginPath();pts.forEach((q,i)=>ctx[i?'lineTo':'moveTo'](q[0]*r,q[1]*r));ctx.closePath();return;
   }
   if(e.type==='mite'){ctx.beginPath();ctx.arc(0,0,r,0,TAU);return}
+  if(e.type==='runner'){ // 前のめりの細い矢じり
+    ctx.beginPath();ctx.moveTo(0,-r*1.3);ctx.lineTo(r*.8,r*.2);ctx.lineTo(r*.35,r*.95);ctx.lineTo(0,r*.55);ctx.lineTo(-r*.35,r*.95);ctx.lineTo(-r*.8,r*.2);ctx.closePath();return;
+  }
+  if(e.type==='flyer'){ // 羽ばたく翼
+    const f=Math.sin(t*14+ph)*r*.45;
+    ctx.beginPath();ctx.moveTo(0,-r*.55);ctx.quadraticCurveTo(r*.9,-r*.9-f,r*1.7,-r*.25-f);ctx.quadraticCurveTo(r*1.05,-r*.05,r*.95,r*.45);ctx.quadraticCurveTo(r*.5,r*.2,0,r*.75);
+    ctx.quadraticCurveTo(-r*.5,r*.2,-r*.95,r*.45);ctx.quadraticCurveTo(-r*1.05,-r*.05,-r*1.7,-r*.25-f);ctx.quadraticCurveTo(-r*.9,-r*.9-f,0,-r*.55);ctx.closePath();return;
+  }
+  if(e.type==='splitter'){ // 三つのかたまりがくっついた形
+    const w2=Math.sin(t*4+ph)*r*.05;
+    ctx.beginPath();ctx.arc(-r*.5,r*.3,r*.62+w2,0,TAU);ctx.moveTo(r*.5+r*.62-w2,r*.3);ctx.arc(r*.5,r*.3,r*.62-w2,0,TAU);ctx.moveTo(r*.62+w2,-r*.45);ctx.arc(0,-r*.45,r*.62+w2,0,TAU);return;
+  }
   // shade と boss：裾がギザギザの影（ボスはひと回り大きい）
   const wd=e.type==='boss'?1.12:.92,ht=e.type==='boss'?1.08:1,wob=Math.sin(t*6+ph)*r*.04;
   ctx.beginPath();ctx.moveTo(-r*wd,r*.55);
@@ -1922,7 +1955,11 @@ function drawEnemy(e){
   const sg=e.P.seg[e.P.seg.length-1],ux=(sg.bx-sg.ax)/sg.l,uy=(sg.by-sg.ay)/sg.l,back=e.siege?30-Math.max(0,e.lunge||0)*14:0;
   if(e.siege){const k=clamp(1-e.atk/SIEGE_EVERY,0,1);ctx.save();ctx.translate(e.x-ux*30,e.y-uy*30);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(0,0,r+9,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();ctx.restore()}
-  ctx.save();ctx.translate(e.x+sway-ux*back,e.y+bob-uy*back);
+  const lift=e.def.fly?16:0;
+  if(lift){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(e.x,e.y+4,r*.9,r*.35,0,0,TAU);ctx.fill()}
+  if(e.type==='runner'&&!e.dead){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||sg,vx=(cs.bx-cs.ax)/cs.l,vy=(cs.by-cs.ay)/cs.l;ctx.strokeStyle=rgba(e.def.rim,.55);ctx.lineWidth=1.6;ctx.lineCap='round';
+    for(const o of[-5,0,5]){ctx.beginPath();ctx.moveTo(e.x-vx*(r+3)-vy*o,e.y-vy*(r+3)+vx*o);ctx.lineTo(e.x-vx*(r+13+Math.abs(o))-vy*o,e.y-vy*(r+13+Math.abs(o))+vx*o);ctx.stroke()}}
+  ctx.save();ctx.translate(e.x+sway-ux*back,e.y+bob-uy*back-lift);
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
   if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
