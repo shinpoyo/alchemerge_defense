@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全148種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全150種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -286,6 +286,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],k_mirror:['特殊','Special'],
   dMirrorDmg:['射程内の最高★の塔を写す','Copies highest-★ tower in range'],
   dWarp:['{0}% で道の手前へ戻す（再発動 {1} 秒・主と王には無効）','{0}% chance to warp back ({1}s CD, not bosses)'],
+  dStun:['{0}% で {1} 秒止める（再発動 {2} 秒・主と王には無効）','{0}% chance to stop for {1}s ({2}s CD, not bosses)'],
   dKaleido:['属性変化','Random element'],dKaleidoFx:['1 発ごとに炎・氷・雷・光・闇のいずれか','Fire, Ice, Bolt, Light, or Dark each shot'],
   dStats:['強さ','Stats'],dEffects:['敵にかける効果','Effects on foes'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
   dDmg:['威力','Damage'],dPerSec:['毎秒 {0}','{0} / sec'],dRate:['連射','Rate'],dTimes:['毎秒 {0} 回','{0} / sec'],dDps:['1 体への毎秒の威力','Damage per sec (1 foe)'],
@@ -414,6 +415,7 @@ const EN={ // 英語の名前と説明
   lantern:['Stone Lantern','Its light empowers nearby towers'],bonfire:['Watchfire','Its fire empowers nearby towers'],moonlamp:['Moon Lamp','Moonlight greatly empowers towers'],
   shinso:['Elder Vampire','The first vampire'],tenkou:['Heaven Light','Twin beams from the sky'],jukai:['Sea of Trees','Lost and trapped'],
   mirror:['Mirror','Copies a nearby tower’s attack'],mirage:['Mirage','Trap: warps foes back along the road'],kaleidoscope:['Kaleidoscope','Rainbow beam changes element each shot'],
+  desert:['Desert','Hot sand slows what it hits'],kagerou:['Heat Haze','Trap: slows and briefly stops foes'],
 };
 const nm=d=>LANG==='ja'?d.name:EN[d.id][0],ds=d=>LANG==='ja'?d.desc:EN[d.id][1];
 const sn=st=>LANG==='ja'?st.name:st.en,snote=st=>LANG==='ja'?st.note:st.noteEn;
@@ -543,7 +545,8 @@ const ITEMS={
   titan:   {name:'巨砲',    t:4,c:'#ff8a4a',kind:'bolt', dmg:150,rate:1.1, range:160,splash:60,                 desc:'大爆発を撃ちこむ'},
   bonfire: {name:'篝火',    t:4,c:'#ff9a5a',kind:'support',                range:150,buffD:.25,buffR:.15,       desc:'燃える火でまわりの塔を強める'},
   mirror:  {name:'鏡',      t:4,c:'#e8f0ff',kind:'mirror',     rate:1,   range:150,                           desc:'隣の塔の力を映して放つ'},
-  mirage:  {name:'蜃気楼',  t:4,c:'#a8d8e8',kind:'trap',                   range:38, warp:60,warpP:.25,warpCd:4,desc:'幻に惑い、敵を後戻りさせる'},
+  desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'bolt', dmg:55, rate:1,   range:130,slow:.25,slowT:1.5,         desc:'熱砂を浴びせて足を奪う'},
+  kagerou: {name:'陽炎',    t:4,c:'#ffd9a0',kind:'trap',                   range:90, slow:.35,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：ゆらめく熱気で遅くし、ときに足を止める'},
   // ★5
   fortress:{name:'要塞',    t:5,c:'#c8a870',kind:'bolt', dmg:400,rate:1.1, range:185,splash:75,                 desc:'砲台が一斉に火を噴く'},
   thunderlord:{name:'雷帝', t:5,c:'#fff08a',kind:'chain',dmg:250,rate:1.3, range:180,chain:12,                 desc:'12体を雷で撃つ'},
@@ -568,6 +571,7 @@ const ITEMS={
   dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,slow:.4,slowT:2,           desc:'すべてを貫く息吹'},
   moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   kaleidoscope:{name:'万華鏡',t:5,c:'#ffb0e8',kind:'beam',dmg:260,rate:1.2,range:190,splash:38,kaleido:1,       desc:'撃つたび属性が変わる虹の光'},
+  mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:38, warp:60,warpP:.25,warpCd:4,desc:'幻に惑い、敵を後戻りさせる'},
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
   eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,curse:1.5,slow:.3,slowT:1,desc:'終わらない雷と呪い'},
@@ -631,8 +635,9 @@ const RECIPES=[
   ['vampire','curse','shinso'],['laser','glass','tenkou'],['jungle','spore','jukai'],
   // 支援の塔（攻撃せず、まわりの塔を強める）
   ['rock','charcoal','lantern'],['iron','lantern','bonfire'],['tenkou','bonfire','moonlamp'],
-  // 鏡の系統
-  ['glass','iron','mirror'],['heat','light','mirage'],['mirror','rainbow','kaleidoscope'],
+  // 鏡・蜃気楼の系統
+  ['glass','iron','mirror'],['mirror','rainbow','kaleidoscope'],
+  ['sand','heat','desert'],['heat','light','kagerou'],['kagerou','desert','mirage'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -990,7 +995,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
-Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light'});
+Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light'});
 for(const k in ITEMS)ITEMS[k].fam=FAMOF[k]||'earth'; // 元素の系統。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
@@ -1396,6 +1401,14 @@ const ICON={
     for(let i=0;i<6;i++){const a=i/6*TAU,b=(i+1)/6*TAU;g.fillStyle=cols[i];poly(g,[0,0,Math.cos(a)*13,Math.sin(a)*13,Math.cos(b)*13,Math.sin(b)*13]);g.fill()}
     g.lineWidth=1.6;g.strokeStyle='#fff';g.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU;g[i?'lineTo':'moveTo'](Math.cos(a)*13,Math.sin(a)*13)}g.closePath();g.stroke();
     g.fillStyle='#fff';poly(g,[0,-5,2,-2,5,0,2,2,0,5,-2,2,-5,0,-2,-2]);g.fill()},
+  desert(g,c){g.fillStyle='#ffc85a';dot(g,-6,-9,3.5);
+    g.fillStyle=rgba(c,.6);g.beginPath();g.moveTo(-14,6);g.quadraticCurveTo(-5,-4,4,2);g.quadraticCurveTo(10,-3,14,4);g.lineTo(14,12);g.lineTo(-14,12);g.closePath();g.fill();
+    g.fillStyle=c;g.beginPath();g.moveTo(-14,12);g.quadraticCurveTo(-4,-2,6,5);g.quadraticCurveTo(11,2,14,7);g.lineTo(14,13);g.lineTo(-14,13);g.closePath();g.fill();
+    g.fillStyle='#00000038';g.beginPath();g.moveTo(-2,2);g.quadraticCurveTo(2,4,6,5);g.lineTo(2,13);g.lineTo(-5,13);g.closePath();g.fill();
+    g.strokeStyle='#fff3cf';g.lineWidth=1.4;g.beginPath();g.moveTo(-14,12);g.quadraticCurveTo(-4,-2,6,5);g.stroke()},
+  kagerou(g,c){g.lineWidth=2.2;
+    for(const[x,col]of[[-7,c],[0,'#a8e8ff'],[7,c]]){g.strokeStyle=col;g.beginPath();g.moveTo(x,10);g.bezierCurveTo(x-5,4,x+5,-2,x-2,-7);g.quadraticCurveTo(x+3,-11,x,-13);g.stroke()}
+    g.strokeStyle=rgba(c,.65);g.lineWidth=1.6;line(g,-12,12,12,12);g.fillStyle='#fff';dot(g,-4,-3,1.2);dot(g,5,-8,1.2)},
 };
 
 /* ---------------- 元素のスプライト ---------------- */
@@ -1529,7 +1542,7 @@ function sell(slot){
    VIS：その元素の攻撃をどう描くか。弾の形・当たったときの演出・波動や貫通の形を決める */
 const VIS={
   fire:'fireball',flame:'fireball',phoenix:'feather',wisp:'ghost',water:'drop',sea:'wave',
-  earth:'rock',rock:'rock',mountain:'rock',peak:'rock',wind:'blade',gust:'blade',sand:'grain',
+  earth:'rock',rock:'rock',mountain:'rock',peak:'rock',wind:'blade',gust:'blade',sand:'grain',desert:'grain',
   lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
   steam:'steam',pond:'ripple',inferno:'flames',sun:'rays',tornado:'spin',typhoon:'spin',sandstorm:'spin',blizzard:'snow',
   miasma:'fog',abyss:'fog',mist:'fog',golem:'slam',colossus:'slam',
@@ -1649,7 +1662,7 @@ function trapFx(s,it,d,T,dt){ // 罠ごとの地面の様子
     ctx.strokeStyle='#ffffffb0';ctx.lineWidth=1;const q=it.ph;
     for(let i=0;i<4;i++){const a=q+i*1.7;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*R*.15,y+Math.sin(a)*R*.1);ctx.lineTo(x+Math.cos(a+.3)*R*.5,y+Math.sin(a+.3)*R*.3);ctx.lineTo(x+Math.cos(a)*R*.85,y+Math.sin(a)*R*.5);ctx.stroke()}
     if(Math.random()<dt*(id==='frost'?3:8))P(x+rnd(-R,R)*.7,y+rnd(-R,R)*.4,0,0,.5,4,'#ffffff',{ty:'x',rot:rnd(TAU),vr:3,drag:0});
-  }else if(id==='mirage'){ // 陽炎のように揺らめく波紋
+  }else if(id==='mirage'||id==='kagerou'){ // 陽炎のように揺らめく波紋
     ctx.strokeStyle=rgba(d.c,.65);ctx.lineWidth=1.5;
     for(let i=-1;i<=1;i++){const oy=i*7+Math.sin(T*3+i)*2;ctx.beginPath();ctx.moveTo(x-R*.7,y+oy);ctx.bezierCurveTo(x-R*.2,y+oy-4,x+R*.2,y+oy+4,x+R*.7,y+oy);ctx.stroke()}
     if(Math.random()<dt*3)ring(x+rnd(-R,R)*.4,y+rnd(-R,R)*.25,d.c,R*.7,.7,1.4,3);
@@ -1776,7 +1789,8 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
 }
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
-  if(d.warp&&e.type!=='boss'&&!(e.mirT>0)&&(!sl||e._mirSl!==sl)){
+  const isBoss=e.type==='boss'||/[主王]$/.test(e.name||'');
+  if(d.warp&&!isBoss&&!(e.mirT>0)&&(!sl||e._mirSl!==sl)){
     if(sl)e._mirSl=sl;
     if(Math.random()<d.warpP){
       if(FX){ring(e.x,e.y,color,24,.35,2);burst(e.x,e.y,color,8,90)}
@@ -1785,9 +1799,17 @@ function applyHit(e,d,m,color,sl){
       if(FX)ring(e.x,e.y,color,24,.35,2);
     }
   }
-  if(d.knock&&e.type!=='boss'&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
+  if(d.stun&&!isBoss&&!(e.hazT>0)){
+    e.hazT=d.stunCd;
+    if(Math.random()<d.stunP){
+      e.slow=1;e.slowT=d.stun;tag(e,'stSlow',color);
+      if(FX)ring(e.x,e.y,color,22,.35,2);
+    }
+  }
+  if(d.knock&&!isBoss&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
   if(d.curse&&d.curse>=e.curse-.001){if(e.curseT<=0)tag(e,'stCurse','#d98aff');e.curse=d.curse;e.curseT=4}
-  if(d.slow&&(d.slow>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=d.slow;e.slowT=d.slowT}
+  const slw=d.stun&&isBoss?d.slow*.5:d.slow;
+  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=d.slowT}
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam}
 }
 function kill(e){
@@ -1943,7 +1965,7 @@ function update(dt){
   }
   for(const e of S.enemies){
     if(e.dead)continue;
-    if(e.knT>0)e.knT-=dt;if(e.kb>0)e.kb-=dt;if(e.mirT>0)e.mirT-=dt;
+    if(e.knT>0)e.knT-=dt;if(e.kb>0)e.kb-=dt;if(e.mirT>0)e.mirT-=dt;if(e.hazT>0)e.hazT-=dt;
     if(e.slowT>0)e.slowT-=dt;if(e.curseT>0){e.curseT-=dt;if(e.curseT<=0)e.curse=1}
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
@@ -1957,7 +1979,7 @@ function update(dt){
         e.pulse=n?1:.35;if(n&&FX)ring(e.x,e.y,'#9affc8',HEAL_R,.5,2,10)}}
     if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
-    e.d+=e.def.spd*(e.spdM||1)*(e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*dt;
+    e.d+=e.def.spd*(e.spdM||1)*(e.slowT>0?(e.slow>=1?0:1-e.slow*(1-(e.def.res||0))):1)*dt;
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
@@ -2167,6 +2189,7 @@ function openDetail(id,from){
   if(d.curse)fx2.push([TT('stCurse'),TT('dCurse',d.curse)]);
   if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
+  if(d.stun)fx2.push([TT('stSlow'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
   const mk=MADE_BY[id]||[],mkK=mk.filter(m=>disc.has(m[0])&&disc.has(m[1])),us=USES[id]||[],usK=us.filter(u=>disc.has(u[1])&&disc.has(u[0])),usU=us.length-usK.length;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${img(a)}<span>${nm(ITEMS[a])}</span>＋${img(b)}<span>${nm(ITEMS[b])}</span>＝${img(r)}<span>${nm(ITEMS[r])}</span></div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i><i>${TT('dFam',TT('f_'+d.fam))}</i><i>◆${itemValue(d)}</i></div></div>`;
