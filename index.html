@@ -306,6 +306,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],
+  warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
+  bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
   dFam:['{0}の系統','{0} type'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
@@ -807,7 +809,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:NIGHT?NIGHT_LIVES:20,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{}};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;sel=null;drag=null;
@@ -988,6 +990,8 @@ const sfx={
     drum(.2,0);drum(.2,.6);drum(.24,1.25,80);noise(1.6,.03,8000,1.25,{type:'highpass',to:5000,a:.2,rev:.9});
   },
   over(){[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
+  warn(){for(let i=0;i<3;i++){tone(N(-17),.34,'sawtooth',.07,N(-12),i*.44,{det:6,lp:900,rev:.3});tone(N(-29),.34,'sine',.12,null,i*.44,{rev:.3});drum(.13,i*.44,70)}}, // 主が近づく警告
+  rage(){brass(N(-33),1.1,.09);brass(N(-27),1.1,.07,.08);drum(.24,0,70);drum(.2,.22,60);noise(.6,.1,900,0,{rev:.5})},                                                       // 主の怒り
   ach(){bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
   ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
 };
@@ -1628,6 +1632,7 @@ function startWave(){
   if(S.tut<3)S.tut=3;if(S.wave>=3&&S.tut<9)tutDone();
   S.queue=buildWave(S.wave);
   S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
+  const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
 function spawnEnemy(q){
@@ -1640,13 +1645,35 @@ function spawnEnemy(q){
   const armor=d.armor?armorFam(S.wave):null,sk=armor?'armored'+S.wave:q.type; // 鎧の影は、防ぐ系統が波ごとに変わるので、波ごとに紹介する
   if(!S.seen[sk]&&TX['e_'+q.type]){S.seen[sk]=1;if(FX)fx.push({ty:'text',x:W/2,y:96,txt:armor?TT('e_armored',TT('f_'+armor)):TT('e_'+q.type),color:armor?ELEM[armor].c:d.rim,size:13,t:0,dur:armor?4:3.2})} // 初めて出た種類は一言で紹介
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
-    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:S.budget*d.w/S.wsum,dead:false,final,armor,healT:rnd(.5,HEAL_EVERY)});
+    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,healT:rnd(.5,HEAL_EVERY)});
+  if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
+    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;S.bossLag=1;S.bossA=0;
+    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
+      for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
+      smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
+  }
+}
+/* 主・王の段階：体力が半分を切ると怒り、足が速まり、入口から手下を呼ぶ。夜の王は 25% でさらに激昂し、灯への攻撃も早くなる。
+   怒ると守りが甘くなり、受ける傷が同じ割合で増える（vul）。速くなったぶん早く倒れるので、倒れるまでに進む道のりはこれまでと変わらない */
+const BOSS_BORN=.7,WARN_T=2.6,WARN_LEAD=2.4; // 現れるときにふくらむ秒数／警告を出している秒数／現れる何秒前から警告するか
+const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.25,spd:1.3,atk:.85,vul:1.3,call:6}]; // 3 段階目（体力 25%）は夜の王だけ
+function bossPhase(e){
+  const k=e.hp/e.max,np=e.final&&k<=BOSS_PH[2].at?3:k<=BOSS_PH[1].at?2:1;
+  if(np<=e.phase)return;
+  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd;e.vul=ph.vul;e.atkEvery=SIEGE_EVERY*ph.atk;e.rageT=1;
+  for(let i=0;i<ph.call;i++)S.queue.push({type:'mite',at:S.wt+.5+i*.28,m:1,free:true}); // 手下は入口から出る（魔力は落とさない）。主は波の最後に出るので、列はもう空いている
+  if(!FX)return;
+  const nm2=TT(e.final?'bossKing':'bossLord');
+  shake(9);S.flash=.3;S.flashC='#ff5a2a';sfx.rage();buzz([20,30,50]);
+  ring(e.x,e.y,'#ff5a2a',120,.6,5);ring(e.x,e.y,'#ffe45c',70,.4,3);burst(e.x,e.y,'#ff5a2a',36,260);flameP(e.x,e.y,'#ff5a2a',16,e.r);
+  floatText(e.x,e.y-e.r-26,TT(np>2?'bossFury':'bossRage')+'！','#ffb070',17);
+  fx.push({ty:'text',x:W/2,y:96,txt:TT('rageNote',nm2),color:'#ffb070',size:13,t:0,dur:3.2});
 }
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
   if(e.dead)return;
   if(e.armor&&fam===e.armor){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1
-  e.hp-=dmg*(e.curseT>0?e.curse:1);e.flash=.08;
-  if(e.hp<=0)kill(e);
+  e.hp-=dmg*(e.curseT>0?e.curse:1)*(e.vul||1);e.flash=.08;
+  if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
 function applyHit(e,d,m,color){
   if(e.dead)return;
@@ -1755,6 +1782,7 @@ function update(dt){
   S.time+=dt;
   if(S.active){
     S.wt+=dt;
+    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
   }
   for(const e of S.enemies){
@@ -1770,13 +1798,15 @@ function update(dt){
         for(const o of S.enemies){if(o===e||o.dead||o.def.heal||o.type==='boss'||o.hp>=o.max||(o.x-e.x)**2+(o.y-e.y)**2>HEAL_R*HEAL_R)continue;
           o.hp=Math.min(o.max,o.hp+o.max*e.def.heal);o.healed=.6;n++}
         e.pulse=n?1:.35;if(n&&FX)ring(e.x,e.y,'#9affc8',HEAL_R,.5,2,10)}}
-    e.d+=e.def.spd*(e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*dt;
+    if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
+    if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
+    e.d+=e.def.spd*(e.spdM||1)*(e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*dt;
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
       e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',15);sfx.wave(5)}}
       e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
-      if(e.atk<=0){e.atk+=SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
+      if(e.atk<=0){e.atk+=e.atkEvery||SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
@@ -2281,15 +2311,18 @@ function drawEnemy(e){
   const bob=e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
         sway=e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
   const sg=e.P.seg[e.P.seg.length-1],ux=(sg.bx-sg.ax)/sg.l,uy=(sg.by-sg.ay)/sg.l,back=e.siege?30-Math.max(0,e.lunge||0)*14:0;
-  if(e.siege){const k=clamp(1-e.atk/SIEGE_EVERY,0,1);ctx.save();ctx.translate(e.x-ux*30,e.y-uy*30);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
+  if(e.siege){const k=clamp(1-e.atk/(e.atkEvery||SIEGE_EVERY),0,1);ctx.save();ctx.translate(e.x-ux*30,e.y-uy*30);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(0,0,r+9,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();ctx.restore()}
   const lift=e.def.fly?16:0;
   if(lift){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(e.x,e.y+4,r*.9,r*.35,0,0,TAU);ctx.fill()}
   if(e.type==='runner'&&!e.dead){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||sg,vx=(cs.bx-cs.ax)/cs.l,vy=(cs.by-cs.ay)/cs.l;ctx.strokeStyle=rgba(e.def.rim,.55);ctx.lineWidth=1.6;ctx.lineCap='round';
     for(const o of[-5,0,5]){ctx.beginPath();ctx.moveTo(e.x-vx*(r+3)-vy*o,e.y-vy*(r+3)+vx*o);ctx.lineTo(e.x-vx*(r+13+Math.abs(o))-vy*o,e.y-vy*(r+13+Math.abs(o))+vx*o);ctx.stroke()}}
   ctx.save();ctx.translate(e.x+sway-ux*back,e.y+bob-uy*back-lift);
-  ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
-  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  const rage=boss&&e.phase>1;
+  if(e.born>0){const q=1-e.born/BOSS_BORN,z=.25+.75*(1-(1-q)**3)+Math.sin(q*Math.PI)*.18;ctx.scale(z,z);ctx.globalAlpha=Math.min(1,q*2.5)} // 登場：ふくらんで現れる
+  ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
+  if(rage){const pu=.5+.5*Math.sin(t*(e.phase>2?11:7)+e.ph),z=r*(5+pu*.8);ctx.globalAlpha=.4+.25*pu;ctx.drawImage(glow(e.phase>2?'#ffb040':'#ff5a2a'),-z/2,-z/2,z,z)} // 怒り：炎の色の光が脈打つ
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=e.born>0?Math.min(1,(1-e.born/BOSS_BORN)*2.5):1;
   if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
     const z=.7+e.slow;ctx.fillStyle=rgba('#8fe6ff',.3);ctx.beginPath();ctx.ellipse(0,r*.8,r*1.3*z,r*.45*z,0,0,TAU);ctx.fill();
     ctx.fillStyle='#e6f9ff';for(const sx of[-1,0,1]){const bx=sx*r*.75*z,h=(4+r*.35)*z*(sx?1:1.4);ctx.beginPath();ctx.moveTo(bx-3,r*.9);ctx.lineTo(bx,r*.9-h);ctx.lineTo(bx+3,r*.9);ctx.fill()}
@@ -2302,7 +2335,7 @@ function drawEnemy(e){
   }
   ePath(e,t,r);
   if(e.flash>0)ctx.fillStyle='#ffffff';
-  else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r),fc={shade:['#2a1e5c','#070512'],wisp:['#6b1e63','#14061e'],golem:['#6e4a26','#150d05'],mite:['#14523f','#03110c'],boss:['#57152c','#0d0307'],runner:['#5c4a12','#121003'],flyer:['#174a63','#04121a'],splitter:['#1d5226','#04140a'],healer:['#8a84a6','#1c1a2a'],armored:['#3e4c63','#0a0d15']}[e.type];bg2.addColorStop(0,fc[0]);bg2.addColorStop(1,fc[1]);ctx.fillStyle=bg2}
+  else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r),fc=rage?(e.phase>2?['#8a3a10','#1c0a04']:['#7a1c1c','#190505']):{shade:['#2a1e5c','#070512'],wisp:['#6b1e63','#14061e'],golem:['#6e4a26','#150d05'],mite:['#14523f','#03110c'],boss:['#57152c','#0d0307'],runner:['#5c4a12','#121003'],flyer:['#174a63','#04121a'],splitter:['#1d5226','#04140a'],healer:['#8a84a6','#1c1a2a'],armored:['#3e4c63','#0a0d15']}[e.type];bg2.addColorStop(0,fc[0]);bg2.addColorStop(1,fc[1]);ctx.fillStyle=bg2}
   ctx.fill();
   ctx.strokeStyle=e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):e.def.rim;ctx.lineWidth=(boss?2.5:e.type==='armored'?2.4:1.6)+(e.slowT>0||e.dotT>0?.8:0);ctx.stroke();
   if(e.dotT>0&&e.dotK){ctx.fillStyle='#a8f06a55';ctx.fill()} // 毒：体が緑がかる
@@ -2348,7 +2381,7 @@ function drawEnemy(e){
     if(e.block>0){ctx.strokeStyle=rgba(ec.c,e.block/.3);ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,r+6,0,TAU);ctx.stroke()} // はじいた瞬間：系統の色の輪
   }
   if(e.type==='shade'){ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(0,-r*.3,r*.52,r*.42,0,0,TAU);ctx.fill()}
-  const eyC=e.type==='wisp'?'#ffd0ff':e.type==='golem'?'#ffb03a':e.type==='mite'?'#c9ffe9':e.type==='runner'?'#fff3b0':e.type==='flyer'?'#e6f7ff':e.type==='splitter'?'#eaffea':e.type==='healer'?'#9affc8':e.type==='armored'?(ELEM[e.armor]||ELEM.earth).c:'#ff3b6b';ctx.fillStyle=eyC;
+  const eyC=e.type==='wisp'?'#ffd0ff':e.type==='golem'?'#ffb03a':e.type==='mite'?'#c9ffe9':e.type==='runner'?'#fff3b0':e.type==='flyer'?'#e6f7ff':e.type==='splitter'?'#eaffea':e.type==='healer'?'#9affc8':e.type==='armored'?(ELEM[e.armor]||ELEM.earth).c:rage?(e.phase>2?'#ffffff':'#ffe45c'):'#ff3b6b';ctx.fillStyle=eyC;
   if(e.type==='mite'){for(const sx of[-1,1]){ctx.beginPath();ctx.arc(sx*r*.34,-r*.08,Math.max(1.2,r*.2),0,TAU);ctx.fill()}}
   else if(e.type==='golem'){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.32,-r*.08,r*.17,r*.07,-.15*sx,0,TAU);ctx.fill()}}
   else if(e.type==='wisp'){const er=Math.max(1.6,r*.2);ctx.beginPath();ctx.arc(-r*.32,-r*.05,er,0,TAU);ctx.arc(r*.32,-r*.05,er,0,TAU);ctx.fill()}
@@ -2501,6 +2534,38 @@ function drawHud(dt){
   const tw=ctx.measureText(tx).width;ctx.font=FONT(14);ctx.fillStyle='#e8c36a';ctx.fillText('◆',-tw-5,1);
   ctx.restore();
 }
+// 主・王の体力：画面の上に専用の帯で出す（段階の境目に目盛り、減ったぶんは白く遅れて追いかける）
+function drawBossBar(dt){
+  const e=S.enemies.find(q=>q.type==='boss'&&!q.dead);
+  if(!e){S.bossA=0;return false}
+  S.bossA=Math.min(1,S.bossA+dt*3);const k=clamp(e.hp/e.max,0,1);S.bossLag=Math.max(k,S.bossLag-dt*.35);
+  const T=performance.now()/1000,ph=e.phase||1,name=TT(e.final?'bossKing':'bossLord')+(ph>1?(LANG==='ja'?'・':' · ')+TT(ph>2?'bossFury':'bossRage'):'');
+  ctx.save();ctx.globalAlpha=S.bossA;ctx.translate(0,(1-S.bossA)*-8);
+  ctx.font=FONT(11.5,800);ctx.textAlign='left';ctx.textBaseline='middle';const nw=ctx.measureText(name).width,x=20+nw+8,y=55,w=W-16-x,h=9;
+  ctx.fillStyle=ph>2?'#ffd98a':ph>1?'#ffb070':'#ffd0d8';ctx.fillText(name,16,y+h/2+.5);
+  ctx.fillStyle='#05040acc';rr(ctx,x-2,y-2,w+4,h+4,5);ctx.fill();ctx.strokeStyle=rgba('#ff3b6b',.55);ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#ffffffb0';ctx.fillRect(x,y,w*S.bossLag,h);
+  const pu=ph>1?.5+.5*Math.sin(T*(ph>2?12:7)):0,g=ctx.createLinearGradient(x,0,x+w,0);
+  if(ph>2){g.addColorStop(0,'#ff5a2a');g.addColorStop(1,'#ffd23c')}else if(ph>1){g.addColorStop(0,'#d0375a');g.addColorStop(1,'#ff7a3a')}else{g.addColorStop(0,'#8a1f3c');g.addColorStop(1,'#ff3b6b')}
+  ctx.fillStyle=g;ctx.fillRect(x,y,w*k,h);
+  if(pu){ctx.globalCompositeOperation='lighter';ctx.fillStyle=rgba('#ffe9a0',.18*pu);ctx.fillRect(x,y,w*k,h);ctx.globalCompositeOperation='source-over'}
+  ctx.fillStyle='#ffffff30';ctx.fillRect(x,y,w*k,2);
+  for(const q of(e.final?[BOSS_PH[1].at,BOSS_PH[2].at]:[BOSS_PH[1].at])){ctx.fillStyle=k>q?'#05040a':'#05040a66';ctx.fillRect(x+w*q-1,y-2,2,h+4);ctx.fillStyle='#ffe9a0';ctx.beginPath();ctx.moveTo(x+w*q-3,y-4);ctx.lineTo(x+w*q+3,y-4);ctx.lineTo(x+w*q,y);ctx.fill()}
+  ctx.restore();return true;
+}
+// 主が近づく警告：戦場のふちが赤く脈打ち、縞の帯が流れる
+function drawWarn(dt){
+  S.warn-=dt;const k=1-Math.max(0,S.warn)/WARN_T,a=k<.1?k/.1:k>.82?(1-k)/.18:1,T=performance.now()/1000,pu=.5+.5*Math.sin(T*11);
+  let g=ctx.createRadialGradient(W/2,282,140,W/2,282,340);g.addColorStop(0,'rgba(255,42,74,0)');g.addColorStop(1,rgba('#ff2a4a',a*(.22+.2*pu)));ctx.fillStyle=g;ctx.fillRect(0,46,W,472);
+  const y=150,h=46;ctx.globalAlpha=a;ctx.fillStyle='#14040ae0';ctx.fillRect(0,y,W,h);
+  ctx.save();ctx.beginPath();ctx.rect(0,y,W,5);ctx.rect(0,y+h-5,W,5);ctx.clip();ctx.fillStyle='#ff3b6b';
+  for(let x=-40+((T*40)%20);x<W+20;x+=20){ctx.beginPath();ctx.moveTo(x,y+h);ctx.lineTo(x+10,y+h);ctx.lineTo(x+10+h,y);ctx.lineTo(x+h,y);ctx.fill()}ctx.restore();
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(LANG==='ja'?23:19,800);ctx.fillStyle=rgba('#ffd0d8',.75+.25*pu);
+  const txt=TT(S.warnFinal?'warnKing':'warnLord'),tw=ctx.measureText(txt).width;ctx.fillText(txt,W/2,y+h/2+1);
+  ctx.fillStyle='#ff3b6b';for(const sx of[-1,1]){const cx=W/2+sx*(tw/2+22),cy=y+h/2+1;ctx.beginPath();ctx.moveTo(cx,cy-9);ctx.lineTo(cx+9,cy+7);ctx.lineTo(cx-9,cy+7);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#14040a';ctx.fillRect(cx-1,cy-3.5,2,6);ctx.fillRect(cx-1,cy+3.5,2,2);ctx.fillStyle='#ff3b6b'}
+  ctx.globalAlpha=1;
+}
 function zapPath(f){
   ctx.beginPath();
   for(let i=0;i<f.pts.length-1;i++){
@@ -2613,12 +2678,13 @@ function render(dt){
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   // 画面下の操作部
   drawHud(dt);
+  const bossBar=drawBossBar(dt),iy=bossBar?21:0; // 主の体力の帯が出ている間は、説明の帯を少し下げる
   drawShop(dt);
   for(const b of buttons)drawBtn(b,dt);
   // 説明の帯（選んでいる・運んでいる元素）
   const inf=held?held.item:sel&&sel.item;
-  if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5);ctx.font=FONT(10.5);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84)}
+  if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50+iy,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(13);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy);ctx.font=FONT(10.5);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84+iy)}
   // 最初の手引き
   if(S.tut<9&&!held&&!S.banner&&!S.over)drawTut(T);
   // 運んでいる元素
@@ -2638,6 +2704,7 @@ function render(dt){
       ctx.font=FONT(30,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%20===0?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
   }
   ctx.restore();
+  if(S.warn>0)drawWarn(dt);
   // 新発見の幕
   if(S.banner){const b=S.banner;b.t+=dt;const k=b.t/b.dur;
     if(k>=1)S.banner=null;else{const d=ITEMS[b.id],a=k<.12?k/.12:k>.85?(1-k)/.15:1,e=Math.min(1,b.t/.35),sc=1+(1-e)**2*1.6;
