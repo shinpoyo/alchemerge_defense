@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全142種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全145種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -283,10 +283,13 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
   codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
-  k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],
+  k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],
   dStats:['強さ','Stats'],dEffects:['敵にかける効果','Effects on foes'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
   dDmg:['威力','Damage'],dPerSec:['毎秒 {0}','{0} / sec'],dRate:['連射','Rate'],dTimes:['毎秒 {0} 回','{0} / sec'],dDps:['1 体への毎秒の威力','Damage per sec (1 foe)'],
   dRange:['射程','Range'],dArea:['効く広さ','Area'],dSplash:['爆発の広さ','Blast radius'],dChain:['跳ねる数','Jumps to'],dBeams:['同時に狙う数','Targets at once'],dBodies:['{0} 体','{0} foes'],
+  dSupArea:['支援の広さ','Support range'],dSupFx:['味方の塔にかける効果','Effects on allied towers'],dSupDmg:['ダメージ','Damage'],dSupRate:['攻撃速度','Attack speed'],dSupUp:['+{0}%','+{0}%'],
+  dSupAtk:['攻撃','Attacks'],dSupNoAtk:['しない（味方を強める）','None (empowers allies)'],
+  dSupNote:['支援は重ならない（範囲が重なっても、いちばん強い支援 1 つだけが効く）。罠と、ほかの支援の塔には効かない','Support does not stack: where ranges overlap, only the strongest one applies. No effect on traps or other support towers'],
   dTarget:['当たる相手','Hits'],dAllIn:['射程内の敵すべて','All foes in range'],dLine:['一直線上の敵すべて','All foes in a line'],
   dDot:['毎秒 {0} を {1} 秒','{0} / sec for {1}s'],dSlow:['{0}% 遅く、{1} 秒','{0}% slower for {1}s'],dSlowTrap:['{0}% 遅く（上にいる間）','{0}% slower (while on it)'],
   dCurse:['受ける傷が {0} 倍、4 秒','Takes ×{0} damage for 4s'],dKnock:['道の手前へ戻す（主・王には無効）','Pushes back (not bosses)'],
@@ -405,6 +408,7 @@ const EN={ // 英語の名前と説明
   jungle:['Jungle','A tangling jungle'],diamond:['Diamond','The hardest shot'],holylight:['Holy Light','Purifying light all around'],laser:['Laser','A cutting beam'],
   nightfall:['Nightfall','Darkness slows and weakens'],vampire:['Vampire','Drinks blood and curses'],toxin:['Toxin','Strong poison'],thornwall:['Bramble','Trap: thorns entangle'],
   hotaru:['Firefly Swarm','Light hops to 5'],gokuen:['Hellfire','Black fire from hell'],
+  lantern:['Stone Lantern','Its light empowers nearby towers'],bonfire:['Watchfire','Its fire empowers nearby towers'],moonlamp:['Moon Lamp','Moonlight greatly empowers towers'],
   shinso:['Elder Vampire','The first vampire'],tenkou:['Heaven Light','Twin beams from the sky'],jukai:['Sea of Trees','Lost and trapped'],
 };
 const nm=d=>LANG==='ja'?d.name:EN[d.id][0],ds=d=>LANG==='ja'?d.desc:EN[d.id][1];
@@ -412,6 +416,7 @@ const sn=st=>LANG==='ja'?st.name:st.en,snote=st=>LANG==='ja'?st.note:st.noteEn;
 
 /* ---------------- 元素（アイテム）の定義 ----------------
    kind: bolt=弾 / chain=連鎖する稲妻 / pulse=周囲への波動 / beam=照射 / pierce=貫通 / trap=道に置く罠
+         support=支援（攻撃しない。range 内の味方の塔を、ダメージ +buffD・攻撃速度 +buffR だけ強める）
    t がランク（★の数）。値段は 1 ランクごとに 2 倍 */
 const ITEMS={
   // ★1
@@ -498,6 +503,7 @@ const ITEMS={
   geyser:  {name:'間欠泉',  t:3,c:'#a8e8ff',kind:'pulse',dmg:22, rate:.7,  range:80, knock:12,                  desc:'噴き上げて押し戻す'},
   icicle:  {name:'氷柱',    t:3,c:'#c8f0ff',kind:'pierce',dmg:28,rate:.9,  range:145,slow:.3,slowT:1.2,         desc:'一直線に貫いて凍えさせる'},
   eel:     {name:'雷魚',    t:3,c:'#7af0d8',kind:'chain',dmg:15, rate:1.2, range:115,chain:3,slow:.25,slowT:1, desc:'しびれさせて遅くする'},
+  lantern: {name:'灯籠',    t:3,c:'#ffd08a',kind:'support',                range:140,buffD:.15,buffR:.10,       desc:'灯りでまわりの塔を強める'},
   // ★4
   tank:    {name:'戦車',    t:4,c:'#a8b070',kind:'bolt', dmg:130,rate:.8,  range:150,splash:50,                 desc:'砲撃で吹き飛ばす'},
   wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,dot:25,dotT:4,   desc:'呪いと祟りでむしばむ'},
@@ -531,6 +537,7 @@ const ITEMS={
   star:    {name:'星',      t:4,c:'#ffc0f0',kind:'beam', dmg:85,           range:165,beams:3,                   desc:'3本の光で焼き払う'},
   abyss:   {name:'冥府',    t:4,c:'#c070ff',kind:'pulse',dmg:25, rate:1,   range:120,dot:45,dotT:4,curse:1.4,   desc:'毒と呪いをまき散らす'},
   titan:   {name:'巨砲',    t:4,c:'#ff8a4a',kind:'bolt', dmg:150,rate:1.1, range:160,splash:60,                 desc:'大爆発を撃ちこむ'},
+  bonfire: {name:'篝火',    t:4,c:'#ff9a5a',kind:'support',                range:150,buffD:.25,buffR:.15,       desc:'燃える火でまわりの塔を強める'},
   // ★5
   fortress:{name:'要塞',    t:5,c:'#c8a870',kind:'bolt', dmg:400,rate:1.1, range:185,splash:75,                 desc:'砲台が一斉に火を噴く'},
   thunderlord:{name:'雷帝', t:5,c:'#fff08a',kind:'chain',dmg:250,rate:1.3, range:180,chain:12,                 desc:'12体を雷で撃つ'},
@@ -553,6 +560,7 @@ const ITEMS={
   ragnarok:{name:'終焉',    t:5,c:'#ff5a7a',kind:'bolt', dmg:420,rate:1.3, range:190,splash:80,dot:60,dotT:3,   desc:'夜ごと焼きつくす'},
   phoenix: {name:'不死鳥',  t:5,c:'#ff9a3c',kind:'bolt', dmg:260,rate:2,   range:180,splash:50,dot:80,dotT:3,   desc:'炎の羽を降らせる'},
   dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,slow:.4,slowT:2,           desc:'すべてを貫く息吹'},
+  moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
   eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,curse:1.5,slow:.3,slowT:1,desc:'終わらない雷と呪い'},
@@ -614,6 +622,8 @@ const RECIPES=[
   ['thicket','thicket','jungle'],['gem','gem','diamond'],['flash','flash','holylight'],['ray','ray','laser'],['shadow','shadow','nightfall'],
   ['bat','bat','vampire'],['venom','venom','toxin'],['root','thorn','thornwall'],['firefly','firefly','hotaru'],['blackflame','blackflame','gokuen'],
   ['vampire','curse','shinso'],['laser','glass','tenkou'],['jungle','spore','jukai'],
+  // 支援の塔（攻撃せず、まわりの塔を強める）
+  ['firefly','charcoal','lantern'],['hotaru','inferno','bonfire'],['star','tenkou','moonlamp'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -623,7 +633,7 @@ const BASES=['fire','water','earth','wind'];
 const UNLOCK={wood:8,light:16,dark:24};
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1);
-const isTrap=id=>ITEMS[id].kind==='trap';
+const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support';
 // 置ける場所：魔法陣には塔、道の上には罠、作業台にはなんでも
 const fits=(id,sl)=>sl.bench||(sl.path?isTrap(id):!isTrap(id));
 
@@ -956,7 +966,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
-Object.assign(FAMOF,{mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice'});
+Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice'});
 for(const k in ITEMS)ITEMS[k].fam=FAMOF[k]||'earth'; // 元素の系統。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
@@ -1073,6 +1083,10 @@ const flame=g=>{g.beginPath();g.moveTo(0,-14);g.bezierCurveTo(2,-7,10,-3,9,5);g.
 const cloud=(g,y)=>{g.beginPath();g.arc(-6,y+1,5.5,0,TAU);g.arc(0,y-3,7,0,TAU);g.arc(7,y+1,5.5,0,TAU);g.rect(-6,y+1,13,5.5);g.fill()};
 const DARK='#0a0814';
 const ICON={
+  // 支援の塔：灯籠（石の灯籠）・篝火（かごの火）・月灯（三日月に抱かれた灯）
+  lantern(g,c){poly(g,[-11,-5,0,-12,11,-5]);g.fill();dot(g,0,-12.5,1.6);g.fillRect(-6.5,-5,13,10);g.fillRect(-8,5,16,2);g.fillRect(-2,7,4,5);g.fillRect(-7,11.5,14,2.5);g.fillStyle='#fffbe8';g.fillRect(-3.5,-3,7,6);g.fillStyle=DARK;g.fillRect(-.5,-3,1,6)},
+  bonfire(g,c){g.save();g.translate(0,-4);g.scale(.72,.72);flame(g);g.fill();g.translate(0,5);g.scale(.5,.5);flame(g);g.fillStyle='#ffe9a0';g.fill();g.restore();g.strokeStyle='#c8b8a0';g.lineWidth=1.8;line(g,-5,7,7,14);line(g,5,7,-7,14);g.fillStyle='#4a3c3a';poly(g,[-9,3,9,3,6,8,-6,8]);g.fill();g.stroke()},
+  moonlamp(g,c){g.beginPath();g.arc(-1,0,12,0,TAU);g.arc(4,-3,10,0,TAU,true);g.fill('evenodd');g.fillStyle='#fffbe8';dot(g,5,-2,3.2);g.strokeStyle='#fffbe8';g.lineWidth=1.2;for(let i=0;i<6;i++){const a=i/6*TAU+.5;line(g,5+Math.cos(a)*5,-2+Math.sin(a)*5,5+Math.cos(a)*7.2,-2+Math.sin(a)*7.2)}},
   wood(g,c){g.fillStyle='#8a5a3a';g.fillRect(-3,0,6,14);g.fillStyle=c;dot(g,0,-5,8);dot(g,-6,0,5);dot(g,6,0,5);g.fillStyle='#ffffff40';dot(g,-3,-8,2.5)},
   light(g,c){g.fillStyle='#fffbe8';dot(g,0,0,5.5);g.lineWidth=2;for(let i=0;i<8;i++){const a=i/8*TAU,r1=8,r2=i%2?11.5:14.5;line(g,Math.cos(a)*r1,Math.sin(a)*r1,Math.cos(a)*r2,Math.sin(a)*r2)}},
   dark(g,c){g.beginPath();g.arc(0,0,12,0,TAU);g.arc(5,-3,10,0,TAU,true);g.fill('evenodd');g.fillStyle='#fff';dot(g,-11,-9,1.2);dot(g,9,10,1);dot(g,12,-11,1.3)},
@@ -1771,17 +1785,25 @@ function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   for(const e of S.enemies){if(e.dead)continue;const dx=e.x-x,dy=e.y-y;if(dx*dx+dy*dy<=(R+e.r)*(R+e.r))a.push(e)}
   a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
 }
+// 支援：魔法陣の上の支援の塔が、広さの中にいる味方の塔を強める。重ならない（いちばん強い 1 つだけ）。支援の塔どうしと罠には効かない
+function calcBuffs(){
+  const sup=[];for(const sl of slots){const it=sl.item;if(!it)continue;it.buff=null;if(sl.field&&isSupport(it.id)&&!(it.hide>0)&&!it.held)sup.push(sl)}
+  if(!sup.length)return;
+  for(const sl of slots){const it=sl.item;if(!it||!sl.field||isSupport(it.id))continue;
+    for(const sp of sup){const b=ITEMS[sp.item.id];if((sl.x-sp.x)**2+(sl.y-sp.y)**2<=b.range*b.range&&(!it.buff||b.buffD>it.buff.buffD))it.buff=b}}
+}
 function towerFire(sl,it,dt){
-  const d=ITEMS[it.id],m=1,R=d.range,x=sl.x,y=sl.y;
+  const d=ITEMS[it.id],b=it.buff,m=b?1+b.buffD:1,rm=b?1+b.buffR:1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
+  if(d.kind==='support'){it.beamT.length=0;return}
   if(d.kind==='beam'){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;
-    for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m*dt,d.fam);if(FX&&Math.random()<dt*14)sparks(e.x,e.y,d.c,1,90)}
+    for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m*rm*dt,d.fam);if(FX&&Math.random()<dt*14)sparks(e.x,e.y,d.c,1,90)}
     if(ts.length){it.kick=Math.max(it.kick,.35);if(Math.random()<dt*6)sfx.shoot(d)}
     return;
   }
   it.cd-=dt;if(it.cd>0)return;
   let ts=inRange(x,y,R);if(!ts.length){it.cd=0;return}
-  it.cd+=1/d.rate;if(it.cd<0)it.cd=0;it.kick=1;
+  it.cd+=1/(d.rate*rm);if(it.cd<0)it.cd=0;it.kick=1;
   if(d.kind==='pulse'){
     for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m,d.fam)}
     if(FX)pulseFx(VIS[it.id],x,y,R,d);sfx.shoot(d);return;
@@ -1861,6 +1883,7 @@ function update(dt){
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
+  calcBuffs();
   for(const sl of slots){
     const it=sl.item;if(!it)continue;
     if(it.hide>0||it.held||sl.bench){it.beamT.length=0;continue}
@@ -2027,18 +2050,20 @@ cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
 // 元素の詳細（盤面や一覧で長押し、または図鑑のカードをタップ）
 const USES={};for(const[a,b,r]of RECIPES){(USES[a]=USES[a]||[]).push([b,r]);if(a!==b)(USES[b]=USES[b]||[]).push([a,r])}
 const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKMAX[d.t]||{dps:1,range:1};m.dps=Math.max(m.dps,dpsOf(d));m.range=Math.max(m.range,d.range)}
-function dpsOf(d){return d.kind==='trap'?0:d.kind==='beam'?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
+function dpsOf(d){return d.kind==='trap'||d.kind==='support'?0:d.kind==='beam'?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
 let detailFrom=null;
 function openDetail(id,from){
   const d=ITEMS[id],pz=POISON.has(id),R=RANKMAX[d.t],img=i=>`<img alt="" src="${orb(i).toDataURL()}">`,num=v=>+(+v).toFixed(1);
   const bar=(v,max)=>`<span class="bar"><u style="width:${Math.round(clamp(v/max,.03,1)*100)}%"></u></span>`;
   const st=[];
-  if(d.kind!=='trap'){
+  const sup=d.kind==='support';
+  if(sup)st.push([TT('dSupAtk'),TT('dSupNoAtk')]);
+  else if(d.kind!=='trap'){
     st.push([TT('dDmg'),d.kind==='beam'?TT('dPerSec',num(d.dmg)):num(d.dmg)]);
     if(d.rate)st.push([TT('dRate'),TT('dTimes',num(d.rate))]);
     st.push([TT('dDps'),num(dpsOf(d))+bar(dpsOf(d),R.dps)]);
   }
-  st.push(d.kind==='trap'?[TT('dArea'),d.range]:[TT('dRange'),d.range+bar(d.range,R.range)]);
+  st.push(d.kind==='trap'?[TT('dArea'),d.range]:sup?[TT('dSupArea'),d.range]:[TT('dRange'),d.range+bar(d.range,R.range)]);
   if(d.splash)st.push([TT('dSplash'),d.splash]);
   if(d.chain)st.push([TT('dChain'),TT('dBodies',d.chain)]);
   if(d.beams>1)st.push([TT('dBeams'),TT('dBodies',d.beams)]);
@@ -2055,6 +2080,7 @@ function openDetail(id,from){
   h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT('dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
+  if(sup)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
   h+=`<div class="dsec">${TT('dMadeBy')}</div>`;
   if(d.t===1)h+=`<div class="dn">${TT('dBase')}</div>`;
   else{h+=mkK.map(m=>row(m[0],m[1],id)).join('');if(mk.length>mkK.length)h+=`<div class="dn">${TT('dMoreWays',mk.length-mkK.length)}</div>`}
@@ -2666,7 +2692,10 @@ function render(dt){
   // 塔の足もとの回る輪と射程
   for(const s of slots){const it=s.item;if(!it||!s.field||it.hide>0||it===held?.item)continue;
     const d=ITEMS[it.id];ctx.save();ctx.translate(s.x,s.y);ctx.rotate(T*(.4+d.t*.15)+it.ph);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1.5;ctx.setLineDash([5,7]);
-    ctx.beginPath();ctx.arc(0,0,31,0,TAU);ctx.stroke();ctx.restore()}
+    ctx.beginPath();ctx.arc(0,0,31,0,TAU);ctx.stroke();ctx.restore();
+    if(d.kind==='support'){ // 支援の塔：強められる広さの輪（癒す影の輪と同じ点線。ゆっくり回り、淡く明滅する）
+      const pu=.5+.5*Math.sin(T*1.6+it.ph);ctx.fillStyle=rgba(d.c,.025);ctx.strokeStyle=rgba(d.c,.26+.16*pu);ctx.lineWidth=1.3;ctx.setLineDash([3,7]);ctx.lineDashOffset=-T*6;
+      ctx.beginPath();ctx.arc(s.x,s.y,d.range,0,TAU);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}}
   const rs=held?(slotAt(ptr.x,ptr.y-(held.touch?26:0))||null):sel;
   if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range;
     ctx.fillStyle=rgba(d.c,.07);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.beginPath();ctx.arc(rs.x,rs.y,R,0,TAU);ctx.fill();ctx.stroke()}
@@ -2689,7 +2718,11 @@ function render(dt){
   ctx.save();if(S.benchShake>0){S.benchShake-=dt}
   for(const s of slots){const it=s.item;if(!it||s.path||it.hide>0||it===held?.item)continue;
     const bx=s.bench&&S.benchShake>0?Math.sin(S.benchShake*60)*S.benchShake*10:0;
-    drawItem(it,it.rx+bx,it.ry+Math.sin(T*2+it.ph)*1.5)}
+    drawItem(it,it.rx+bx,it.ry+Math.sin(T*2+it.ph)*1.5);
+    if(it.buff&&s.field){ // 支援を受けている塔：右上に上向きの矢印（支援の★が高いほど 1〜3 本）
+      const b=it.buff,n=b.t-2,ax=it.rx+21,ay=it.ry-17+Math.sin(T*3+it.ph)*1.2;ctx.lineCap=ctx.lineJoin='round';
+      for(const[w,c]of[[4.4,'#07060d'],[2,b.c]]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();
+        for(let i=0;i<n;i++){const y=ay+i*4.6;ctx.moveTo(ax-4.2,y+2.2);ctx.lineTo(ax,y-2);ctx.lineTo(ax+4.2,y+2.2)}ctx.stroke()}}}
   ctx.restore();
   // 光線・弾・演出（加算合成）
   ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
