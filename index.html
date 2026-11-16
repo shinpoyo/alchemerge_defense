@@ -201,6 +201,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <h2 id="hMenu">設定</h2>
     <button class="b s m" id="mSound"></button>
     <button class="b s m" id="mMusic"></button>
+    <button class="b s m" id="mDmg"></button>
     <button class="b s m" id="mLang"></button>
     <div class="mrow"><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
     <button class="b s m" id="mStages"></button>
@@ -296,6 +297,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
   bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
+  mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
   mStages:['ステージ選択へ戻る','Back to stages'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
@@ -780,7 +782,9 @@ function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
   save();
 }
 function startDaily(){const k=dayKey(),c=dailyOf(k);DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily}))}catch(e){}}
+let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
+try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -812,7 +816,7 @@ function reset(){
      tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
-  parts.length=0;fx.length=0;sel=null;drag=null;
+  parts.length=0;fx.length=0;dnums.length=0;sel=null;drag=null;
 }
 
 /* ---------------- 音（Web Audio で合成） ---------------- */
@@ -1020,6 +1024,18 @@ function ring(x,y,color,r1=50,dur=.4,lw=3,r0=6){if(FX)fx.push({ty:'ring',x,y,col
 function floatText(x,y,txt,color='#e9e4f5',size=14){ // 長い文字は画面の端からはみ出さないよう寄せる
   const hw=Math.min(W/2-4,String(txt).length*size*.55);x=clamp(x,hw+4,W-hw-4);if(FX)fx.push({ty:'text',x,y,txt,color,size,t:0,dur:1})}
 function shake(v){if(FX)S.shake=Math.max(S.shake,v)}
+/* ダメージの数字：敵に入った傷を、小さな数字で浮かべて消す。
+   重くならないよう、敵ごとに DNUM_GAP 秒ぶんをまとめて 1 つにし（照射や燃焼は毎フレーム入るため）、同時に出すのは DNUM_MAX 個まで */
+const dnums=[],DNUM_MAX=36,DNUM_GAP=.25,DNUM_LIFE=.7;
+const fmtD=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e4?Math.round(v/1e3)+'k':v>=1e3?(v/1e3).toFixed(1)+'k':Math.round(v)+'';
+function dnumPop(e){
+  const v=e.dn,weak=e.dnW,cur=e.dnC;e.dn=0;e.dnW=e.dnC=0;e.dnT=DNUM_GAP;
+  if(v<1||e.x<-10||e.x>W+10)return;
+  if(dnums.length>=DNUM_MAX/2&&v<e.max*.08)return;               // 半分うまったら、かすり傷の数字は出さない（群れに波動が当たったときの数字の壁を防ぐ）
+  if(dnums.length>=DNUM_MAX){if(v<e.max*.2)return;dnums.shift()} // いっぱいのとき：大きい一撃だけ、いちばん古いものと入れかえる
+  dnums.push({x:e.x+rnd(-e.r,e.r)*.7,y:e.y-e.r-7-(e.def.fly?16:0),txt:fmtD(v),t:0,sz:10+Math.round(clamp(v/e.max,0,1)*6),vx:rnd(-9,9),
+    c:weak?'#98a6ba':cur?'#e8b8ff':'#fff6e0'}); // はじかれた＝灰色、呪いで増えた＝紫、ふつう＝白
+}
 
 /* ---------------- 元素のアイコン（±14 の枠にベクターで描く） ---------------- */
 const poly=(g,p)=>{g.beginPath();for(let i=0;i<p.length;i+=2)g[i?'lineTo':'moveTo'](p[i],p[i+1]);g.closePath()};
@@ -1671,8 +1687,10 @@ function bossPhase(e){
 }
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
   if(e.dead)return;
-  if(e.armor&&fam===e.armor){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1
-  e.hp-=dmg*(e.curseT>0?e.curse:1)*(e.vul||1);e.flash=.08;
+  const weak=!!e.armor&&fam===e.armor;
+  if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1
+  dmg*=(e.curseT>0?e.curse:1)*(e.vul||1);e.hp-=dmg;e.flash=.08;
+  if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(e.curseT>0)e.dnC=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
 function applyHit(e,d,m,color){
@@ -1692,6 +1710,7 @@ function kill(e){
   e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
+  if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
   stats.kills++;if(boss){stats.bosses++;if(e.final)stats.kings++}
   checkAch();
   burst(e.x,e.y,e.def.rim,boss?50:10,boss?260:110);burst(e.x,e.y,'#1a1230',6,60,{ty:'d'});
@@ -1792,6 +1811,7 @@ function update(dt){
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
     if(e.flash>0)e.flash-=dt;
+    if(e.dn>0){e.dnT=(e.dnT||0)-dt;if(e.dnT<=0)dnumPop(e)}
     if(e.block>0)e.block-=dt;if(e.healed>0)e.healed-=dt;if(e.pulse>0)e.pulse-=dt*1.6;
     if(e.def.heal){e.healT-=dt; // 癒す影：まわりの傷ついた影を治す
       if(e.healT<=0){e.healT=HEAL_EVERY;let n=0;
@@ -2208,11 +2228,12 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 }
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
-  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');
+  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');show('menu');
 }
 $('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
 $('#mMusic').onclick=()=>{musicOff=!musicOff;save();audio();audioState();sfx.ui();openMenu()};
+$('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
@@ -2692,6 +2713,12 @@ function render(dt){
     ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(glow(ITEMS[it.id].c),ptr.x-48,y-48,96,96);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     drawItem(it,ptr.x,y,1.22);if(Math.random()<.5)P(ptr.x+rnd(-14,14),y+rnd(-14,14),rnd(-20,20),rnd(10,50),.4,3,ITEMS[it.id].c)}
   else if(drag){drag.item.rx=drag.slot.x;drag.item.ry=drag.slot.y}
+  // ダメージの数字
+  if(dnums.length){ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=2.6;ctx.strokeStyle='#05040acc';
+    for(let i=dnums.length-1;i>=0;i--){const n=dnums[i];n.t+=dt;const k=n.t/DNUM_LIFE;if(k>=1){dnums.splice(i,1);continue}
+      const x=n.x+n.vx*n.t,y=n.y-(1-(1-k)**2)*22;ctx.globalAlpha=k>.55?(1-k)/.45:1;ctx.font=FONT(n.sz+(k<.15?2:0),800);
+      ctx.strokeText(n.txt,x,y);ctx.fillStyle=n.c;ctx.fillText(n.txt,x,y)}
+    ctx.globalAlpha=1}
   // 浮かぶ文字
   ctx.textAlign='center';ctx.textBaseline='middle';
   for(let i=fx.length-1;i>=0;i--){const f=fx[i];
@@ -2752,7 +2779,7 @@ window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},
   const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
-},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
