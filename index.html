@@ -1770,7 +1770,7 @@ function siegeHit(e){
   const dmg=e.final?2:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
   shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
   burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',17);
-  if(S.lives<=0&&!S.over){S.lives=0;gameOver();return}
+  if(S.lives<=0){S.lives=0;if(!S.over)gameOver();return} // 陥落したあとに重ねて攻撃されても、灯は 0 より下げない
   if(!e.final&&e.hits>=SIEGE_MAX){e.dead=true;if(FX){burst(e.x,e.y,e.def.rim,20,160);smoke(e.x,e.y,'#1a1230',8,20,10,.8,.7)}}
 }
 function leak(e){
@@ -1778,7 +1778,7 @@ function leak(e){
   e.dead=true;S.lives-=e.def.life;S.coreHit=1;
   shake(8);S.flash=.3;S.flashC='#ff2a4a';sfx.leak();buzz(60);
   burst(CORE.x,CORE.y,'#ff2a4a',24,180);ring(CORE.x,CORE.y,'#ff2a4a',80,.5,4);
-  if(S.lives<=0&&!S.over){S.lives=0;gameOver()}
+  if(S.lives<=0){S.lives=0;if(!S.over)gameOver()} // 陥落と同じ瞬間にほかの影が抜けても、灯は 0 より下げない
 }
 function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   const a=[];
@@ -2831,7 +2831,7 @@ function frame(now){
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
     if(S.hitstop>0){S.hitstop-=dt;sim=0} // ヒットストップ中は戦いを進めない
-    while(sim>0){const st=Math.min(sim,1/30);update(st);sim-=st}
+    while(sim>0&&!S.over){const st=Math.min(sim,1/30);update(st);sim-=st} // 陥落したら、そのフレームの残りは進めない
     if(S.cleared&&!S.endless)celebrate(dt);
     else if(S.allFound>0&&!S.banner){ // 全種発見：花火と紙吹雪
       S.allFound-=dt;S.rocketT-=dt;
