@@ -800,7 +800,8 @@ function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
   const ks=Object.keys(daily).sort();while(ks.length>DAILY_KEEP)delete daily[ks.shift()]; // 古い日付から消す
   save();
 }
-function startDaily(){const k=dayKey(),c=dailyOf(k);DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
+let nightSel=null; // 今日の挑戦に入る前に、ステージ選択で選んでいた難易度。ステージ選択へ戻ったときに戻す（挑戦の難易度を、ふつうのステージの選択に持ちこまない）
+function startDaily(){const k=dayKey(),c=dailyOf(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
@@ -820,7 +821,7 @@ function saveRun(){
 function clearRun(){if(RUN&&FX){RUN=null;save()}}
 function resumeRun(){
   const r=RUN;if(!r)return;
-  STAGE=r.stage;NIGHT=!!r.night;DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;reset();
+  const n0=NIGHT;STAGE=r.stage;NIGHT=!!r.night;DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
   for(const sl of slots)sl.item=null;
   r.items.forEach(([i,id],n)=>{const sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=r.wave;S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=r.lives;S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
@@ -2129,6 +2130,7 @@ function miniMap(c,st){ // ステージの縮図
 }
 $('#grid').addEventListener('click',ev=>{const c=ev.target.closest('.card.tap');if(c)openDetail(c.dataset.id,'codex')});
 function openStages(){
+  if(nightSel!==null){NIGHT=nightSel;nightSel=null} // 今日の挑戦から戻ったら、難易度の選択を挑戦の前に戻す
   if(NIGHT&&!STAGES.some((_,i)=>nightOpen(i)))NIGHT=false;
   $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT);
   $('#dNight').disabled=!STAGES.some((_,i)=>nightOpen(i));
