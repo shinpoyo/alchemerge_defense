@@ -82,6 +82,12 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 #menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
 #menu #mClose{margin-top:calc(var(--u)*22)}
+#menu .vol{display:flex;align-items:center;gap:calc(var(--u)*10);width:calc(var(--u)*270);margin:0 calc(var(--u)*7) calc(var(--u)*5);
+  padding:0 calc(var(--u)*10);box-sizing:border-box;font-size:calc(var(--u)*12.5);line-height:1.4;color:var(--dim);transition:opacity .2s}
+#menu .vol.off{opacity:.4}
+#menu .vol span{flex:none;min-width:calc(var(--u)*44);text-align:left;letter-spacing:.08em}
+#menu .vol b{flex:none;width:calc(var(--u)*40);text-align:right;color:var(--gold);font-variant-numeric:tabular-nums}
+#menu .vol input{flex:1 1 0;min-width:0;height:calc(var(--u)*26);margin:0;accent-color:#e8c36a;cursor:pointer;touch-action:none}
 #codex h2,#stages h2{margin:0;font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #cnt{color:var(--dim);font-size:calc(var(--u)*12.5);margin-bottom:calc(var(--u)*6);line-height:1.6}
 #grid{flex:1;overflow-y:auto;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*8);
@@ -200,7 +206,9 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
   <div class="ov" id="menu">
     <h2 id="hMenu">設定</h2>
     <button class="b s m" id="mSound"></button>
+    <label class="vol" id="vSe"><span id="lSe"></span><input type="range" id="rSe" min="0" max="100" step="5"><b id="nSe"></b></label>
     <button class="b s m" id="mMusic"></button>
+    <label class="vol" id="vBgm"><span id="lBgm"></span><input type="range" id="rBgm" min="0" max="100" step="5"><b id="nBgm"></b></label>
     <button class="b s m" id="mDmg"></button>
     <button class="b s m" id="mLang"></button>
     <div class="mrow"><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
@@ -297,6 +305,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
   bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
+  mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
   mStages:['ステージ選択へ戻る','Back to stages'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
@@ -784,7 +793,10 @@ function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
 function startDaily(){const k=dayKey(),c=dailyOf(k);DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff}))}catch(e){}}
+let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
+const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -820,20 +832,27 @@ function reset(){
 }
 
 /* ---------------- 音（Web Audio で合成） ---------------- */
-let AC=null,noiseBuf=null,BUS=null,REV=null,MUS=null;
+let AC=null,noiseBuf=null,BUS=null,REV=null,MUS=null,REVM=null;
 const MUS_VOL=.6; // 音楽は効果音より控えめに
-// 音の通り道：効果音(BUS)と音楽(MUS) → まとめ役のコンプレッサー → 出力。残響(REV)にも送って奥行きを出す
+// 音の通り道：効果音(BUS)と音楽(MUS) → まとめ役のコンプレッサー → 出力。残響にも送って奥行きを出す（効果音は REV、音楽は REVM から）
+// 音量（0〜100）は 2 乗して掛ける（耳には、そのほうが目盛りどおりに聞こえる）。100 なら今までと同じ大きさ
+const volGain=v=>(v/100)**2;
+function applyVol(){
+  if(!AC)return;
+  BUS.gain.value=REV.gain.value=volGain(seVol);
+  MUS.gain.value=musicOff?0:MUS_VOL*volGain(bgmVol);REVM.gain.value=musicOff?0:volGain(bgmVol);
+}
 function buildAudio(ctx){
   AC=ctx;
   const comp=AC.createDynamicsCompressor(),out=AC.createGain();
   comp.threshold.value=-16;comp.knee.value=14;comp.ratio.value=5;comp.attack.value=.004;comp.release.value=.22;out.gain.value=.9;
   comp.connect(out).connect(AC.destination);
   BUS=AC.createGain();BUS.connect(comp);
-  MUS=AC.createGain();MUS.gain.value=musicOff?0:MUS_VOL;MUS.connect(comp);
+  MUS=AC.createGain();MUS.connect(comp);
   // 残響：だんだん小さくなる雑音を、広間の響きとして使う（高い音ほど早く消えるようにして暗めに）
   const sr=AC.sampleRate,len=Math.floor(sr*2.4),ir=AC.createBuffer(2,len,sr);
   for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<len;i++){const t=i/len,k=.08+.5*(1-t);lp+=((Math.random()*2-1)-lp)*k;d[i]=lp*(1-t)**2.6*(i<sr*.012?i/(sr*.012):1)}}
-  const cv2=AC.createConvolver(),rg=AC.createGain();cv2.buffer=ir;rg.gain.value=.55;REV=AC.createGain();REV.connect(cv2).connect(rg).connect(comp);
+  const cv2=AC.createConvolver(),rg=AC.createGain();cv2.buffer=ir;rg.gain.value=.55;REV=AC.createGain();REV.connect(cv2).connect(rg).connect(comp);REVM=AC.createGain();REVM.connect(cv2);applyVol();
   noiseBuf=AC.createBuffer(1,sr*1.2,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
 }
 function audio(){
@@ -843,7 +862,7 @@ function audio(){
 function audioState(){ // 消音・画面を離れたときは音を止め、戻ったら再開する
   if(!AC||!AC.suspend)return;
   try{if(muted||document.hidden)AC.suspend();else AC.resume()}catch(e){}
-  if(MUS)MUS.gain.value=musicOff?0:MUS_VOL;
+  applyVol();
 }
 document.addEventListener('visibilitychange',audioState);
 const sndOK=()=>AC&&!muted&&FX;
@@ -859,14 +878,14 @@ function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
     os.frequency.setValueAtTime(f,t);if(to)os.frequency.exponentialRampToValueAtTime(to,t+d);
     if(o.vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=o.vib;lg.gain.value=f*.012;l.connect(lg).connect(os.frequency);l.start(t);l.stop(t+d+.05)}
     os.connect(head);os.start(t);os.stop(t+d+.05)}
-  g.connect(o.dst||BUS);const rv=o.rev===undefined?.16:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(REV)}
+  g.connect(o.dst||BUS);const rv=o.rev===undefined?.16:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(o.dst===MUS?REVM:REV)}
 }
 function noise(d,v=.1,freq=1200,delay=0,o={}){
   if(!sndOK())return;
   const t=AC.currentTime+delay,src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
   src.buffer=noiseBuf;f.type=o.type||'lowpass';f.Q.value=o.q||.7;f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(o.to||120,t+d);
   g.gain.setValueAtTime(o.a?0:v,t);if(o.a)g.gain.linearRampToValueAtTime(v,t+o.a);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  src.connect(f).connect(g).connect(o.dst||BUS);const rv=o.rev===undefined?.12:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(REV)}
+  src.connect(f).connect(g).connect(o.dst||BUS);const rv=o.rev===undefined?.12:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(o.dst===MUS?REVM:REV)}
   src.start(t,Math.random()*.5);src.stop(t+d+.02);
 }
 const N=s=>440*2**(s/12);
@@ -2241,10 +2260,19 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
   $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');
-  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');show('menu');
+  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');
+  $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
+  $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
 $('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
 $('#mMusic').onclick=()=>{musicOff=!musicOff;save();audio();audioState();sfx.ui();openMenu()};
+// 音量のつまみ：動かしている間もその場で音量を変え、効果音は試しに鳴らす。離したときに保存する
+function volShow(){$('#nSe').textContent=seVol+'%';$('#nBgm').textContent=bgmVol+'%';$('#vSe').classList.toggle('off',muted);$('#vBgm').classList.toggle('off',muted||musicOff)}
+let volT=0;
+function volTest(gap){const n=performance.now();if(n-volT>gap){volT=n;sfx.ui()}}
+$('#rSe').oninput=e=>{seVol=volOf(+e.target.value);audio();applyVol();volShow();volTest(140)};
+$('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow()};
+$('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
@@ -2786,10 +2814,10 @@ ready=true;layout();
 reset();
 checkAch(true); // これまでの記録ですでに満たしている実績は、知らせを出さずに解除しておく
 window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},async audioTest(name,sec,arg,battle){
-  const sr=44100,keep=[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle];muted=false;FX=true;
+  const sr=44100,keep=[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle,REVM,seVol,bgmVol,musicOff];muted=false;FX=true;seVol=bgmVol=100;musicOff=false;
   buildAudio(new OfflineAudioContext(2,sr*sec,sr));
-  S.time+=1;if(name==='music'){musT=0;musStep=0;musBattle=battle?1:0;MUS.gain.value=MUS_VOL;musicSchedule(sec,battle)}else sfx[name](arg);
-  const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle]=keep;
+  S.time+=1;if(name==='music'){musT=0;musStep=0;musBattle=battle?1:0;musicSchedule(sec,battle)}else sfx[name](arg);
+  const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle,REVM,seVol,bgmVol,musicOff]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
 },saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
