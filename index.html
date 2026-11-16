@@ -102,7 +102,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .diff #dNight.on{border-color:#ff3b6b;box-shadow:0 0 calc(var(--u)*16) #ff3b6b88}
 .diff .b:disabled{opacity:.35;cursor:default}
 #dNote{color:var(--dim);font-size:calc(var(--u)*12);min-height:calc(var(--u)*22);margin-bottom:calc(var(--u)*6)}
-#slist{width:100%;display:flex;flex-direction:column;gap:calc(var(--u)*10);overflow-y:auto;touch-action:pan-y;padding:calc(var(--u)*4) calc(var(--u)*2) calc(var(--u)*12)}
+#slist{width:100%;min-height:0;display:flex;flex-direction:column;gap:calc(var(--u)*10);overflow-y:auto;touch-action:pan-y;padding:calc(var(--u)*4) calc(var(--u)*2) calc(var(--u)*12)}
 .stg{display:flex;align-items:center;gap:calc(var(--u)*14);text-align:left;font-family:inherit;color:var(--ink);cursor:pointer;
   background:linear-gradient(180deg,#171230,#0b0916);border:1px solid #4a4070;border-radius:calc(var(--u)*14);
   padding:calc(var(--u)*10) calc(var(--u)*14);transition:transform .12s cubic-bezier(.3,2,.5,1),box-shadow .2s,border-color .2s}
@@ -117,6 +117,17 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
 .card.tap{cursor:pointer}
 .card.tap:active{transform:scale(.95)}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
+#stats{justify-content:flex-start;padding-top:calc(var(--u)*18);padding-bottom:calc(var(--u)*10)}
+#stats h2{margin:0 0 calc(var(--u)*6);font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
+.sbody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*13.5);line-height:1.6;padding:0 calc(var(--u)*4)}
+.sbody .dst b{text-align:right}
+.sbt{display:grid;grid-template-columns:auto 1fr 1fr;gap:calc(var(--u)*4) calc(var(--u)*10);color:var(--dim);font-size:calc(var(--u)*12.5);align-items:center}
+.sbt b{color:var(--ink);font-size:calc(var(--u)*13.5)}
+.sbt i{font-style:normal;color:var(--gold);font-size:calc(var(--u)*11.5);letter-spacing:.2em}
+.sbt em{font-style:normal;color:var(--gold)}
+#menu .mrow{display:flex;width:calc(var(--u)*284);justify-content:center}
+#menu .mrow .b{flex:1;margin:calc(var(--u)*7);padding-left:0;padding-right:0}
+#sNav{margin-top:calc(var(--u)*4)}
 </style>
 </head>
 <body>
@@ -141,6 +152,13 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
+    <div id="sNav"><button class="b s" id="sStats"></button></div>
+  </div>
+
+  <div class="ov" id="stats">
+    <h2 id="hStats">統計</h2>
+    <div class="sbody" id="stBody"></div>
+    <button class="b s" id="stClose">とじる</button>
   </div>
 
   <div class="ov" id="detail">
@@ -153,6 +171,7 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
     <button class="b s m" id="mSound"></button>
     <button class="b s m" id="mMusic"></button>
     <button class="b s m" id="mLang"></button>
+    <div class="mrow"><button class="b s" id="mStats"></button></div>
     <button class="b s m" id="mStages"></button>
     <button class="b m" id="mClose"></button>
   </div>
@@ -260,6 +279,12 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],
   resume:['つづきから','Continue'],resumeNote:['第 {0} 波から ・ 灯 {1} ・ ◆{2}','From wave {0} · Lives {1} · ◆{2}'],
   copied:['コピーしました','Copied!'],copyThis:['この文章をコピーしてください','Copy this text'],
+  // 統計
+  statsTitle:['統計','Stats'],stTotal:['これまでの記録','Totals'],stKills:['総撃破数','Shades defeated'],stBosses:['倒した主・王','Lords and kings defeated'],
+  stMerges:['総合成回数（錬成）','Merges made'],stPlays:['プレイ回数','Battles played'],stTime:['総プレイ時間','Time played'],stWaves:['退けた夜波','Waves repelled'],
+  stFound:['見つけた元素','Elements found'],stStage:['ステージ別ベスト','Best by stage'],stNone:['―','—'],
+  stClearBest:['✦ クリア（最高 第 {0} 波）','✦ Cleared (best: wave {0})'],
+  tHM:['{0} 時間 {1} 分','{0}h {1}m'],tMS:['{0} 分 {1} 秒','{0}m {1}s'],tS:['{0} 秒','{0}s'],
 };
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明
@@ -652,7 +677,10 @@ let S,disc,prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=nu
 const SAVE='yoiyami-alchemy-v1';
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));for(const id in UNLOCK)if(!disc.has(id)&&disc.size>=UNLOCK[id])disc.add(id);prog=d.prog||{};TUT=d.tut?9:0;RUN=d.run&&STAGES[d.run.stage]?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN}))}catch(e){}}
+// 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
+const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.stats&&typeof d.stats==='object')for(const k in stats)if(d.stats[k]>0)stats[k]=+d.stats[k]||0}catch(e){}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)}}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -1254,6 +1282,7 @@ function dropOn0(from,to){
   if(FX)fx.push({ty:'merge',x:dst.x,y:dst.y,a:{id:it.id,x:it.rx,y:it.ry},b:{id:to.item.id,x:to.item.rx,y:to.item.ry},t:0,dur:.3,res:n,isNew});
   else n.hide=0,n.s=1;
   from.item=null;to.item=null;dst.item=n;
+  if(FX)stats.merges++;
 }
 function mergeDone(f){
   const n=f.res,d=ITEMS[n.id];
@@ -1492,6 +1521,7 @@ const FXD={
 function startWave(){
   if(S.active||S.over||(S.cleared&&!S.endless))return;
   saveRun();
+  if(S.wave===0&&FX)stats.plays++; // 最初の波を呼んだときに 1 回と数える（途中保存からの再開は数えない）
   S.wave++;S.active=true;S.wt=0;S.started=true;
   if(S.tut<3)S.tut=3;if(S.wave>=3&&S.tut<9)tutDone();
   S.queue=buildWave(S.wave);
@@ -1531,6 +1561,7 @@ function kill(e){
   e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
+  stats.kills++;if(boss){stats.bosses++;if(e.final)stats.kings++}
   burst(e.x,e.y,e.def.rim,boss?50:10,boss?260:110);burst(e.x,e.y,'#1a1230',6,60,{ty:'d'});
   if(boss){ring(e.x,e.y,'#ff3b6b',140,.7,5);ring(e.x,e.y,'#ffffff',90,.4,2);sparks(e.x,e.y,'#ffd0d8',40,380);shake(12);sfx.boom();S.flash=.3;S.flashC='#ff3b6b'}
   else sfx.kill();
@@ -1661,11 +1692,12 @@ function update(dt){
 }
 function endWave(){
   S.active=false;const bonus=12+3*S.wave;S.mana+=bonus;
+  if(FX)stats.waves++;
   if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',22);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',15);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
-  if(S.wave===MAX_WAVE&&!S.endless){clearRun();victory()}else saveRun();
+  if(S.wave===MAX_WAVE&&!S.endless){clearRun();if(FX)save();victory()}else saveRun();
 }
 
 /* ---------------- クリア・ゲームオーバー ---------------- */
@@ -1711,6 +1743,7 @@ function celebrate(dt){
 function gameOver(){
   clearRun();S.over=true;S.active=false;S.shake=18;S.flash=.8;S.flashC='#ff2a4a';
   if(!FX)return;
+  save();
   sfx.over();burst(CORE.x,CORE.y,'#ff2a4a',70,320);sparks(CORE.x,CORE.y,'#ffd0d8',50,420);
   for(let i=0;i<4;i++)ring(CORE.x,CORE.y,'#ff2a4a',120+i*90,.6+i*.2,5);
   setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=TT('overSub',S.wave,rec().best);show('over')},1300);
@@ -1892,8 +1925,30 @@ function openStages(){
     b.onclick=()=>{audio();STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
   });
+  $('#sStats').textContent=TT('statsTitle');
   show('stages');
 }
+/* ---------------- 統計 ---------------- */
+let subFrom=null; // 統計などの画面をどこから開いたか（'menu'／'stages'）。閉じたらそこへ戻る
+const fmtN=n=>Math.floor(n).toLocaleString(LANG==='ja'?'ja-JP':'en-US');
+function fmtTime(sec){const s=Math.floor(sec),h=s/3600|0,m=(s%3600)/60|0;return h?TT('tHM',h,m):m?TT('tMS',m,s%60):TT('tS',s)}
+function subBack(){if(subFrom==='stages')openStages();else if(subFrom==='menu')openMenu();else show(null)}
+function openStats(from){
+  if(from)subFrom=from;
+  const row=(k,v)=>`<span>${k}</span><b>${v}</b>`;
+  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>MAX_WAVE?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):(n?nightOpen(i):stageOpen(i))?TT('untried'):TT('stNone')};
+  let h=`<div class="dsec">${TT('stTotal')}</div><div class="dst">`
+    +row(TT('stKills'),fmtN(stats.kills))+row(TT('stBosses'),fmtN(stats.bosses))+row(TT('stMerges'),fmtN(stats.merges))
+    +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
+    +row(TT('stFound'),`${disc.size} / ${TOTAL}`)+'</div>';
+  h+=`<div class="dsec">${TT('stStage')}</div><div class="sbt"><span></span><i>${TT('normal')}</i><i>${TT('night')}</i>`
+    +STAGES.map((st,i)=>`<b>${sn(st)}</b><span>${best(i,false)}</span><span>${best(i,true)}</span>`).join('')+'</div>';
+  $('#hStats').textContent=TT('statsTitle');$('#stClose').textContent=TT('close');
+  $('#stBody').innerHTML=h;$('#stBody').scrollTop=0;show('stats');shownAt=performance.now();
+}
+$('#stClose').onclick=()=>{sfx.ui();subBack()};
+$('#mStats').onclick=()=>{sfx.ui();openStats('menu')};
+$('#sStats').onclick=()=>{audio();sfx.ui();openStats('stages')};
 /* ---------------- 共有 ---------------- */
 const SITE='https://shinpoyo.com/alchemerge_defense/';
 function shareLines(kind){
@@ -1948,6 +2003,7 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 }
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
+  $('#mStats').textContent=TT('statsTitle');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');show('menu');
 }
 $('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
@@ -2398,10 +2454,12 @@ function render(dt){
 
 /* ---------------- メインループ ---------------- */
 let last=performance.now(),ambT=0;
+const PAUSE_OV=['title','codex','stages','menu','detail','stats']; // 開いている間は戦闘を止める画面
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
-  const paused=$('#title').classList.contains('on')||$('#codex').classList.contains('on')||$('#stages').classList.contains('on')||$('#menu').classList.contains('on')||$('#detail').classList.contains('on');
+  const paused=PAUSE_OV.some(id=>$('#'+id).classList.contains('on'));
   if(!paused&&!S.over){
+    if(FX&&!(S.cleared&&!S.endless))stats.time+=dt; // 戦いの画面を開いている時間（重ね合わせの画面を開いている間は数えない）
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
     while(sim>0){const st=Math.min(sim,1/30);update(st);sim-=st}
@@ -2425,7 +2483,7 @@ window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},
   const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
-},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){STAGE=i;NIGHT=!!n;reset()},STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get S(){return S},slots,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
