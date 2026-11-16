@@ -2111,8 +2111,8 @@ function openCodex(){
     for(const d of all.filter(d=>d.t===tr)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        // 作り方は、材料をどちらも見つけているものを先に、最大 3 通り
-        const rs=mk?[...mk].sort((x,y)=>(disc.has(y[0])&&disc.has(y[1]))-(disc.has(x[0])&&disc.has(x[1]))).slice(0,3):[];
+        // 作り方は、材料をどちらも見つけているものだけ、最大 3 通り（まだ見つけていない元素の名前は出さない。詳細画面と同じ決まり）
+        const rs=mk?mk.filter(m=>disc.has(m[0])&&disc.has(m[1])).slice(0,3):[];
         h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
         const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
