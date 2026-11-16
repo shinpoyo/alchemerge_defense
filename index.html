@@ -509,7 +509,7 @@ const ITEMS={
   mud:     {name:'泥',      t:3,c:'#b08a5a',kind:'trap',                   range:36, slow:.45,slowT:.3,curse:1.25,desc:'罠：ぬかるみで遅くし、もろくする'},
   thunderbird:{name:'雷鳥', t:3,c:'#ffe070',kind:'chain',dmg:18, rate:1.5, range:145,chain:4,                  desc:'空から4体に雷を落とす'},
   blueflame:{name:'蒼炎',   t:3,c:'#6ab8ff',kind:'bolt', dmg:9,  rate:1.2, range:125,dot:16,dotT:3,slow:.2,slowT:1,desc:'冷たい炎で焼き、凍えさせる'},
-  geyser:  {name:'間欠泉',  t:3,c:'#a8e8ff',kind:'pulse',dmg:22, rate:.7,  range:80, knock:12,chg:4,            desc:'力を蓄え、噴き上げて押し戻す'},
+  geyser:  {name:'間欠泉',  t:3,c:'#a8e8ff',kind:'pulse',dmg:22, rate:.7,  range:80, knock:12,               desc:'噴き上げて押し戻す'},
   icicle:  {name:'氷柱',    t:3,c:'#c8f0ff',kind:'pierce',dmg:28,rate:.9,  range:145,slow:.3,slowT:1.2,         desc:'一直線に貫いて凍えさせる'},
   eel:     {name:'雷魚',    t:3,c:'#7af0d8',kind:'chain',dmg:15, rate:1.2, range:115,chain:3,slow:.25,slowT:1, desc:'しびれさせて遅くする'},
   lantern: {name:'灯籠',    t:3,c:'#ffd08a',kind:'support',                range:140,buffD:.15,buffR:.10,       desc:'灯りでまわりの塔を強める'},
@@ -617,7 +617,7 @@ const RECIPES=[
   ['hotspring','sea','ryugu'],['raincloud','storm','thunderstorm'],['plasma','magnet','particle'],['icicle','crystal','icespear'],['blueflame','wisp','foxfire'],
   ['mud','quicksand','bottomless'],['eel','sea','seaserpent'],
   ['star','sun','galaxy'],['tsunami','seaserpent','poseidon'],['iceage','icespear','absolutezero'],['eruption','sun','solarflare'],['colossus','peak','kyoshin'],
-  ['typhoon','thunderstorm','fujinraijin'],['foxfire','wraith','ninetails'],['particle','railgun','photon'],['bottomless','mire','naraku'],['ryugu','forest','paradise'],
+  ['typhoon','thunderstorm','fujinraijin'],['raijin','typhoon','fujinraijin'],['foxfire','wraith','ninetails'],['particle','railgun','photon'],['bottomless','mire','naraku'],['ryugu','forest','paradise'],
   ['galaxy','photon','cosmos'],['poseidon','fujinraijin','kamikaze'],['ninetails','phoenix','rinne'],['kyoshin','yggdrasil','gaia'],['absolutezero','solarflare','chaos'],
   ['naraku','stasis','mugen'],
   // もう 1 つの作り方（名前から想像できる組み合わせ）
@@ -1710,7 +1710,7 @@ function drawShot(s){ // 飛んでいる弾
 }
 // 画面に一時的に出る演出（fx の種類ごと）。k は 0→1 の進み具合
 const FXD={
-  pool(f,k){ctx.globalCompositeOperation='source-over';ctx.fillStyle=rgba(f.color,(1-k)*.32);ctx.beginPath();ctx.ellipse(f.x,f.y,f.r,f.r*.62,0,0,TAU);ctx.fill()},
+  pool(f,k){ctx.globalCompositeOperation='source-over';ctx.fillStyle=rgba(f.color,(1-k)*.32);ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,TAU);ctx.fill()},
   slash(f,k){const L=(f.big?26:15)*(.5+k);ctx.translate(f.x,f.y);ctx.rotate(f.a);ctx.lineCap='round';ctx.strokeStyle=rgba('#ffffff',1-k);ctx.lineWidth=(f.big?5:3)*(1-k);
     ctx.beginPath();ctx.arc(0,L,L*1.4,-Math.PI/2-.7,-Math.PI/2+.7);ctx.stroke();ctx.strokeStyle=rgba(f.color,(1-k)*.7);ctx.lineWidth*=2.4;ctx.stroke()},
   rays(f,k){ctx.translate(f.x,f.y);ctx.rotate(k*.5);ctx.fillStyle=rgba(f.color,(1-k)*.45);for(let i=0;i<12;i++){const a=i/12*TAU;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,f.r*(.5+k*.5),a-.09,a+.09);ctx.fill()}},
@@ -2870,7 +2870,7 @@ function render(dt){
   for(const s of slots){const it=s.item;if(!s.path||!it||it.hide>0||it===held?.item)continue;
     const d=ITEMS[it.id],pu=.5+.5*Math.sin(T*2.5+it.ph);
     ctx.fillStyle=rgba(d.c,.2+pu*.08);ctx.strokeStyle=rgba(d.c,.55);ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.ellipse(s.x,s.y,d.range+pu*1.5,d.range*.62+pu,0,0,TAU);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.arc(s.x,s.y,d.range+pu*1.5,0,TAU);ctx.fill();ctx.stroke();
     trapFx(s,it,d,T,dt);
     drawItem(it,it.rx,it.ry,.8,.9)}
   for(const e of S.enemies)drawEnemy(e);
