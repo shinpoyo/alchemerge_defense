@@ -790,9 +790,16 @@ const daily={};   // 日付 → {best:退けた波, clear, stage, night}
 const DAILY_KEEP=120,DAILY_GOAL=10;
 const dayKey=(t=new Date())=>`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 const mixH=h=>{h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;return h>>>0}; // 日付の並びが続いても散らばるよう混ぜる
-function dailyOf(key){ // 3 日に 1 日ほどが悪夢。前の日と同じステージになりそうなら、べつのステージへずらす
-  const L=STAGES.length,raw=k=>mixH(hsh('alchemerge:'+k)),m=raw(key),[y,mo,d]=key.split('-'),prev=raw(dayKey(new Date(+y,mo-1,d-1)))%L;
-  return{stage:m%L===prev?(prev+1+(m>>>12)%(L-1))%L:m%L,night:(m>>>8)%3===0};
+function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前の日と同じものが続かないように決める
+  // 日付を 7 日ごとの組に分ける。組の 1 日目は組の番号だけで決め、2 日目からは「前の日のステージから 1〜L-1 だけ進める」ので、前の日と同じにならない。
+  // 組の最後の日は、前の日とも、次の組の 1 日目ともちがうステージから選ぶ（組の境目でも続かない）。
+  // 前の日を「ずらす前の値」で見ていたころは、前の日もずれていたときに同じステージが続くことがあった
+  const L=STAGES.length,B=7,h=x=>mixH(hsh('alchemerge:'+x)),[y,mo,d]=key.split('-'),n=Math.round(Date.UTC(+y,mo-1,+d)/864e5),b=Math.floor(n/B),first=g=>h('w'+g)%L;
+  let s=first(b);
+  for(let j=1;j<=n-b*B;j++){const r=h('d'+(b*B+j));
+    if(j<B-1)s=(s+1+r%(L-1))%L;
+    else{const nx=first(b+1),c=STAGES.map((_,i)=>i).filter(i=>i!==s&&i!==nx);s=c[r%c.length]}}
+  return{stage:s,night:(h(key)>>>8)%3===0}; // 悪夢になる日は、これまでと同じ
 }
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.daily&&typeof d.daily==='object')for(const k in d.daily){const v=d.daily[k];
   if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0)daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
