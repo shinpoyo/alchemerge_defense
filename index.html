@@ -772,7 +772,11 @@ function buildWave(w){
 /* ---------------- 状態 ---------------- */
 let S,disc,prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
-try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((d.disc||BASES).filter(i=>ITEMS[i]));for(const id in UNLOCK)if(!disc.has(id)&&disc.size>=UNLOCK[id])disc.add(id);prog=d.prog||{};TUT=d.tut?9:0;RUN=d.run&&STAGES[d.run.stage]?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
+// 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
+const runOK=r=>!!r&&typeof r==='object'&&!!STAGES[r.stage]&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i]));for(const id in UNLOCK)if(!disc.has(id)&&disc.size>=UNLOCK[id])disc.add(id);
+  prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
+  TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
 // 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
 const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
@@ -823,9 +827,9 @@ function resumeRun(){
   const r=RUN;if(!r)return;
   const n0=NIGHT;STAGE=r.stage;NIGHT=!!r.night;DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
   for(const sl of slots)sl.item=null;
-  r.items.forEach(([i,id],n)=>{const sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
-  S.wave=r.wave;S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=r.lives;S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
-  S.made=new Set((r.made||[]).filter(i=>ITEMS[i]));S.ws=r.ws||1;
+  r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
+  S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
+  S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
 }
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[]}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
