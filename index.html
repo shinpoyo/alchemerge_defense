@@ -812,7 +812,10 @@ function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
   save();
 }
 let nightSel=null; // 今日の挑戦に入る前に、ステージ選択で選んでいた難易度。ステージ選択へ戻ったときに戻す（挑戦の難易度を、ふつうのステージの選択に持ちこまない）
-function startDaily(){const k=dayKey(),c=dailyOf(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
+// 実際に出す今日の挑戦。そのステージの悪夢がまだ開いていなければ、悪夢の日でも通常にする。
+// その日の記録がすでにあれば、記録と同じステージ・難易度のままにする（途中で悪夢が開いても、同じ日の記録に通常と悪夢がまざらない）
+function dailyNow(k=dayKey()){const r=daily[k];if(r)return{stage:r.stage,night:r.night};const c=dailyOf(k);return{stage:c.stage,night:c.night&&nightOpen(c.stage)}}
+function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
@@ -2156,7 +2159,7 @@ function openStages(){
     box.appendChild(b);
   }
   { // 今日の挑戦：日付で決まるステージと難易度。開放の順に関係なく遊べる（ふつうの進行度には数えない）
-    const k=dayKey(),c=dailyOf(k),st=STAGES[c.stage],r=daily[k],b=document.createElement('button');b.className='stg day';
+    const k=dayKey(),c=dailyNow(k),st=STAGES[c.stage],r=daily[k],b=document.createElement('button');b.className='stg day';
     const date=new Date().toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'});
     b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${c.night?TT('nightParen'):''}</span><span>${r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span></div>`;
     miniMap(b.querySelector('canvas'),st);
@@ -2873,7 +2876,7 @@ window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},
   const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle,REVM,seVol,bgmVol,musicOff]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
-},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dailyNow,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
