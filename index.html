@@ -1974,8 +1974,11 @@ const lpClear=()=>{if(lpT){clearTimeout(lpT);lpT=null}};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
 const slotAt=(x,y,need)=>{let b=null,bd=40*40;for(const s of slots){if(need&&!s.item)continue;const q=(s.x-x)**2+(s.y-y)**2;if(q<bd){bd=q;b=s}}return b};
 const inBtn=(b,x,y)=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h;
+// 2 本目以降の指は無視する（1 本目でつまんでいる間に別の元素へ触れると、先の元素が「つまんだまま」になって攻撃しなくなるため）
+const extraPtr=ev=>!!ev&&ev.isPrimary===false;
 cv.addEventListener('pointerdown',ev=>{
-  audio();const p=pos(ev);ptr=p;
+  audio();if(extraPtr(ev))return;
+  const p=pos(ev);ptr=p;
   try{cv.setPointerCapture(ev.pointerId)}catch(e){}
   if(S.over||(S.cleared&&!S.endless))return;
   if(S.banner&&S.banner.t>.4){S.banner.t=Math.max(S.banner.t,S.banner.dur-.25)}
@@ -1995,6 +1998,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(sel){const t=slotAt(p.x,p.y);if(t)dropOn(sel,t);sel=null}
 });
 cv.addEventListener('pointermove',ev=>{
+  if(extraPtr(ev))return;
   const p=pos(ev);ptr=p;
   if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null;lpClear()}
     if(strip.moved)SHOP.scroll[SHOP.tab]=clamp(strip.s0-dx,0,shopMax(SHOP.tab))}
@@ -2024,8 +2028,8 @@ function release(ev,cancel){
   if(inBtn(tb,p.x,p.y)){sell(d.slot);return}
   dropOn(d.slot,slotAt(p.x,p.y-(d.touch?26:0)));
 }
-cv.addEventListener('pointerup',ev=>release(ev,false));
-cv.addEventListener('pointercancel',()=>release(null,true));
+cv.addEventListener('pointerup',ev=>{if(!extraPtr(ev))release(ev,false)});
+cv.addEventListener('pointercancel',ev=>{if(!extraPtr(ev))release(null,true)});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=TABS[0].y&&p.y<=SHOP.y+SHOP.h){ev.preventDefault();
   SHOP.scroll[SHOP.tab]=clamp(SHOP.scroll[SHOP.tab]+(Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY),0,shopMax(SHOP.tab))}},{passive:false});
