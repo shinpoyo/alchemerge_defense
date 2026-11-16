@@ -1446,6 +1446,7 @@ function dropOn0(from,to){
   if(FX)fx.push({ty:'merge',x:dst.x,y:dst.y,a:{id:it.id,x:it.rx,y:it.ry},b:{id:to.item.id,x:to.item.rx,y:to.item.ry},t:0,dur:.3,res:n,isNew});
   else n.hide=0,n.s=1;
   from.item=null;to.item=null;dst.item=n;
+  S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
 }
 function mergeDone(f){
@@ -1456,7 +1457,6 @@ function mergeDone(f){
   ring(f.x,f.y,d.c,46+d.t*14,.45,3);ring(f.x,f.y,'#ffffff',30+d.t*8,.28,1.5);
   shake(2+d.t*1.2);buzz(15+d.t*6);sfx.merge(d.t-1);
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',13);
-  S.made.add(n.id);
   if(S.tut===0)S.tut=1;
   if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:TT('allFound',TOTAL)});setTimeout(()=>sfx.clear(),2400)}
   if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c;
