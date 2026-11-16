@@ -1073,7 +1073,7 @@ const dnums=[],DNUM_MAX=36,DNUM_GAP=.25,DNUM_LIFE=.7;
 const fmtD=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e4?Math.round(v/1e3)+'k':v>=1e3?(v/1e3).toFixed(1)+'k':Math.round(v)+'';
 function dnumPop(e){
   const v=e.dn,weak=e.dnW,cur=e.dnC;e.dn=0;e.dnW=e.dnC=0;e.dnT=DNUM_GAP;
-  if(v<1||e.x<-10||e.x>W+10)return;
+  if(dmgOff||v<1||e.x<-10||e.x>W+10)return; // 設定でオフにした直後に、それまでにたまっていた数字が出ないように
   if(dnums.length>=DNUM_MAX/2&&v<e.max*.08)return;               // 半分うまったら、かすり傷の数字は出さない（群れに波動が当たったときの数字の壁を防ぐ）
   if(dnums.length>=DNUM_MAX){if(v<e.max*.2)return;dnums.shift()} // いっぱいのとき：大きい一撃だけ、いちばん古いものと入れかえる
   dnums.push({x:e.x+rnd(-e.r,e.r)*.7,y:e.y-e.r-7-(e.def.fly?16:0),txt:fmtD(v),t:0,sz:10+Math.round(clamp(v/e.max,0,1)*6),vx:rnd(-9,9),
