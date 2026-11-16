@@ -1765,7 +1765,8 @@ function kill(e){
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
-  stats.kills++;if(boss){stats.bosses++;if(e.final)stats.kings++}
+  stats.kills++;if(boss){stats.bosses++;if(e.final)stats.kings++;
+    if(!DAILY){grantAch('firstBoss');if(e.final)grantAch('king')}} // 主・王の実績は、ふつうのステージで倒したときだけ（今日の挑戦は進行に数えない）。合計の数（stats）には挑戦のぶんも入る
   checkAch();
   burst(e.x,e.y,e.def.rim,boss?50:10,boss?260:110);burst(e.x,e.y,'#1a1230',6,60,{ty:'d'});
   if(boss){ring(e.x,e.y,'#ff3b6b',140,.7,5);ring(e.x,e.y,'#ffffff',90,.4,2);sparks(e.x,e.y,'#ffd0d8',40,380);shake(12);sfx.boom();S.flash=.3;S.flashC='#ff3b6b';
@@ -1934,7 +1935,7 @@ const FW=['#ffe9a0','#ff9ae0','#8fe6ff','#b98cff','#7df0c0','#ff6a3d','#ffffff',
 function victory(){
   S.cleared=true;S.cele=.0001;S.slowmo=0;S.flash=1;S.flashC='#fff6d8';shake(14);
   if(!FX)return;
-  if(S.lives>=(NIGHT?NIGHT_LIVES:20))grantAch('flawless');
+  if(!DAILY&&S.lives>=(NIGHT?NIGHT_LIVES:20))grantAch('flawless'); // 今日の挑戦のクリアは数えない（「はじめての夜明け」などと同じ扱い）
   sfx.clear();buzz([40,60,40,60,120]);
   // 置いてある塔すべてから光の柱
   for(const sl of slots)if(sl.item){const c=ITEMS[sl.item.id].c;ring(sl.x,sl.y,c,90,.9,4);
@@ -2176,16 +2177,18 @@ function openStages(){
 }
 /* ---------------- 実績 ----------------
    ok：解除の条件（いまの記録から判定できるもの）。pg：進み具合 [いま, 目標]。arg：説明文に入れる値
-   ok のないもの（flawless）は、その場面で grantAch を呼ぶ */
+   ok のないもの（flawless）は、その場面で grantAch を呼ぶ。
+   今日の挑戦の扱い：ステージの進行にかかわる実績（主・王・クリア・悪夢・エンドレス・消えない灯）は、今日の挑戦では解除しない。
+   通算の数（撃破・錬成）と図鑑は、挑戦のぶんも統計・図鑑に入るので、そのまま数える。daily10 は挑戦だけの実績 */
 const anyClear=n=>STAGES.some((_,i)=>rec(i,n).clear),clearN=n=>STAGES.filter((_,i)=>rec(i,n).clear).length;
-const bestWaveAll=()=>Object.values(prog).concat(Object.values(daily)).reduce((m,r)=>Math.max(m,r&&r.best||0),0);
+const bestWaveAll=()=>Object.values(prog).reduce((m,r)=>Math.max(m,r&&r.best||0),0); // ふつうのステージ（通常・悪夢）での最高到達波。今日の挑戦の記録は入れない
 const dailyTop=()=>Object.values(daily).reduce((m,r)=>Math.max(m,r.best),0);
 const T6=Object.values(ITEMS).filter(d=>d.t>=6).map(d=>d.id),ENDLESS_GOAL=30;
 const achCount=(id,get,n)=>({id,arg:()=>[fmtN(n)],ok:()=>get()>=n,pg:()=>[get(),n]});
 const achCodex=(id,q)=>{const n=Math.ceil(TOTAL*q);return{id,arg:()=>[n],ok:()=>disc.size>=n,pg:()=>[disc.size,n]}};
 const ACH=[
-  {id:'firstBoss',ok:()=>stats.bosses>0||anyClear(false)||anyClear(true)}, // クリアしていれば、主も王も倒している
-  {id:'king',ok:()=>stats.kings>0||anyClear(false)||anyClear(true)},
+  {id:'firstBoss',ok:()=>anyClear(false)||anyClear(true)}, // クリアしていれば、主も王も倒している。倒したその場での解除は、敵を倒す処理の中（stats.bosses・kings は挑戦のぶんも入るので、ここでは見ない）
+  {id:'king',ok:()=>anyClear(false)||anyClear(true)},
   {id:'clear1',ok:()=>anyClear(false)||anyClear(true)},
   {id:'clearAll',arg:()=>[STAGES.length],ok:()=>clearN(false)>=STAGES.length,pg:()=>[clearN(false),STAGES.length]},
   {id:'night1',ok:()=>anyClear(true)},
