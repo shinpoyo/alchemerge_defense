@@ -21,6 +21,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#050409;overflow:hidden;touch-action:none;
   -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+img{-webkit-touch-callout:none;-webkit-user-drag:none}
 #wrap{position:fixed;inset:0;display:grid;place-items:center}
 #stage{position:relative;width:min(100vw,calc(100dvh * 9 / 16));height:min(100dvh,calc(100vw * 16 / 9));
   box-shadow:0 0 80px #1b123a;font-family:var(--serif);color:var(--ink)}
@@ -61,23 +62,25 @@ button.b.s{font-size:calc(var(--u)*14);padding:calc(var(--u)*9) calc(var(--u)*24
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
 #detail{justify-content:flex-start;padding-top:calc(var(--u)*14);padding-bottom:calc(var(--u)*10)}
-#dBody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*13.5);line-height:1.6;padding:0 calc(var(--u)*4)}
+#dBody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*15);line-height:1.6;padding:0 calc(var(--u)*4)}
 .dh{display:flex;align-items:center;gap:calc(var(--u)*10);margin-bottom:calc(var(--u)*6)}
 .dh img{width:calc(var(--u)*84);height:calc(var(--u)*84);flex:none;margin:calc(var(--u)*-8)}
 .dh b{display:block;font-size:calc(var(--u)*24);color:var(--c);letter-spacing:.08em;line-height:1.3}
 .dh span{color:var(--gold);font-size:calc(var(--u)*14)}
 .dh i{font-style:normal;display:inline-block;margin-left:calc(var(--u)*6);padding:0 calc(var(--u)*8);border:1px solid #4a4070;border-radius:calc(var(--u)*10);color:var(--ink);font-size:calc(var(--u)*11.5)}
 .dd{color:var(--ink);margin-bottom:calc(var(--u)*8)}
-.dsec{color:var(--gold);font-size:calc(var(--u)*12);letter-spacing:.25em;border-bottom:1px solid #2a2440;margin:calc(var(--u)*12) 0 calc(var(--u)*6);padding-bottom:calc(var(--u)*2)}
+.dsec{color:var(--gold);font-size:calc(var(--u)*13);letter-spacing:.25em;border-bottom:1px solid #2a2440;margin:calc(var(--u)*12) 0 calc(var(--u)*6);padding-bottom:calc(var(--u)*2)}
 .dst{display:grid;grid-template-columns:auto 1fr;gap:calc(var(--u)*3) calc(var(--u)*12);color:var(--dim)}
 .dst b{color:var(--ink);font-weight:700}
 .bar{display:inline-block;vertical-align:middle;width:calc(var(--u)*90);height:calc(var(--u)*5);background:#1c1830;border-radius:calc(var(--u)*3);margin-left:calc(var(--u)*8);overflow:hidden}
 .bar u{display:block;height:100%;background:var(--c)}
 .rc{display:flex;align-items:center;flex-wrap:wrap;gap:calc(var(--u)*2);margin:calc(var(--u)*3) 0;color:var(--dim)}
 .rc img{width:calc(var(--u)*34);height:calc(var(--u)*34);margin:calc(var(--u)*-4)}
-.rc span{color:var(--ink);font-size:calc(var(--u)*12.5);margin-right:calc(var(--u)*4)}
+.rc span{color:var(--ink);font-size:calc(var(--u)*14);margin-right:calc(var(--u)*4)}
+.rc .rcp{display:inline-flex;align-items:center;margin-right:0;cursor:pointer}
+.rc .rcp>span{margin-right:0;text-decoration:underline dotted #6b6191;text-underline-offset:calc(var(--u)*3)}
 .rc.go{cursor:pointer}
-.dn{color:var(--dim);font-size:calc(var(--u)*12.5)}
+.dn{color:var(--dim);font-size:calc(var(--u)*13.5)}
 .dn b{color:#a890ff}
 #menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*22);letter-spacing:.3em;color:var(--gold)}
 #menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
@@ -2220,7 +2223,7 @@ function release(ev,cancel){
 }
 cv.addEventListener('pointerup',ev=>{if(!extraPtr(ev))release(ev,false)});
 cv.addEventListener('pointercancel',ev=>{if(!extraPtr(ev))release(null,true)});
-cv.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('contextmenu',e=>e.preventDefault()); // 長押しの画像メニューを出さない
 cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=TABS[0].y&&p.y<=SHOP.y+SHOP.h){ev.preventDefault();
   SHOP.scroll[SHOP.tab]=clamp(SHOP.scroll[SHOP.tab]+(Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY),0,shopMax(SHOP.tab))}},{passive:false});
 addEventListener('keydown',e=>{if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}});
@@ -2279,7 +2282,8 @@ function openDetail(id,from){
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
   if(d.stun)fx2.push([TT('stSlow'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
   const mk=MADE_BY[id]||[],mkK=mk.filter(m=>disc.has(m[0])&&disc.has(m[1])),us=USES[id]||[],usK=us.filter(u=>disc.has(u[1])&&disc.has(u[0])),usU=us.length-usK.length;
-  const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${img(a)}<span>${nm(ITEMS[a])}</span>＋${img(b)}<span>${nm(ITEMS[b])}</span>＝${img(r)}<span>${nm(ITEMS[r])}</span></div>`;
+  const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
+  const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam&&TX['f_'+d.fam]?`<i>${TT('dFam',TT('f_'+d.fam))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
   h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
@@ -2295,7 +2299,7 @@ function openDetail(id,from){
   if(from!==undefined)detailFrom=from;
   show('detail');shownAt=performance.now();sfx.ui();
 }
-$('#dBody').addEventListener('click',ev=>{const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
+$('#dBody').addEventListener('click',ev=>{const p=ev.target.closest('[data-el]');if(p){openDetail(p.dataset.el);return}const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
 $('#dClose').onclick=()=>{sfx.ui();if(detailFrom==='codex')openCodex();else show(null);detailFrom=null};
 function openCodex(){
   const all=Object.values(ITEMS);
