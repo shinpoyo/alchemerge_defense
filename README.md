@@ -38,6 +38,7 @@
 | `docs/worklog.md` | 作業履歴 |
 | `docs/competitors.md` | 競合調査（2026-11-13） |
 | `docs/design-critique.md` | デザイン講評（2026-11-13） |
+| `docs/design-critique-2026-11-17.md` | デザイン講評 第 2 回（2026-11-17） |
 
 ## コードの場所（`index.html` の中）
 
