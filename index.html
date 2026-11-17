@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全160種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全162種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -350,7 +350,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
   needMake:['この戦いで作るか、工房レベル{0}で呼び出せる','Make it this battle, or reach Workshop Lv{0}'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
-  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],stRust:['鎧が朽ちた','Armor rusted'],useOnCore:['砦（灯）へ運んで使う','Carry it to the fort to use'],livesUp:['灯 +{0}','+{0} lives'],dNoAtk2:['しない','None'],dWardArea:['効く広さ','Range of effect'],dPlaceCore:['作業台から砦（灯）へ運ぶと使える','Carry it from the bench to the fort to use'],dHealK:['灯','Lives'],dHealV:['使うと {0} もどる','Restores {0} when used'],dGoldK:['魔力','Mana'],dGoldV:['広さの中で倒した影の魔力が {0} 倍','Foes slain in range drop ×{0} mana'],dWardSil:['広さの中の影を沈黙させつづける（回復・軽減を無効）','Keeps foes in range silenced (no heal or armor)'],dRustK:['錆','Rust'],dRustV:['当てた鎧の影の鎧がなくなる','Removes the armor of armored foes it hits'],
+  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],stRust:['鎧が朽ちた','Armor rusted'],useOnCore:['砦（灯）へ運んで使う','Carry it to the fort to use'],livesUp:['灯 +{0}','+{0} lives'],dNoAtk2:['しない','None'],dWardArea:['効く広さ','Range of effect'],dPlaceCore:['作業台から砦（灯）へ運ぶと使える','Carry it from the bench to the fort to use'],dHealK:['灯','Lives'],dHealV:['使うと {0} もどる','Restores {0} when used'],dGoldK:['魔力','Mana'],dGoldV:['広さの中で倒した影の魔力が {0} 倍','Foes slain in range drop ×{0} mana'],dWardDpsK:['ダメージ','Damage'],dWardAtk:['広さの中の影すべて','Every foe inside'],dWardDps:['広さの中の影に毎秒 {0}','{0} per second to every foe inside'],dWardSil:['広さの中の影を沈黙させつづける（回復・軽減を無効）','Keeps foes in range silenced (no heal or armor)'],dRustK:['錆','Rust'],dRustV:['当てた鎧の影の鎧がなくなる','Removes the armor of armored foes it hits'],
   resume:['つづきから','Continue'],resumeNote:['第 {0} 波から ・ 灯 {1} ・ ◆{2}','From wave {0} · Lives {1} · ◆{2}'],
   copied:['コピーしました','Copied!'],copyThis:['この文章をコピーしてください','Copy this text'],
   // 統計
@@ -406,6 +406,7 @@ const EN={ // 英語の名前と説明
   stone:['Sage Stone','Light upon all that silences foes'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Breath that pierces all'],
   genesis:['Genesis','Ends the night itself'],
   seihai:['Holy Ash','Carry it to the fort to restore 3 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],
+  fushoku:['Corrosion','Rusts armor and pours in poison'],seiiki:['Sanctuary','Silences foes inside and sears them clean'],
   kiyome:['Purifying Mist','Keeps nearby foes silenced'],hougyoku:['Dragon Orb','Foes slain nearby drop double mana'],
   hotspring:['Hot Spring','Boils and slows nearby foes'],raincloud:['Rain Cloud','Wide rain that slows'],plasma:['Plasma','Burning bolt jumps to 4; charges when idle'],
   glacier:['Glacier','Drops ice that chills'],volcano:['Volcano','Rains burning rocks'],mud:['Mud','Trap: slows and weakens'],
@@ -612,6 +613,8 @@ const ITEMS={
   // 特別な効果を持つ元素。聖灰・浄めの霧・竜の宝玉は浄めたり宝が残ったりして★が上がり、錆は崩れて★が下がる
   seihai:  {name:'聖灰',    t:5,c:'#f4e6c8',kind:'relic',range:0,heal:3,desc:'砦へ運ぶと灯が 3 もどる'},
   sabi:    {name:'錆',      t:2,c:'#c8783a',kind:'bolt', dmg:14, rate:1,   range:110,rust:1,           desc:'当てた影の鎧を朽ちさせる'},
+  fushoku: {name:'腐蝕',    t:3,c:'#9ad04a',kind:'bolt', dmg:22, rate:1,   range:115,dot:14,dotT:4,rust:1,         desc:'鎧を朽ちさせ、毒を流しこむ'},
+  seiiki:  {name:'聖域',    t:6,c:'#fff8d8',kind:'ward', range:190,ward:'sil',dps:70,                      desc:'踏みこんだ影の力を封じ、焼き清める'},
   kiyome:  {name:'浄めの霧',t:5,c:'#d8f0ff',kind:'ward', range:150,ward:'sil',                       desc:'まわりの影の力を封じつづける'},
   hougyoku:{name:'竜の宝玉',t:6,c:'#ffd24a',kind:'ward', range:160,gold:2,                           desc:'まわりで倒した影の魔力が 2 倍'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,curse:1.5,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
@@ -676,6 +679,7 @@ const RECIPES=[
   ['sekken','sekken','awa'],['cement','raincloud','concrete'],['awa','awa','shabondama'],
   // 浄めたり、宝が残ったりするもの（特別な効果。錬成でしか作れない）
   ['shinso','tenkou','seihai'],['wraith','tenkou','kiyome'],['dragon','holysword','hougyoku'],
+  ['sabi','venom','fushoku'],['kiyome','holysword','seiiki'],
   // 誰でも知っている弱点・結末で崩れて、★が下がるもの（吸血鬼＋聖光＝灰 の仲間）
   ['iron','raincloud','sabi'],['iceage','sun','water'],['golem','raincloud','earth'],
 ];
@@ -1037,7 +1041,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   tank:'metal',katana:'metal',fortress:'metal',wraith:'dark',hyakki:'dark',forest:'poison',yggdrasil:'light',holysword:'light',myth:'light',
   ryugu:'water',seaserpent:'water',poseidon:'water',paradise:'water',thunderstorm:'volt',fujinraijin:'volt',kamikaze:'volt',particle:'light',photon:'light',galaxy:'light',cosmos:'light',
   icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',
-  seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',
+  seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',fushoku:'poison',seiiki:'light',
   wood:'earth',thicket:'earth',root:'earth',thorn:'earth',thornwall:'earth',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
   flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
@@ -1161,6 +1165,8 @@ const cloud=(g,y)=>{g.beginPath();g.arc(-6,y+1,5.5,0,TAU);g.arc(0,y-3,7,0,TAU);g
 const DARK='#0a0814';
 const ICON={
   // 崩れてできる元素：聖灰（小さな灰の山と光の十字）・錆（錆びた歯車）・浄めの霧（霧と光の輪）・竜の宝玉（爪につかまれた玉）
+  fushoku(g,c){g.save();for(let i=0;i<8;i++){g.rotate(TAU/8);g.fillRect(-2.4,-13,4.8,4.5)}g.restore();dot(g,0,0,9);g.fillStyle=DARK;dot(g,0,0,3.2);g.fillStyle='#bff070';dot(g,-5,-3,2.2);dot(g,5,4,1.8);dot(g,6,-4,1.3);g.fillRect(-1,9,2,4)},
+  seiiki(g,c){g.strokeStyle=c;g.lineWidth=1.8;g.beginPath();g.arc(0,0,12,0,TAU);g.stroke();g.lineWidth=1.2;g.beginPath();g.arc(0,0,7.5,0,TAU);g.stroke();g.fillStyle='#fffbe8';g.fillRect(-1.3,-10,2.6,20);g.fillRect(-6.5,-3.5,13,2.6)},
   seihai(g,c){poly(g,[-13,12,-7,3,-2,6,3,0,8,5,13,12]);g.fill();g.fillStyle='#00000035';poly(g,[3,0,8,5,13,12,1,12]);g.fill();g.fillStyle='#fffbe8';g.fillRect(-1.3,-14,2.6,11);g.fillRect(-5,-10.5,10,2.4)},
   sabi(g,c){g.save();for(let i=0;i<8;i++){g.rotate(TAU/8);g.fillRect(-2.6,-13,5.2,5)}g.restore();dot(g,0,0,9.5);g.fillStyle=DARK;dot(g,0,0,3.5);g.fillStyle='#7a3a18';dot(g,-5,-4,2);dot(g,4,5,1.6);dot(g,6,-3,1.2)},
   kiyome(g,c){g.strokeStyle=c;g.lineWidth=1.6;g.beginPath();g.arc(0,-6,7,0,TAU);g.stroke();for(const[y,w]of[[3,12],[7.5,9],[12,11]]){g.beginPath();g.moveTo(-w,y);g.bezierCurveTo(-w/2,y-3,w/2,y+3,w,y);g.stroke()}g.fillStyle='#fffbe8';dot(g,0,-6,2.2)},
@@ -1622,7 +1628,7 @@ function sell(slot){
 const VIS={
   fire:'fireball',flame:'fireball',phoenix:'feather',wisp:'ghost',water:'drop',sea:'wave',
   earth:'rock',rock:'rock',mountain:'rock',peak:'rock',wind:'blade',gust:'blade',sand:'grain',desert:'grain',
-  lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',sabi:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
+  lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',sabi:'slug',fushoku:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
   steam:'steam',pond:'ripple',inferno:'flames',sun:'rays',tornado:'spin',typhoon:'spin',sandstorm:'spin',blizzard:'snow',
   miasma:'fog',abyss:'fog',mist:'fog',golem:'slam',colossus:'slam',
   obsidian:'blade2',tsunami:'tide',heat:'heat',railgun:'rail',dragon:'breath',
@@ -1636,7 +1642,7 @@ const VIS={
   flower:'ripple',rainbow:'rays',aurora:'rays',holylight:'rays',
   hai:'puff',awa:'ripple',concrete:'rock',
 };
-const POISON=new Set(['miasma','abyss','bog','spore','reaper','mire','forest','yggdrasil','flower','venom','toxin','jungle','jukai','thorn','thornwall']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
+const POISON=new Set(['fushoku','miasma','abyss','bog','spore','reaper','mire','forest','yggdrasil','flower','venom','toxin','jungle','jukai','thorn','thornwall']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
 const LOB={rock:1,glob:1,puff:1,shell:1};                        // 山なりに飛ぶ弾
 const flameP=(x,y,c,n=1,sp=8)=>{for(let i=0;i<n;i++)P(x+rnd(-sp,sp),y+rnd(-sp,sp)*.6,rnd(-18,18),rnd(-80,-30),rnd(.3,.6),rnd(4,8),Math.random()<.3?'#ffe9a0':c,{g:-60,drag:1})};
 const smoke=(x,y,c,n=6,sp=20,size=8,life=.8,al=1)=>{for(let i=0;i<n;i++){const a=rnd(TAU),r=rnd(sp);P(x+Math.cos(a)*r,y+Math.sin(a)*r*.7,rnd(-12,12),rnd(-30,-8),rnd(life*.6,life),rnd(size*.6,size),c,{ty:'d',drag:.8,al})}};
@@ -1954,9 +1960,9 @@ function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
 }
 // 支援：魔法陣の上の支援の塔が、広さの中にいる味方の塔を強める。重ならない（いちばん強い 1 つだけ）。支援の塔どうしと罠には効かない
-function wardTick(){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）
+function wardTick(dt=1/30){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）
   for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];if(d.ward!=='sil')continue;
-    for(const e of S.enemies){if(e.dead||(e.x-sl.x)**2+(e.y-sl.y)**2>d.range*d.range)continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3)}}
+    for(const e of S.enemies){if(e.dead||(e.x-sl.x)**2+(e.y-sl.y)**2>d.range*d.range)continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3);if(d.dps)hurt(e,d.dps*dt,d.fam)}}
 }
 function goldAt(x,y){ // 竜の宝玉：その場所で倒した影の魔力の倍率
   let g=1;for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];
@@ -2127,7 +2133,7 @@ function update(dt){
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
-  calcBuffs();wardTick();
+  calcBuffs();wardTick(dt);
   for(const sl of slots){
     const it=sl.item;if(!it)continue;
     if(it.hide>0||it.held||sl.bench){it.beamT.length=0;continue}
@@ -2310,7 +2316,7 @@ function openDetail(id,from){
   const st=[];
   const sup=d.kind==='support',ward=d.kind==='ward'||d.kind==='relic';
   if(sup)st.push([TT('dSupAtk'),TT('dSupNoAtk')]);
-  else if(ward)st.push([TT('dSupAtk'),TT('dNoAtk2')]);
+  else if(ward)st.push([TT('dSupAtk'),TT(d.dps?'dWardAtk':'dNoAtk2')]);
   else if(d.kind==='mirror'){
     st.push([TT('dDmg'),TT('dMirrorDmg')]);
     st.push([TT('dRate'),TT('dTimes',num(d.rate))]);
@@ -2334,6 +2340,7 @@ function openDetail(id,from){
   if(d.curse)fx2.push([TT('stCurse'),TT('dCurse',d.curse)]);
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
   if(d.ward==='sil')fx2.push([TT('stSil'),TT('dWardSil')]);
+  if(d.dps)fx2.push([TT('dWardDpsK'),TT('dWardDps',d.dps)]);
   if(d.gold)fx2.push([TT('dGoldK'),TT('dGoldV',d.gold)]);
   if(d.heal)fx2.push([TT('dHealK'),TT('dHealV',d.heal)]);
   if(d.rust)fx2.push([TT('dRustK'),TT('dRustV')]);
