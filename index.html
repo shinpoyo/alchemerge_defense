@@ -126,6 +126,8 @@ button.b.s{font-size:calc(var(--u)*var(--f2));padding:calc(var(--u)*9) calc(var(
 .stg b{display:block;font-size:calc(var(--u)*var(--f3));letter-spacing:.12em;color:#fff3cf}
 .stg span{display:block;font-size:calc(var(--u)*var(--f2));color:var(--dim);line-height:1.7}
 .stg em{font-style:normal;color:var(--gold)}
+.stg span.gift{opacity:1!important}
+.clear .sub em.nb{font-style:normal;font-weight:800}
 .stg.res{border-color:var(--gold);box-shadow:0 0 calc(var(--u)*16) #e8c36a44}
 .stg.day{border-color:#8b5cf6;background:linear-gradient(180deg,#1f1642,#0b0916);box-shadow:0 0 calc(var(--u)*14) #8b5cf644}
 .stg.day b{color:#d9ccff}
@@ -335,8 +337,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['魔力◆で元素を呼び出し、さらに重ねよう','Spend mana ◆ to summon more, then keep merging'],
-  lockN:['あと{0}種\nで解放','{0} more\nto unlock'],
-  newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['図鑑 {0} 種で解放（いま {1}）','Unlocks at {0} found (now {1})'],
+  lockN:['{0}\nクリアで解放','Clear\n{0}'],
+  newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['{0}をクリアすると届く','Clear {0} to unlock'],baseArrive:['新しい基本元素「{0}」が届いた','New base element: {0}'],stageReward:['クリアで基本元素「{0}」が届く','Clear to unlock the base element {0}'],
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],
@@ -671,7 +673,7 @@ const RECIPE={},MADE_BY={};
 for(const[a,b,r]of RECIPES){RECIPE[rkey(a,b)]=r;(MADE_BY[r]=MADE_BY[r]||[]).push([a,b])} // 1 つの元素に作り方が複数あってよい
 const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
-const UNLOCK={wood:8,light:16,dark:24};
+const UNLOCK={wood:0,light:1,dark:2}; // 基本元素の木・光・闇は、このステージ（の通常）をクリアすると届く。図鑑の数では開かない
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1);
 const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support';
@@ -819,9 +821,10 @@ let S,disc,prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=nu
 const SAVE='yoiyami-alchemy-v1';
 // 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
 const runOK=r=>!!r&&typeof r==='object'&&!!STAGES[r.stage]&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
-try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i]));for(const id in UNLOCK)if(!disc.has(id)&&disc.size>=UNLOCK[id])disc.add(id);
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i])); // 前の仕組み（図鑑の数）ですでに開いた木・光・闇はそのまま残す
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
-  TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
+  TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};
+  for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
 // 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
 const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
@@ -1558,12 +1561,11 @@ function mergeDone(f){
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',FS.f2);
   if(S.tut===0)S.tut=1;
   if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:TT('allFound',TOTAL)});setTimeout(()=>sfx.clear(),2400)}
-  if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c;
-    const u=checkUnlock();if(u)setTimeout(()=>{if(!S.over){S.banner={id:u,t:0,dur:3,base:true};shopShow(u);SHOP.dotT[1]=6;sfx.disc();S.flash=.35;S.flashC=ITEMS[u].c}},2700)}
+  if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c;}
 }
-function checkUnlock(){ // 発見数が条件に届いた基本元素を解放する。解放したものを 1 つ返す
+function checkUnlock(){ // クリアしたステージの基本元素を解放する。解放したものを 1 つ返す
   let got=null;
-  for(const id in UNLOCK)if(!disc.has(id)&&disc.size>=UNLOCK[id]){disc.add(id);got=got||id}
+  for(const id in UNLOCK)if(!disc.has(id)&&rec(UNLOCK[id],false).clear){disc.add(id);got=got||id}
   if(got)save();return got;
 }
 function tutDone(){S.tut=9;if(TUT<9&&FX){TUT=9;save()}}
@@ -2119,7 +2121,7 @@ function endWave(){
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
-  if(S.wave===MAX_WAVE&&!S.endless){clearRun();if(FX)save();victory()}else saveRun();
+  if(S.wave===MAX_WAVE&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
 }
 
 /* ---------------- クリア・ゲームオーバー ---------------- */
@@ -2135,7 +2137,8 @@ function victory(){
   for(let i=0;i<7;i++)ring(W/2,300,FW[i],140+i*60,.8+i*.14,5,10);
   for(let i=0;i<160;i++)confetti(rnd(W),rnd(-260,0));
   setTimeout(()=>{if(!S.cleared)return;
-    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').textContent=TT('clearSub',MAX_WAVE,disc.size,TOTAL);
+    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
+    if(S.newBase){shopShow(S.newBase);SHOP.dotT[1]=6}
     show('clear')},1500);
 }
 function confetti(x,y){
@@ -2219,7 +2222,7 @@ function release(ev,cancel){
     const bx={x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h};
     if(d.ws){upgradeWs(d.ws,bx);return}
     if(disc.has(d.id)&&!canBuy(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT('needMake',d.t),'#b9b1d0',FS.f1);return}
-    if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):TT('findFirst'),'#b9b1d0',FS.f1);return}
+    if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):TT('findFirst'),'#b9b1d0',FS.f1);return}
     spawnBase(d.id,{x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h});return}
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
   if(!drag)return;
@@ -2328,7 +2331,7 @@ function openCodex(){
         h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
       }else{ // 材料が両方見つかっていれば、片方だけ教える
         const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
-        const hint=UNLOCK[d.id]?TT('unlockAt',UNLOCK[d.id],disc.size):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
+        const hint=UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
     }
@@ -2375,7 +2378,8 @@ function openStages(){
     const open=NIGHT?nightOpen(i):stageOpen(i),r=rec(i,NIGHT),b=document.createElement('button');
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span></div>`;
+    const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -2804,7 +2808,7 @@ function drawShop(dt){
         ctx.font=FONT(FS.f1,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a';ctx.strokeText('NEW',cx+16,SHOP.y+7);ctx.fillStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT));ctx.fillText('NEW',cx+16,SHOP.y+7)}
     }else{
       ctx.strokeStyle='#3a3355';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(cx,SHOP.y+19,14,0,TAU);ctx.stroke();
-      ctx.font=FONT(FS.f2,800);ctx.fillStyle='#4f4870';ctx.fillText('？',cx,SHOP.y+20);ctx.font=FONT(FS.f1*LY.k);(UNLOCK[d.id]?TT('lockN',Math.max(1,UNLOCK[d.id]-disc.size)).split('\n'):[TT('unknown')]).forEach((ln,k,a)=>ctx.fillText(ln,cx,SHOP.y+SHOP.h-13-(a.length-1-k)*FS.f1*LY.k*1.1,SHOP.bw-6));
+      ctx.font=FONT(FS.f2,800);ctx.fillStyle='#4f4870';ctx.fillText('？',cx,SHOP.y+20);ctx.font=FONT(FS.f1*LY.k);(UNLOCK[d.id]!==undefined?TT('lockN',sn(STAGES[UNLOCK[d.id]])).split('\n'):[TT('unknown')]).forEach((ln,k,a)=>ctx.fillText(ln,cx,SHOP.y+SHOP.h-13-(a.length-1-k)*FS.f1*LY.k*1.1,SHOP.bw-6));
     }
     ctx.restore();
   });
