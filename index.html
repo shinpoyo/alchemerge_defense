@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全156種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全160種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -296,14 +296,14 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
   codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
-  k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],k_mirror:['特殊','Special'],
+  k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],k_ward:['結界','Ward'],k_relic:['砦で使う','Use at fort'],k_mirror:['特殊','Special'],
   dMirrorDmg:['射程内の最高★の塔を写す','Copies highest-★ tower in range'],
   dWarp:['{0}% で道の手前へ戻す（再発動 {1} 秒・主と王には無効）','{0}% chance to warp back ({1}s CD, not bosses)'],
   dStun:['{0}% で {1} 秒止める（再発動 {2} 秒・主と王には無効）','{0}% chance to stop for {1}s ({2}s CD, not bosses)'],
   dStop:['{0} 秒止める（解けたあと {1} 秒は効かない・主と王は減速）','Stops for {0}s ({1}s immunity after; slows bosses)'],
   dStopP:['{0}% で {1} 秒止める（解けたあと {2} 秒は効かない・主と王は減速）','{0}% chance to stop for {1}s ({2}s immunity after; slows bosses)'],
   dKaleido:['属性変化','Random element'],dKaleidoFx:['1 発ごとに炎・氷・雷・光・闇のいずれか','Fire, Ice, Bolt, Light, or Dark each shot'],
-  dStats:['強さ（棒は同じ★の中でくらべた長さ）','Stats (bars compare within the same ★)'],dEffects:['敵にかける効果','Effects on foes'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
+  dStats:['強さ（棒は同じ★の中でくらべた長さ）','Stats (bars compare within the same ★)'],dEffects:['敵にかける効果','Effects on foes'],dEffects2:['効果','Effects'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
   dDmg:['威力','Damage'],dPerSec:['毎秒 {0}','{0} / sec'],dRate:['連射','Rate'],dTimes:['毎秒 {0} 回','{0} / sec'],dDps:['1 体への毎秒の威力','Damage per sec (1 foe)'],
   dRange:['射程','Range'],dArea:['効く広さ','Area'],dSplash:['爆発の広さ','Blast radius'],dChain:['跳ねる数','Jumps to'],dBeams:['同時に狙う数','Targets at once'],dBodies:['{0} 体','{0} foes'],
   dSupArea:['支援の広さ','Support range'],dSupFx:['味方の塔にかける効果','Effects on allied towers'],dSupDmg:['ダメージ','Damage'],dSupRate:['攻撃速度','Attack speed'],dSupUp:['+{0}%','+{0}%'],
@@ -350,7 +350,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
   needMake:['この戦いで作るか、工房レベル{0}で呼び出せる','Make it this battle, or reach Workshop Lv{0}'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
-  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],
+  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],stRust:['鎧が朽ちた','Armor rusted'],useOnCore:['砦（灯）へ運んで使う','Carry it to the fort to use'],livesUp:['灯 +{0}','+{0} lives'],craftMsg:['錬成でしか作れない','Can only be made by combining'],craftS:['錬成のみ','Craft only'],dNoAtk2:['しない','None'],dWardArea:['効く広さ','Range of effect'],dPlaceCore:['作業台から砦（灯）へ運ぶと使える','Carry it from the bench to the fort to use'],dCraftOnly:['錬成でしか作れない（一覧からは呼び出せない）','Can only be made by combining (not in the list)'],dHealK:['灯','Lives'],dHealV:['使うと {0} もどる','Restores {0} when used'],dGoldK:['魔力','Mana'],dGoldV:['広さの中で倒した影の魔力が {0} 倍','Foes slain in range drop ×{0} mana'],dWardSil:['広さの中の影を沈黙させつづける（回復・軽減を無効）','Keeps foes in range silenced (no heal or armor)'],dRustK:['錆','Rust'],dRustV:['当てた鎧の影の鎧がなくなる','Removes the armor of armored foes it hits'],
   resume:['つづきから','Continue'],resumeNote:['第 {0} 波から ・ 灯 {1} ・ ◆{2}','From wave {0} · Lives {1} · ◆{2}'],
   copied:['コピーしました','Copied!'],copyThis:['この文章をコピーしてください','Copy this text'],
   // 統計
@@ -405,6 +405,8 @@ const EN={ // 英語の名前と説明
   railgun:['Railgun','Pierces across the map; charges when idle'],reaper:['Reaper','Curses and drains life'],colossus:['Colossus','Smashes foes backward'],
   stone:['Sage Stone','Light upon all that silences foes'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Breath that pierces all'],
   genesis:['Genesis','Ends the night itself'],
+  seihai:['Holy Ash','Carry it to the fort to restore 5 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],
+  kiyome:['Purifying Mist','Keeps nearby foes silenced'],hougyoku:['Dragon Orb','Foes slain nearby drop double mana'],
   hotspring:['Hot Spring','Boils and slows nearby foes'],raincloud:['Rain Cloud','Wide rain that slows'],plasma:['Plasma','Burning bolt jumps to 4; charges when idle'],
   glacier:['Glacier','Drops ice that chills'],volcano:['Volcano','Rains burning rocks'],mud:['Mud','Trap: slows and weakens'],
   thunderbird:['Thunderbird','Strikes 4 from the sky'],blueflame:['Blue Flame','Cold fire burns and chills'],geyser:['Geyser','Blasts foes back; charges when idle'],
@@ -607,6 +609,11 @@ const ITEMS={
   gaia:    {name:'地母神',  t:6,c:'#b8e08a',kind:'pulse',dmg:420,rate:.8,  range:175,slow:.5,slowT:1.5,dot:100,dotT:3,desc:'大地が敵を飲みこむ'},
   chaos:   {name:'混沌',    t:6,c:'#e08aff',kind:'pulse',dmg:500,rate:.8,  range:175,dot:120,dotT:3,slow:.6,slowT:1.2,curse:1.4,desc:'炎と氷が渦を巻く'},
   mugen:   {name:'無間地獄',    t:6,c:'#ff4a6a',kind:'trap',                   range:44, slow:.88,slowT:.3,dot:400,dotT:2.5,curse:1.6,knock:8,desc:'罠：抜け出せない地獄'},
+  // 強いもの同士が崩れてできる元素。錬成でしか作れない（craft：一覧から呼び出せない）
+  seihai:  {name:'聖灰',    t:2,c:'#f4e6c8',kind:'relic',range:0,heal:5,craft:1,desc:'砦へ運ぶと灯が 5 もどる'},
+  sabi:    {name:'錆',      t:2,c:'#c8783a',kind:'bolt', dmg:14, rate:1,   range:110,rust:1,craft:1,           desc:'当てた影の鎧を朽ちさせる'},
+  kiyome:  {name:'浄めの霧',t:3,c:'#d8f0ff',kind:'ward', range:130,ward:'sil',craft:1,                       desc:'まわりの影の力を封じつづける'},
+  hougyoku:{name:'竜の宝玉',t:3,c:'#ffd24a',kind:'ward', range:130,gold:2,craft:1,                           desc:'まわりで倒した影の魔力が 2 倍'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,curse:1.5,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
 };
 for(const k in ITEMS)ITEMS[k].id=k;
@@ -667,6 +674,9 @@ const RECIPES=[
   // 灰・石鹸・セメントの系統
   ['vampire','holylight','hai'],['hai','flower','sekken'],['hai','rock','cement'],
   ['sekken','sekken','awa'],['cement','raincloud','concrete'],['awa','awa','shabondama'],
+  // 強いもの同士なのに崩れて、★が下がるもの（吸血鬼＋聖光＝灰 の仲間）
+  ['shinso','tenkou','seihai'],['wraith','tenkou','kiyome'],['iron','mist','sabi'],['dragon','holysword','hougyoku'],
+  ['iceage','sun','sea'],['golem','storm','sand'],['forest','eruption','charcoal'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -677,8 +687,9 @@ const UNLOCK={wood:0,light:1,dark:2}; // 基本元素の木・光・闇は、こ
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1);
 const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support';
+const noAtk=d=>d.kind==='support'||d.kind==='ward'||d.kind==='relic'; // 攻撃しない（支援・結界・砦で使うもの）
 // 置ける場所：魔法陣には塔、道の上には罠、作業台にはなんでも
-const fits=(id,sl)=>sl.bench||(sl.path?isTrap(id):!isTrap(id));
+const fits=(id,sl)=>sl.bench||(ITEMS[id].kind!=='relic'&&(sl.path?isTrap(id):!isTrap(id))); // 聖灰などは作業台にだけ置ける（砦へ運んで使う）
 
 /* ---------------- 盤面（道・魔法陣・作業台・ボタン） ---------------- */
 // ステージ：道（複数あれば敵が交互に出る）・魔法陣・罠マスの位置と、敵の体力の倍率
@@ -748,7 +759,7 @@ const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5
 const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:19}));
 // 一覧から買える元素：★1（解放済みの基本元素）／この戦いで作ったもの／工房レベル以下の★で、図鑑にあるもの
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
-const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
+const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&!d.craft&&(d.t===1||S.made.has(id)||d.t<=S.ws)}; // craft の元素は錬成でしか作れない
 function shopList(t){
   const a=Object.values(ITEMS).filter(d=>d.t===t);
   const head=t>1&&S.ws<t?[{id:'__ws',ws:t}]:[]; // まだ届いていない★のタブの先頭に、工房レベルを上げる札
@@ -1025,6 +1036,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   tank:'metal',katana:'metal',fortress:'metal',wraith:'dark',hyakki:'dark',forest:'poison',yggdrasil:'light',holysword:'light',myth:'light',
   ryugu:'water',seaserpent:'water',poseidon:'water',paradise:'water',thunderstorm:'volt',fujinraijin:'volt',kamikaze:'volt',particle:'light',photon:'light',galaxy:'light',cosmos:'light',
   icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',
+  seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',
   wood:'earth',thicket:'earth',root:'earth',thorn:'earth',thornwall:'earth',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
   flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
@@ -1147,6 +1159,11 @@ const flame=g=>{g.beginPath();g.moveTo(0,-14);g.bezierCurveTo(2,-7,10,-3,9,5);g.
 const cloud=(g,y)=>{g.beginPath();g.arc(-6,y+1,5.5,0,TAU);g.arc(0,y-3,7,0,TAU);g.arc(7,y+1,5.5,0,TAU);g.rect(-6,y+1,13,5.5);g.fill()};
 const DARK='#0a0814';
 const ICON={
+  // 崩れてできる元素：聖灰（小さな灰の山と光の十字）・錆（錆びた歯車）・浄めの霧（霧と光の輪）・竜の宝玉（爪につかまれた玉）
+  seihai(g,c){poly(g,[-13,12,-7,3,-2,6,3,0,8,5,13,12]);g.fill();g.fillStyle='#00000035';poly(g,[3,0,8,5,13,12,1,12]);g.fill();g.fillStyle='#fffbe8';g.fillRect(-1.3,-14,2.6,11);g.fillRect(-5,-10.5,10,2.4)},
+  sabi(g,c){g.save();for(let i=0;i<8;i++){g.rotate(TAU/8);g.fillRect(-2.6,-13,5.2,5)}g.restore();dot(g,0,0,9.5);g.fillStyle=DARK;dot(g,0,0,3.5);g.fillStyle='#7a3a18';dot(g,-5,-4,2);dot(g,4,5,1.6);dot(g,6,-3,1.2)},
+  kiyome(g,c){g.strokeStyle=c;g.lineWidth=1.6;g.beginPath();g.arc(0,-6,7,0,TAU);g.stroke();for(const[y,w]of[[3,12],[7.5,9],[12,11]]){g.beginPath();g.moveTo(-w,y);g.bezierCurveTo(-w/2,y-3,w/2,y+3,w,y);g.stroke()}g.fillStyle='#fffbe8';dot(g,0,-6,2.2)},
+  hougyoku(g,c){dot(g,0,-2,8.5);g.fillStyle='#ffffffb0';dot(g,-3,-5,2.4);g.strokeStyle='#c8b8a0';g.lineWidth=2;for(const a of[-1,0,1]){g.beginPath();g.moveTo(a*9,12);g.quadraticCurveTo(a*12,4,a*7.5,-1);g.stroke()}},
   // 支援の塔：灯籠（石の灯籠）・篝火（かごの火）・月灯（三日月に抱かれた灯）
   lantern(g,c){poly(g,[-11,-5,0,-12,11,-5]);g.fill();dot(g,0,-12.5,1.6);g.fillRect(-6.5,-5,13,10);g.fillRect(-8,5,16,2);g.fillRect(-2,7,4,5);g.fillRect(-7,11.5,14,2.5);g.fillStyle='#fffbe8';g.fillRect(-3.5,-3,7,6);g.fillStyle=DARK;g.fillRect(-.5,-3,1,6)},
   bonfire(g,c){g.save();g.translate(0,-4);g.scale(.72,.72);flame(g);g.fill();g.translate(0,5);g.scale(.5,.5);flame(g);g.fillStyle='#ffe9a0';g.fill();g.restore();g.strokeStyle='#c8b8a0';g.lineWidth=1.8;line(g,-5,7,7,14);line(g,5,7,-7,14);g.fillStyle='#4a3c3a';poly(g,[-9,3,9,3,6,8,-6,8]);g.fill();g.stroke()},
@@ -1523,11 +1540,19 @@ function tryCombine(a,b){
   return{fail:TT('noReact')}; // ★の数がちがうものどうしは錬成できない（決まりはタイトル画面と図鑑に書いてある）
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
+const nearCore=(x,y)=>(x-CORE.x)**2+(y-CORE.y)**2<=42*42;
+function useRelic(sl){ // 聖灰：砦へ運ぶと消えて灯がもどる
+  const it=sl.item,d=it&&ITEMS[it.id];if(!d||d.kind!=='relic')return false;
+  sl.item=null;S.lives+=d.heal;S.coreHit=0;sfx.disc();buzz(20);
+  if(FX){ring(CORE.x,CORE.y,d.c,70,.5,4);ring(CORE.x,CORE.y,'#ffe9a0',40,.35,2);burst(CORE.x,CORE.y,d.c,24,160);sparks(CORE.x,CORE.y,'#fffbe8',14,220)}
+  floatText(CORE.x-6,CORE.y-34,TT('livesUp',d.heal),'#ffe9a0',FS.f3);
+  if(!S.active)saveRun();return true;
+}
 function dropOn0(from,to){
   const it=from.item;if(!it)return;
   if(!to||to===from){sfx.drop();return}
   if(!to.item){
-    if(!fits(it.id,to)){it.shake=.35;sfx.fail();floatText(to.x,to.y-30,TT(to.path?'onlyTrap':'trapOnPath'),'#b9b1d0',FS.f2);return}
+    if(!fits(it.id,to)){it.shake=.35;sfx.fail();floatText(to.x,to.y-30,TT(ITEMS[it.id].kind==='relic'?'useOnCore':to.path?'onlyTrap':'trapOnPath'),'#b9b1d0',FS.f2);return}
     to.item=it;from.item=null;it.s=1.3;it.sv=-2;it.cd=Math.max(it.cd,.15);it.chg=0;it.chgT=0;it.chgB=0;
     sfx.drop();ring(to.x,to.y,ITEMS[it.id].c,38,.3,2);buzz(8);
     if(!to.bench)S.started=true;
@@ -1596,7 +1621,7 @@ function sell(slot){
 const VIS={
   fire:'fireball',flame:'fireball',phoenix:'feather',wisp:'ghost',water:'drop',sea:'wave',
   earth:'rock',rock:'rock',mountain:'rock',peak:'rock',wind:'blade',gust:'blade',sand:'grain',desert:'grain',
-  lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
+  lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',sabi:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
   steam:'steam',pond:'ripple',inferno:'flames',sun:'rays',tornado:'spin',typhoon:'spin',sandstorm:'spin',blizzard:'snow',
   miasma:'fog',abyss:'fog',mist:'fog',golem:'slam',colossus:'slam',
   obsidian:'blade2',tsunami:'tide',heat:'heat',railgun:'rail',dragon:'breath',
@@ -1845,6 +1870,7 @@ const STOP_RES=6,STOP_BOSS=.6; // 停止が解けたあとの耐性秒数／ボ�
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
   if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
+  if(d.rust&&e.armor){e.armor=null;tag(e,'stRust',d.c)} // 錆：鎧の影の鎧がなくなる（この戦いの間ずっと）
   const isBoss=e.type==='boss'||/[主王]$/.test(e.name||'');
   if(d.warp&&!isBoss&&!(e.mirT>0)&&(!sl||e._mirSl!==sl)){
     if(sl)e._mirSl=sl;
@@ -1888,7 +1914,8 @@ function kill(e){
         slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',curse:1,curseT:0,silT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false})}
     if(FX){ring(e.x,e.y,e.def.rim,34,.35,3);burst(e.x,e.y,e.def.rim,12,150)}
   }
-  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  const gm=e.reward>0?goldAt(e.x,e.y):1;if(gm>1&&FX)floatText(e.x,e.y-e.r-14,'◆×'+gm,'#ffd24a',FS.f1);
+  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
@@ -1926,6 +1953,15 @@ function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
 }
 // 支援：魔法陣の上の支援の塔が、広さの中にいる味方の塔を強める。重ならない（いちばん強い 1 つだけ）。支援の塔どうしと罠には効かない
+function wardTick(){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）
+  for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];if(d.ward!=='sil')continue;
+    for(const e of S.enemies){if(e.dead||(e.x-sl.x)**2+(e.y-sl.y)**2>d.range*d.range)continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3)}}
+}
+function goldAt(x,y){ // 竜の宝玉：その場所で倒した影の魔力の倍率
+  let g=1;for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];
+    if(d.gold&&(x-sl.x)**2+(y-sl.y)**2<=d.range*d.range)g=Math.max(g,d.gold)}
+  return g;
+}
 function calcBuffs(){
   const sup=[];for(const sl of slots){const it=sl.item;if(!it)continue;it.buff=null;if(sl.field&&isSupport(it.id)&&!(it.hide>0)&&!it.held)sup.push(sl)}
   if(!sup.length)return;
@@ -1945,7 +1981,7 @@ function findMirrorSrc(sl,R){
   let best=null;
   for(const s of slots){
     const it=s.item;if(!it||s===sl||!s.field||it.hide>0||it.held)continue;
-    const d=ITEMS[it.id];if(d.kind==='support'||d.kind==='trap'||d.kind==='mirror')continue;
+    const d=ITEMS[it.id];if(noAtk(d)||d.kind==='trap'||d.kind==='mirror')continue;
     if((s.x-sl.x)**2+(s.y-sl.y)**2<=R*R&&(!best||d.t>best.t||(d.t===best.t&&dpsOf(d)>dpsOf(best))))best=d;
   }
   return best;
@@ -1973,7 +2009,7 @@ function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージ�
 }
 function towerFire(sl,it,dt){
   const d=ITEMS[it.id],b=it.buff,m=b?1+b.buffD:1,rm=b?1+b.buffR:1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
-  if(d.kind==='support'){it.beamT.length=0;return}
+  if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
     if(!ts.length){idleChg(it,d,dt);it.cd=0;return}
@@ -2090,7 +2126,7 @@ function update(dt){
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
-  calcBuffs();
+  calcBuffs();wardTick();
   for(const sl of slots){
     const it=sl.item;if(!it)continue;
     if(it.hide>0||it.held||sl.bench){it.beamT.length=0;continue}
@@ -2204,7 +2240,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(s&&s.item.hide<=0){drag={slot:s,item:s.item,sx:p.x,sy:p.y,moved:false,touch:ev.pointerType==='touch'};s.item.held=true;s.item.sv=5;sfx.pick();buzz(5);
     lpClear();lpT=setTimeout(()=>{if(drag&&!drag.moved){const id=drag.item.id;drag.item.held=false;drag=null;sel=null;buzz(12);openDetail(id,'game')}},LONG_MS);
     return}
-  if(sel){const t=slotAt(p.x,p.y);if(t)dropOn(sel,t);sel=null}
+  if(sel){const t=slotAt(p.x,p.y);if(t)dropOn(sel,t);else if(nearCore(p.x,p.y))useRelic(sel);sel=null}
 });
 cv.addEventListener('pointermove',ev=>{
   if(extraPtr(ev))return;
@@ -2221,7 +2257,7 @@ function release(ev,cancel){
     const d=shopList(SHOP.tab)[st.i];if(!d)return;
     const bx={x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h};
     if(d.ws){upgradeWs(d.ws,bx);return}
-    if(disc.has(d.id)&&!canBuy(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT('needMake',d.t),'#b9b1d0',FS.f1);return}
+    if(disc.has(d.id)&&!canBuy(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT(d.craft?'craftMsg':'needMake',d.t),'#b9b1d0',FS.f1);return}
     if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):TT('findFirst'),'#b9b1d0',FS.f1);return}
     spawnBase(d.id,{x:shopBtnX(st.i),y:SHOP.y,w:SHOP.bw,h:SHOP.h});return}
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
@@ -2235,7 +2271,9 @@ function release(ev,cancel){
   }
   const tb=btn('trash');
   if(inBtn(tb,p.x,p.y)){sell(d.slot);return}
-  dropOn(d.slot,slotAt(p.x,p.y-(d.touch?26:0)));
+  const ty=p.y-(d.touch?26:0);
+  if(ITEMS[d.item.id].kind==='relic'&&!slotAt(p.x,ty)&&nearCore(p.x,ty)){useRelic(d.slot);return}
+  dropOn(d.slot,slotAt(p.x,ty));
 }
 cv.addEventListener('pointerup',ev=>{if(!extraPtr(ev))release(ev,false)});
 cv.addEventListener('pointercancel',ev=>{if(!extraPtr(ev))release(null,true)});
@@ -2263,23 +2301,24 @@ cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
 // 元素の詳細（盤面や一覧で長押し、または図鑑のカードをタップ）
 const USES={};for(const[a,b,r]of RECIPES){(USES[a]=USES[a]||[]).push([b,r]);if(a!==b)(USES[b]=USES[b]||[]).push([a,r])}
 const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKMAX[d.t]||{dps:1,range:1};m.dps=Math.max(m.dps,dpsOf(d));m.range=Math.max(m.range,d.range)}
-function dpsOf(d){return d.kind==='trap'||d.kind==='support'||d.kind==='mirror'?0:d.kind==='beam'&&!d.rate?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
+function dpsOf(d){return d.kind==='trap'||noAtk(d)||d.kind==='mirror'?0:d.kind==='beam'&&!d.rate?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
 let detailFrom=null;
 function openDetail(id,from){
   const d=ITEMS[id],pz=POISON.has(id),R=RANKMAX[d.t],img=i=>`<img alt="" src="${orb(i).toDataURL()}">`,num=v=>+(+v).toFixed(1);
   const bar=(v,max)=>`<span class="bar"><u style="width:${Math.round(clamp(v/max,.03,1)*100)}%"></u></span>`;
   const st=[];
-  const sup=d.kind==='support';
+  const sup=d.kind==='support',ward=d.kind==='ward'||d.kind==='relic';
   if(sup)st.push([TT('dSupAtk'),TT('dSupNoAtk')]);
+  else if(ward)st.push([TT('dSupAtk'),TT('dNoAtk2')]);
   else if(d.kind==='mirror'){
     st.push([TT('dDmg'),TT('dMirrorDmg')]);
     st.push([TT('dRate'),TT('dTimes',num(d.rate))]);
-  }else if(d.kind!=='trap'){
+  }else if(d.kind!=='trap'&&!ward){
     st.push([TT('dDmg'),d.kind==='beam'&&!d.rate?TT('dPerSec',num(d.dmg)):num(d.dmg)]);
     if(d.rate)st.push([TT('dRate'),TT('dTimes',num(d.rate))]);
     st.push([TT('dDps'),num(dpsOf(d))+bar(dpsOf(d),R.dps)]);
   }
-  st.push(d.kind==='trap'?[TT('dArea'),d.range]:sup?[TT('dSupArea'),d.range]:[TT('dRange'),d.range+bar(d.range,R.range)]);
+  if(d.kind!=='relic')st.push(d.kind==='trap'?[TT('dArea'),d.range]:sup?[TT('dSupArea'),d.range]:ward?[TT('dWardArea'),d.range]:[TT('dRange'),d.range+bar(d.range,R.range)]);
   if(d.splash)st.push([TT('dSplash'),d.splash]);
   if(d.chain)st.push([TT('dChain'),TT('dBodies',d.chain)]);
   if(d.beams>1)st.push([TT('dBeams'),TT('dBodies',d.beams)]);
@@ -2293,6 +2332,10 @@ function openDetail(id,from){
   if(d.slow)fx2.push([TT('stSlow'),d.kind==='trap'?TT('dSlowTrap',Math.round(d.slow*100)):TT('dSlow',Math.round(d.slow*100),num(d.slowT))]);
   if(d.curse)fx2.push([TT('stCurse'),TT('dCurse',d.curse)]);
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
+  if(d.ward==='sil')fx2.push([TT('stSil'),TT('dWardSil')]);
+  if(d.gold)fx2.push([TT('dGoldK'),TT('dGoldV',d.gold)]);
+  if(d.heal)fx2.push([TT('dHealK'),TT('dHealV',d.heal)]);
+  if(d.rust)fx2.push([TT('dRustK'),TT('dRustV')]);
   if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
@@ -2301,9 +2344,9 @@ function openDetail(id,from){
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam&&TX['f_'+d.fam]?`<i>${TT('dFam',TT('f_'+d.fam))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
-  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
+  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${d.craft?TT('dCraftOnly'):TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
-  if(fx2.length)h+=`<div class="dsec">${TT('dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
+  if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(sup)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
   h+=`<div class="dsec">${TT('dMadeBy')}</div>`;
   if(d.t===1)h+=`<div class="dn">${TT('dBase')}</div>`;
@@ -2802,7 +2845,7 @@ function drawShop(dt){
       const fz=FS.f1*LY.k,iz=Math.min(64,SHOP.h-8,(SHOP.h-fz*2.3)/.73);
       ctx.globalAlpha=can?1:.38;ctx.drawImage(orb(d.id),cx-iz/2,SHOP.y-iz*.12,iz,iz);
       ctx.font=FONT(LANG==='ja'?fz:fz*.9,800);ctx.fillStyle='#ece7f7';ctx.fillText(nm(d),cx,SHOP.y+SHOP.h-fz*1.75);
-      ctx.font=FONT(fz,800);ctx.fillStyle=buy?'#e8c36a':'#a890ff';ctx.fillText(buy?'◆'+cost:'Lv'+d.t,cx,SHOP.y+SHOP.h-fz*.7);ctx.globalAlpha=1;
+      ctx.font=FONT(fz,800);ctx.fillStyle=buy?'#e8c36a':'#a890ff';ctx.fillText(buy?'◆'+cost:d.craft?TT('craftS'):'Lv'+d.t,cx,SHOP.y+SHOP.h-fz*.7,SHOP.bw-6);ctx.globalAlpha=1;
       if(SHOP.newId===d.id&&SHOP.newT>0){const pu=.5+.5*Math.sin(T*8);ctx.strokeStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT)*(.5+pu*.5));ctx.lineWidth=2.5;
         rr(ctx,x-1-pu*2,SHOP.y-1-pu*2,SHOP.bw+2+pu*4,SHOP.h+2+pu*4,12);ctx.stroke();
         ctx.font=FONT(FS.f1,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a';ctx.strokeText('NEW',cx+16,SHOP.y+7);ctx.fillStyle=rgba('#ffe9a0',Math.min(1,SHOP.newT));ctx.fillText('NEW',cx+16,SHOP.y+7)}
@@ -2948,9 +2991,12 @@ function render(dt){
   for(const s of slots){const it=s.item;if(!it||!s.field||it.hide>0||it===held?.item)continue;
     const d=ITEMS[it.id];ctx.save();ctx.translate(s.x,s.y);ctx.rotate(T*(.4+d.t*.15)+it.ph);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1.5;ctx.setLineDash([5,7]);
     ctx.beginPath();ctx.arc(0,0,31,0,TAU);ctx.stroke();ctx.restore();
-    if(d.kind==='support'){ // 支援の塔：強められる広さの輪（癒す影の輪と同じ点線。ゆっくり回り、淡く明滅する）
+    if(d.kind==='support'||d.kind==='ward'){ // 支援の塔・結界：効く広さの輪（癒す影の輪と同じ点線。ゆっくり回り、淡く明滅する）
       const pu=.5+.5*Math.sin(T*1.6+it.ph);ctx.fillStyle=rgba(d.c,.025);ctx.strokeStyle=rgba(d.c,.26+.16*pu);ctx.lineWidth=1.3;ctx.setLineDash([3,7]);ctx.lineDashOffset=-T*6;
       ctx.beginPath();ctx.arc(s.x,s.y,d.range,0,TAU);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}}
+  if((held||sel)&&ITEMS[(held||sel).item?.id]?.kind==='relic'){ // 聖灰を持っている・選んでいる間は、使える砦を光らせる
+    const pu=.5+.5*Math.sin(T*6),on=held&&nearCore(ptr.x,ptr.y-(held.touch?26:0));ctx.strokeStyle=rgba('#ffe9a0',on?.9:.35+pu*.35);ctx.lineWidth=on?3:2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*20;
+    ctx.beginPath();ctx.arc(CORE.x,CORE.y,on?34:28+pu*4,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}
   const rs=held?(slotAt(ptr.x,ptr.y-(held.touch?26:0))||null):sel;
   if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range;
     ctx.fillStyle=rgba(d.c,.07);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.beginPath();ctx.arc(rs.x,rs.y,R,0,TAU);ctx.fill();ctx.stroke()}
