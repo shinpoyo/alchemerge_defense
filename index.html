@@ -287,6 +287,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dMirrorDmg:['射程内の最高★の塔を写す','Copies highest-★ tower in range'],
   dWarp:['{0}% で道の手前へ戻す（再発動 {1} 秒・主と王には無効）','{0}% chance to warp back ({1}s CD, not bosses)'],
   dStun:['{0}% で {1} 秒止める（再発動 {2} 秒・主と王には無効）','{0}% chance to stop for {1}s ({2}s CD, not bosses)'],
+  dStop:['{0} 秒止める（解けたあと {1} 秒は効かない・主と王は減速）','Stops for {0}s ({1}s immunity after; slows bosses)'],
+  dStopP:['{0}% で {1} 秒止める（解けたあと {2} 秒は効かない・主と王は減速）','{0}% chance to stop for {1}s ({2}s immunity after; slows bosses)'],
   dKaleido:['属性変化','Random element'],dKaleidoFx:['1 発ごとに炎・氷・雷・光・闇のいずれか','Fire, Ice, Bolt, Light, or Dark each shot'],
   dStats:['強さ','Stats'],dEffects:['敵にかける効果','Effects on foes'],dMadeBy:['作り方','How to make'],dUses:['これを使う錬成','Merges using this'],
   dDmg:['威力','Damage'],dPerSec:['毎秒 {0}','{0} / sec'],dRate:['連射','Rate'],dTimes:['毎秒 {0} 回','{0} / sec'],dDps:['1 体への毎秒の威力','Damage per sec (1 foe)'],
@@ -335,7 +337,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],
   needMake:['この戦いで作るか、工房レベル{0}で呼び出せる','Make it this battle, or reach Workshop Lv{0}'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
-  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],
+  stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],
   resume:['つづきから','Continue'],resumeNote:['第 {0} 波から ・ 灯 {1} ・ ◆{2}','From wave {0} · Lives {1} · ◆{2}'],
   copied:['コピーしました','Copied!'],copyThis:['この文章をコピーしてください','Copy this text'],
   // 統計
@@ -522,7 +524,7 @@ const ITEMS={
   tank:    {name:'戦車',    t:4,c:'#a8b070',kind:'bolt', dmg:130,rate:.8,  range:150,splash:50,                 desc:'砲撃で吹き飛ばす'},
   wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,dot:25,dotT:4,   desc:'呪いと祟りでむしばむ'},
   forest:  {name:'森',      t:4,c:'#6ad86a',kind:'pulse',dmg:20, rate:1,   range:125,dot:30,dotT:4,slow:.3,slowT:1.2,desc:'胞子と根で絡めとる'},
-  iceage:  {name:'氷河期',  t:4,c:'#d0f4ff',kind:'pulse',dmg:45, rate:.8,  range:120,slow:.6,slowT:1.5,         desc:'まわりを凍りつかせる'},
+  iceage:  {name:'氷河期',  t:4,c:'#d0f4ff',kind:'pulse',dmg:45, rate:.8,  range:120,slow:.6,slowT:1.5,stop:1,stopP:.3,desc:'まわりを凍りつかせる'},
   eruption:{name:'噴火',    t:4,c:'#ff5a2a',kind:'bolt', dmg:170,rate:.6,  range:150,splash:70,dot:30,dotT:3,   desc:'大噴火で広く焼く'},
   raijin:  {name:'雷神',    t:4,c:'#ffd84a',kind:'chain',dmg:85, rate:1.2, range:155,chain:8,                  desc:'8体に大雷を落とす'},
   katana:  {name:'名刀',    t:4,c:'#e0e8f8',kind:'pierce',dmg:150,rate:1.2,range:160,                          desc:'一閃で斬り抜ける'},
@@ -565,7 +567,7 @@ const ITEMS={
   holysword:{name:'聖剣',   t:5,c:'#fff2b0',kind:'pierce',dmg:620,rate:1.1,range:210,                          desc:'光の刃で貫く'},
   galaxy:  {name:'銀河',    t:5,c:'#c8a8ff',kind:'beam', dmg:260,          range:200,beams:3,                   desc:'星の帯で焼き払う'},
   poseidon:{name:'海神',    t:5,c:'#3a9cff',kind:'pierce',dmg:560,rate:1,  range:205,slow:.5,slowT:2,           desc:'大波で一直線に押し流す'},
-  absolutezero:{name:'絶対零度',t:5,c:'#e0f8ff',kind:'pulse',dmg:160,rate:.8,range:150,slow:.75,slowT:1.5,     desc:'すべてを止める冷気'},
+  absolutezero:{name:'絶対零度',t:5,c:'#e0f8ff',kind:'pulse',dmg:160,rate:.8,range:150,slow:.75,slowT:1.5,stop:1.5,desc:'すべてを止める冷気'},
   solarflare:{name:'紅炎',  t:5,c:'#ff7a3a',kind:'pulse',dmg:200,rate:.8,  range:155,dot:70,dotT:3,             desc:'灼熱の炎を噴き上げる'},
   kyoshin: {name:'巨神',    t:5,c:'#d8b080',kind:'pulse',dmg:450,rate:.6,  range:100,knock:20,                  desc:'大地を踏みならし、押し返す'},
   fujinraijin:{name:'風神雷神',t:5,c:'#a8f0c8',kind:'chain',dmg:220,rate:1.3,range:185,chain:10,slow:.3,slowT:1,desc:'風と雷で10体を撃つ'},
@@ -574,7 +576,7 @@ const ITEMS={
   naraku:  {name:'奈落',    t:5,c:'#6a5aa8',kind:'trap',                   range:42, slow:.8,slowT:.3,dot:150,dotT:2.5,curse:1.4,desc:'罠：底へ引きずりこむ'},
   paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'pulse',dmg:150,rate:1,   range:160,slow:.4,slowT:1.2,dot:50,dotT:3,desc:'花と水で包みこむ'},
   hellmouth:{name:'地獄門', t:5,c:'#ff3a2a',kind:'trap',                   range:40, dot:300,dotT:2.5,curse:1.5,desc:'罠：業火で焼き、呪う'},
-  stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,knock:8, desc:'罠：時がほとんど止まる'},
+  stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,stop:2,knock:8, desc:'罠：時がほとんど止まる'},
   stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,curse:1.3,slow:.3,slowT:1,sil:3,desc:'すべてを照らし、敵の力を封じる'},
   ragnarok:{name:'終焉',    t:5,c:'#ff5a7a',kind:'bolt', dmg:420,rate:1.3, range:190,splash:80,dot:60,dotT:3,   desc:'夜ごと焼きつくす'},
   phoenix: {name:'不死鳥',  t:5,c:'#ff9a3c',kind:'bolt', dmg:260,rate:2,   range:180,splash:50,dot:80,dotT:3,   desc:'炎の羽を降らせる'},
@@ -1822,6 +1824,7 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
   if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(e.curseT>0)e.dnC=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
+const STOP_RES=6,STOP_BOSS=.6; // 停止が解けたあとの耐性秒数／ボスに停止の代わりにかかる減速
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
   if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
@@ -1835,7 +1838,20 @@ function applyHit(e,d,m,color,sl){
       if(FX)ring(e.x,e.y,color,24,.35,2);
     }
   }
-  if(d.stun&&!isBoss&&!(e.hazT>0)){
+  if(d.stop){
+    if(isBoss){
+      if(d.kind!=='trap'&&(!d.stopP||Math.random()<d.stopP)){
+        if(STOP_BOSS>=e.slow||e.slowT<=0){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=STOP_BOSS;e.slowT=Math.max(e.slowT||0,d.stop)}
+      }
+    }else if(!(e.stopT>0)&&!(e.stopRes>0)&&!(e.hazT>0)){
+      if(!d.stopP||Math.random()<d.stopP){
+        e.stopT=d.stop;e.stopRes=d.stop+STOP_RES;e.hazT=Math.max(e.hazT||0,d.stop+STOP_RES);
+        tag(e,'stStop',color);
+        if(FX){ring(e.x,e.y,color,24,.35,2.2);flakes(e.x,e.y,5,80)}
+      }
+    }
+  }
+  if(d.stun&&!isBoss&&!(e.hazT>0)&&!(e.stopT>0)&&!(e.stopRes>0)){
     e.hazT=d.stunCd;
     if(Math.random()<d.stunP){
       e.slow=1;e.slowT=d.stun;tag(e,'stSlow',color);
@@ -1844,8 +1860,8 @@ function applyHit(e,d,m,color,sl){
   }
   if(d.knock&&!isBoss&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
   if(d.curse&&d.curse>=e.curse-.001){if(e.curseT<=0)tag(e,'stCurse','#d98aff');e.curse=d.curse;e.curseT=4}
-  const slw=d.stun&&isBoss?d.slow*.5:d.slow;
-  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=d.slowT}
+  const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow;
+  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,d.slowT):d.slowT}
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam}
 }
 function kill(e){
@@ -2032,6 +2048,7 @@ function update(dt){
   for(const e of S.enemies){
     if(e.dead)continue;
     if(e.knT>0)e.knT-=dt;if(e.kb>0)e.kb-=dt;if(e.mirT>0)e.mirT-=dt;if(e.hazT>0)e.hazT-=dt;
+    if(e.stopT>0)e.stopT-=dt;if(e.stopRes>0)e.stopRes-=dt;
     if(e.slowT>0)e.slowT-=dt;if(e.curseT>0){e.curseT-=dt;if(e.curseT<=0)e.curse=1}if(e.silT>0)e.silT-=dt;
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
@@ -2045,13 +2062,14 @@ function update(dt){
         e.pulse=n?1:.35;if(n&&FX)ring(e.x,e.y,'#9affc8',HEAL_R,.5,2,10)}}
     if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
-    e.d+=e.def.spd*(e.spdM||1)*(e.slowT>0?(e.slow>=1?0:1-e.slow*(1-(e.def.res||0))):1)*dt;
+    const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1);
+    e.d+=e.def.spd*(e.spdM||1)*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*dt;
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
       e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',15);sfx.wave(5)}}
-      e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
-      if(e.atk<=0){e.atk+=e.atkEvery||SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
+      if(!stopped)e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
+      if(!stopped&&e.atk<=0){e.atk+=e.atkEvery||SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
@@ -2258,6 +2276,7 @@ function openDetail(id,from){
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
   if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
+  if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
   if(d.stun)fx2.push([TT('stSlow'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
   const mk=MADE_BY[id]||[],mkK=mk.filter(m=>disc.has(m[0])&&disc.has(m[1])),us=USES[id]||[],usK=us.filter(u=>disc.has(u[1])&&disc.has(u[0])),usU=us.length-usK.length;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${img(a)}<span>${nm(ITEMS[a])}</span>＋${img(b)}<span>${nm(ITEMS[b])}</span>＝${img(r)}<span>${nm(ITEMS[r])}</span></div>`;
@@ -2582,9 +2601,9 @@ function ePath(e,t,r){ // 敵の輪郭：種類ごとのシルエットを描く
   ctx.closePath();
 }
 function drawEnemy(e){
-  const t=S.time,r=e.r,boss=e.type==='boss';
-  const bob=e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
-        sway=e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
+  const t=e.stopT>0?0:S.time,r=e.r,boss=e.type==='boss';
+  const bob=e.stopT>0?0:e.type==='golem'?Math.sin(t*2.4+e.ph)*.8:e.type==='mite'?Math.sin(t*11+e.ph)*.7:Math.sin(t*5+e.ph)*1.5,
+        sway=e.stopT>0?0:e.type==='wisp'?Math.sin(t*3.1+e.ph)*2:(e.type==='shade'||boss)?Math.sin(t*1.7+e.ph)*1.2:0;
   const sg=e.P.seg[e.P.seg.length-1],ux=(sg.bx-sg.ax)/sg.l,uy=(sg.by-sg.ay)/sg.l,back=e.siege?30-Math.max(0,e.lunge||0)*14:0;
   if(e.siege){const k=clamp(1-e.atk/(e.atkEvery||SIEGE_EVERY),0,1);ctx.save();ctx.translate(e.x-ux*30,e.y-uy*30);ctx.strokeStyle=rgba('#ff3b6b',.35+k*.65);ctx.lineWidth=3;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(0,0,r+9,-Math.PI/2,-Math.PI/2+TAU*k);ctx.stroke();ctx.restore()}
@@ -2612,8 +2631,15 @@ function drawEnemy(e){
   if(e.flash>0)ctx.fillStyle='#ffffff';
   else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r),fc=rage?(e.phase>2?['#8a3a10','#1c0a04']:['#7a1c1c','#190505']):{shade:['#2a1e5c','#070512'],wisp:['#6b1e63','#14061e'],golem:['#6e4a26','#150d05'],mite:['#14523f','#03110c'],boss:['#57152c','#0d0307'],runner:['#5c4a12','#121003'],flyer:['#174a63','#04121a'],splitter:['#1d5226','#04140a'],healer:['#8a84a6','#1c1a2a'],armored:['#3e4c63','#0a0d15']}[e.type];bg2.addColorStop(0,fc[0]);bg2.addColorStop(1,fc[1]);ctx.fillStyle=bg2}
   ctx.fill();
-  ctx.strokeStyle=e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):e.def.rim;ctx.lineWidth=(boss?2.5:e.type==='armored'?2.4:1.6)+(e.slowT>0||e.dotT>0?.8:0);ctx.stroke();
+  if(e.stopT>0){ctx.fillStyle='rgba(200,242,255,.52)';ctx.fill()} // 停止：青白く凍りつく
+  ctx.strokeStyle=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):e.def.rim;ctx.lineWidth=(boss?2.5:e.type==='armored'?2.4:1.6)+(e.stopT>0?1.2:e.slowT>0||e.dotT>0?.8:0);ctx.stroke();
   if(e.dotT>0&&e.dotK){ctx.fillStyle='#a8f06a55';ctx.fill()} // 毒：体が緑がかる
+  if(e.stopT>0){ // 停止：体を包む氷の結晶と冷気の輪
+    ctx.strokeStyle='rgba(230,249,255,.85)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<6;i++){const a=i/6*TAU+Math.PI/6,rx=Math.cos(a)*(r+3.5),ry=Math.sin(a)*(r+3.5);ctx[i?'lineTo':'moveTo'](rx,ry)}
+    ctx.closePath();ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.65)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-r*.5,-r*.4);ctx.lineTo(r*.35,r*.35);ctx.moveTo(r*.4,-r*.45);ctx.lineTo(-r*.25,r*.2);ctx.stroke();
+  }
   if(boss){ctx.fillStyle=e.def.rim;for(const sx of[-1,1]){ctx.beginPath();ctx.moveTo(sx*r*.45,-r*.8);ctx.lineTo(sx*r*.95,-r*1.6);ctx.lineTo(sx*r*.85,-r*.5);ctx.fill()}
     const pu=.6+.4*Math.sin(t*4+e.ph),cq=r*.17;ctx.save();ctx.translate(0,r*.38);ctx.rotate(Math.PI/4);ctx.fillStyle=rgba(e.def.rim,.55+.35*pu);ctx.fillRect(-cq/2,-cq/2,cq,cq);ctx.restore();
     ctx.strokeStyle=rgba(e.def.rim,.85);ctx.lineWidth=1.4;ctx.beginPath();for(let i=0;i<=4;i++){const mx=-r*.3+i*r*.15;ctx[i?'lineTo':'moveTo'](mx,r*.08+((i%2)?r*.09:0))}ctx.stroke()}
