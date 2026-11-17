@@ -405,7 +405,7 @@ const EN={ // 英語の名前と説明
   railgun:['Railgun','Pierces across the map; charges when idle'],reaper:['Reaper','Curses and drains life'],colossus:['Colossus','Smashes foes backward'],
   stone:['Sage Stone','Light upon all that silences foes'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Breath that pierces all'],
   genesis:['Genesis','Ends the night itself'],
-  seihai:['Holy Ash','Carry it to the fort to restore 5 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],
+  seihai:['Holy Ash','Carry it to the fort to restore 3 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],
   kiyome:['Purifying Mist','Keeps nearby foes silenced'],hougyoku:['Dragon Orb','Foes slain nearby drop double mana'],
   hotspring:['Hot Spring','Boils and slows nearby foes'],raincloud:['Rain Cloud','Wide rain that slows'],plasma:['Plasma','Burning bolt jumps to 4; charges when idle'],
   glacier:['Glacier','Drops ice that chills'],volcano:['Volcano','Rains burning rocks'],mud:['Mud','Trap: slows and weakens'],
@@ -610,7 +610,7 @@ const ITEMS={
   chaos:   {name:'混沌',    t:6,c:'#e08aff',kind:'pulse',dmg:500,rate:.8,  range:175,dot:120,dotT:3,slow:.6,slowT:1.2,curse:1.4,desc:'炎と氷が渦を巻く'},
   mugen:   {name:'無間地獄',    t:6,c:'#ff4a6a',kind:'trap',                   range:44, slow:.88,slowT:.3,dot:400,dotT:2.5,curse:1.6,knock:8,desc:'罠：抜け出せない地獄'},
   // 強いもの同士が崩れてできる元素。錬成でしか作れない（craft：一覧から呼び出せない）
-  seihai:  {name:'聖灰',    t:2,c:'#f4e6c8',kind:'relic',range:0,heal:5,craft:1,desc:'砦へ運ぶと灯が 5 もどる'},
+  seihai:  {name:'聖灰',    t:2,c:'#f4e6c8',kind:'relic',range:0,heal:3,craft:1,desc:'砦へ運ぶと灯が 3 もどる'},
   sabi:    {name:'錆',      t:2,c:'#c8783a',kind:'bolt', dmg:14, rate:1,   range:110,rust:1,craft:1,           desc:'当てた影の鎧を朽ちさせる'},
   kiyome:  {name:'浄めの霧',t:3,c:'#d8f0ff',kind:'ward', range:130,ward:'sil',craft:1,                       desc:'まわりの影の力を封じつづける'},
   hougyoku:{name:'竜の宝玉',t:3,c:'#ffd24a',kind:'ward', range:130,gold:2,craft:1,                           desc:'まわりで倒した影の魔力が 2 倍'},
