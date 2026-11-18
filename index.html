@@ -7,7 +7,7 @@
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
-<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全167種の元素を見つけて、20の夜波を越えよう。">
+<meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全198種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
 <link rel="canonical" href="https://shinpoyo.com/alchemerge_defense/">
@@ -308,6 +308,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dRange:['射程','Range'],dArea:['効く広さ','Area'],dSplash:['爆発の広さ','Blast radius'],dChain:['跳ねる数','Jumps to'],dBeams:['同時に狙う数','Targets at once'],dBodies:['{0} 体','{0} foes'],
   dSupArea:['支援の広さ','Support range'],dSupFx:['味方の塔にかける効果','Effects on allied towers'],dSupDmg:['ダメージ','Damage'],dSupRate:['攻撃速度','Attack speed'],dSupUp:['+{0}%','+{0}%'],
   dSupAtk:['攻撃','Attacks'],dSupNoAtk:['しない（味方を強める）','None (empowers allies)'],
+  dEchoK:['こだま','Echo'],dEchoV:['{0} 秒後にもう一度（威力 {1}%）','Hits again after {0}s ({1}% power)'],
   dSupNote:['支援は重ならない（範囲が重なっても、いちばん強い支援 1 つだけが効く）。罠と、ほかの支援の塔には効かない','Support does not stack: where ranges overlap, only the strongest one applies. No effect on traps or other support towers'],
   dTarget:['当たる相手','Hits'],dAllIn:['射程内の敵すべて','All foes in range'],dLine:['一直線上の敵すべて','All foes in a line'],
   dDot:['毎秒 {0} を {1} 秒','{0} / sec for {1}s'],dSlow:['{0}% 遅く、{1} 秒','{0}% slower for {1}s'],dSlowTrap:['{0}% 遅く（上にいる間）','{0}% slower (while on it)'],
@@ -341,7 +342,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['{0}をクリアすると届く','Clear {0} to unlock'],baseArrive:['新しい基本元素「{0}」が届いた','New base element: {0}'],stageReward:['クリアで基本元素「{0}」が届く','Clear to unlock the base element {0}'],
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
-  f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],
+  f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
   dFam:['{0}の系統','{0} type'],stResist:['はじいた','Resisted'],
@@ -439,6 +440,14 @@ const EN={ // 英語の名前と説明
   desert:['Desert','Hot sand slows what it hits'],kagerou:['Heat Haze','Trap: slows and briefly stops foes'],
   hai:['Ash','Burned-out remains'],sekken:['Soap','Trap: foes slip and slow down'],cement:['Cement','Trap: hardens on foes to slow them'],
   awa:['Foam','Wraps nearby foes in foam'],concrete:['Concrete','Crushes foes with a solid block'],shabondama:['Soap Bubble','Trap: traps foes in bubbles to stop them'],
+  sound:['Sound','A wave that hits every foe in range and flinches them'],hanabi:['Fireworks','Bursts around it for light area damage'],hamon:['Ripples','Slightly slows nearby foes'],jibiki:['Rumble','Briefly flinches nearby foes'],
+  fue:['Flute','A fast, long-range sound shot'],koto:['Koto','Speeds up nearby towers'],suzu:['Bell','Each chime makes nearby foes brittle'],juka:['Curse Song','Bounces between foes, making them brittle'],wakon:['Chord','Raises nearby towers\' damage'],
+  shakudama:['Grand Firework','A huge burst that scorches a wide area'],furin:['Wind Chime','Each chime stirs a breeze that pushes foes back a little'],kusabue:['Grass Whistle','Sound that hops from foe to foe'],taiko:['Taiko','Flinches foes hard at steady intervals'],
+  seseragi:['Babbling Brook','The sound of a stream slows nearby foes a little'],komoriuta:['Lullaby','Puts nearby foes to sleep briefly'],choonpa:['Ultrasound','Sound that pierces in a straight line'],chinkonka:['Requiem','Makes foes in range brittle'],
+  sanbika:['Hymn','Empowers towers in range'],orgel:['Music Box','Speeds up towers in range'],raimei:['Thunderclap','Lightning and flinch at once'],
+  yamabiko:['Echo','The attack lands a second time, a moment later'],matsuribayashi:['Festival Music','Greatly empowers towers in range'],siren:['Siren','Stalls foes with a song and pulls them back'],kyoumei:['Resonance','Damage spreads to nearby foes'],
+  soukyoku:['Funeral March','Makes foes in range very brittle'],shukufuku:['Blessing Bell','Strong support: more damage and faster attacks'],shirabe:['Melody of Wind','A very fast chain'],
+  tengaku:['Heavenly Music','Empowers all towers across a wide area'],goon:['Roar','Flinches a wide crowd of foes at once'],mateki:['Magic Flute','Halts foes and makes them brittle'],tenchi:['Heaven and Earth Resound','Attacks a wide area and empowers towers as well'],
 };
 const nm=d=>LANG==='ja'?d.name:EN[d.id][0],ds=d=>LANG==='ja'?d.desc:EN[d.id][1];
 const sn=st=>LANG==='ja'?st.name:st.en,snote=st=>LANG==='ja'?st.note:st.noteEn;
@@ -623,6 +632,38 @@ const ITEMS={
   kiyome:  {name:'浄めの霧',t:5,c:'#d8f0ff',kind:'ward', range:150,ward:'sil',                       desc:'まわりの影の力を封じつづける'},
   hougyoku:{name:'竜の宝玉',t:6,c:'#ffd24a',kind:'ward', range:160,gold:2,                           desc:'まわりで倒した影の魔力が 2 倍'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,curse:1.5,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
+  // 音（三叉の谷をクリアすると届く基本元素）と、音から作る元素
+  sound:   {name:'音',      t:1,c:'#ff8ec8',kind:'pulse',dmg:3,  rate:1,   range:90, stop:.3,stopP:.25,         desc:'範囲の敵全員に当たる波。少しひるませる'},
+  hanabi:  {name:'花火',    t:2,c:'#ff9a8a',kind:'pulse',dmg:11, rate:1,   range:85, dot:4,dotT:2,             desc:'周りで弾けて小さな範囲ダメージ'},
+  hamon:   {name:'波紋',    t:2,c:'#8ac8ff',kind:'pulse',dmg:5,  rate:1,   range:95, slow:.3,slowT:1.2,        desc:'周りの敵を少し遅くする'},
+  jibiki:  {name:'地響き',  t:2,c:'#d8a070',kind:'pulse',dmg:9,  rate:.9,  range:80, stop:.4,stopP:.3,         desc:'周りの敵を一瞬ひるませる'},
+  fue:     {name:'笛',      t:2,c:'#a8f0d0',kind:'bolt', dmg:4,  rate:2.2, range:140,                          desc:'遠くまで届く、速い音の弾'},
+  koto:    {name:'琴',      t:2,c:'#c8e08a',kind:'support',                range:120,buffD:0,buffR:.15,        desc:'近くの塔の攻撃速度を上げる'},
+  suzu:    {name:'鈴',      t:2,c:'#ffe090',kind:'pulse',dmg:6,  rate:1,   range:90, curse:1.2,               desc:'鳴るたびに周りの敵をもろくする'},
+  juka:    {name:'呪歌',    t:2,c:'#c890ff',kind:'chain',dmg:9,  rate:1,   range:120,chain:3,curse:1.2,        desc:'当てた敵をもろくしながら跳ねる'},
+  wakon:   {name:'和音',    t:2,c:'#ffa8d8',kind:'support',                range:120,buffD:.12,buffR:0,        desc:'近くの塔のダメージを上げる'},
+  shakudama:{name:'尺玉',   t:3,c:'#ff8aa0',kind:'pulse',dmg:26, rate:.9,  range:105,dot:12,dotT:3,            desc:'大きな花火で広い範囲を焼く'},
+  furin:   {name:'風鈴',    t:3,c:'#a8e8e0',kind:'pulse',dmg:16, rate:1,   range:105,knock:10,                 desc:'鳴るたびに風が起き、周りの敵を少し押し戻す'},
+  kusabue: {name:'草笛',    t:3,c:'#90e090',kind:'chain',dmg:20, rate:1.5, range:140,chain:4,                 desc:'敵から敵へ跳ねる音'},
+  taiko:   {name:'太鼓',    t:3,c:'#e0a070',kind:'pulse',dmg:38, rate:.7,  range:85, stop:.5,stopP:.35,        desc:'一定の間隔で大きくひるませる'},
+  seseragi:{name:'せせらぎ',t:3,c:'#7ad0f0',kind:'pulse',dmg:8,  rate:1.1, range:115,slow:.4,slowT:1.3,        desc:'川の音で周りの敵を少し遅くする'},
+  komoriuta:{name:'子守唄', t:3,c:'#b8b0ff',kind:'pulse',dmg:6,  rate:.8,  range:110,stop:1.2,stopP:.25,       desc:'周りの敵を短く眠らせる'},
+  choonpa: {name:'超音波',  t:3,c:'#d0b8ff',kind:'pierce',dmg:34,rate:1,   range:150,                          desc:'一直線に貫く音'},
+  chinkonka:{name:'鎮魂歌', t:3,c:'#b8a8e8',kind:'pulse',dmg:12, rate:1,   range:110,curse:1.35,              desc:'範囲の敵をもろくする'},
+  sanbika: {name:'讃美歌',  t:3,c:'#ffe8b0',kind:'support',                range:140,buffD:.16,buffR:.08,      desc:'範囲内の塔を強める'},
+  orgel:   {name:'オルゴール',t:3,c:'#ffb8c8',kind:'support',              range:135,buffD:.05,buffR:.20,      desc:'範囲内の塔の攻撃速度を上げる'},
+  raimei:  {name:'雷鳴',    t:3,c:'#ffe45c',kind:'chain',dmg:24, rate:1,   range:130,chain:4,stop:.4,stopP:.25,desc:'稲妻とひるみを同時に'},
+  yamabiko:{name:'山彦',    t:4,c:'#c8b090',kind:'pulse',dmg:50, rate:.8,  range:120,echo:.4,                 desc:'攻撃が少し遅れてもう一度当たる'},
+  matsuribayashi:{name:'祭囃子',t:4,c:'#ff7a6a',kind:'support',            range:150,buffD:.22,buffR:.22,      desc:'範囲内の塔を大きく強める'},
+  siren:   {name:'セイレーン',t:4,c:'#6ac8d8',kind:'pulse',dmg:30, rate:.9, range:130,slow:.5,slowT:1.5,knock:14,desc:'歌で敵を足止めし、引き寄せる'},
+  kyoumei: {name:'共鳴',    t:4,c:'#c8e8ff',kind:'chain',dmg:55, rate:1.2, range:145,chain:7,                 desc:'当てたダメージが近くの敵にも広がる'},
+  soukyoku:{name:'葬送曲',  t:4,c:'#a090c8',kind:'pulse',dmg:30, rate:1,   range:125,curse:1.55,              desc:'範囲の敵を大きくもろくする'},
+  shukufuku:{name:'祝福の鐘',t:4,c:'#ffe090',kind:'support',              range:155,buffD:.28,buffR:.18,      desc:'強い支援。ダメージと速度の両方'},
+  shirabe: {name:'風の調べ',t:4,c:'#9af0d0',kind:'chain',dmg:45, rate:2,   range:150,chain:6,                 desc:'とても速い連鎖'},
+  tengaku: {name:'天楽',    t:5,c:'#fff0c8',kind:'support',                range:175,buffD:.45,buffR:.30,      desc:'広い範囲の塔をすべて強める'},
+  goon:    {name:'轟音',    t:5,c:'#ff9060',kind:'pulse',dmg:130,rate:.8,  range:150,stop:.8,stopP:.35,        desc:'広い範囲の敵をまとめてひるませる'},
+  mateki:  {name:'魔笛',    t:5,c:'#c070ff',kind:'pulse',dmg:110,rate:.9,  range:150,stop:1.5,stopP:.3,curse:1.5,desc:'敵を止めて、もろくする'},
+  tenchi:  {name:'天地鳴動',t:6,c:'#ffd0f0',kind:'pulse',dmg:480,rate:.8,  range:185,stop:1,stopP:.3,curse:1.4,buffD:.30,buffR:.20,desc:'天と地が鳴り響く。広い範囲への攻撃と支援を兼ねる'},
 };
 for(const k in ITEMS)ITEMS[k].id=k;
 const RECIPES=[
@@ -687,16 +728,22 @@ const RECIPES=[
   ['sabi','venom','fushoku'],['charcoal','flame','kayaku'],['sabi','thorn','barbwire'],['sabi','tomb','kosenjo'],['sabi','twilight','haikyo'],['miasma','bog','ekibyo'],['kiyome','holysword','seiiki'],
   // 誰でも知っている弱点・結末で崩れて、★が下がるもの（吸血鬼＋聖光＝灰 の仲間）
   ['iron','raincloud','sabi'],['iceage','sun','water'],['golem','raincloud','earth'],
+  // 音（基本元素）と、音から作る元素
+  ['sound','fire','hanabi'],['sound','water','hamon'],['sound','earth','jibiki'],['sound','wind','fue'],['sound','wood','koto'],['sound','light','suzu'],['sound','dark','juka'],['sound','sound','wakon'],
+  ['hanabi','flame','shakudama'],['suzu','gust','furin'],['fue','leaves','kusabue'],['jibiki','koto','taiko'],['hamon','pond','seseragi'],['koto','twilight','komoriuta'],
+  ['juka','bat','choonpa'],['juka','tomb','chinkonka'],['wakon','flash','sanbika'],['suzu','gem','orgel'],['hanabi','bolt','raimei'],
+  ['taiko','mountain','yamabiko'],['taiko','shakudama','matsuribayashi'],['komoriuta','sea','siren'],['choonpa','crystal','kyoumei'],['chinkonka','curse','soukyoku'],['sanbika','holylight','shukufuku'],['furin','kusabue','shirabe'],
+  ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
 for(const[a,b,r]of RECIPES){RECIPE[rkey(a,b)]=r;(MADE_BY[r]=MADE_BY[r]||[]).push([a,b])} // 1 つの元素に作り方が複数あってよい
 const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
-const UNLOCK={wood:0,light:1,dark:2}; // 基本元素の木・光・闇は、このステージ（の通常）をクリアすると届く。図鑑の数では開かない
+const UNLOCK={wood:0,light:1,dark:2,sound:3}; // 基本元素の木・光・闇・音は、このステージ（の通常）をクリアすると届く。図鑑の数では開かない
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1);
-const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support';
+const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support',isBuffer=id=>ITEMS[id].buffD!=null; // 支援の塔のほか、攻撃しながらまわりを強める元素（天地鳴動）も強める側
 const noAtk=d=>d.kind==='support'||d.kind==='ward'||d.kind==='relic'; // 攻撃しない（支援・結界・砦で使うもの）
 // 置ける場所：魔法陣には塔、道の上には罠、作業台にはなんでも
 const fits=(id,sl)=>sl.bench||(ITEMS[id].kind!=='relic'&&(sl.path?isTrap(id):!isTrap(id))); // 聖灰などは作業台にだけ置ける（砦へ運んで使う）
@@ -1029,7 +1076,7 @@ const FAM={
   volt: {w:'square',  f:880,nf:5200},ice:  {w:'sine',f:980,nf:4200},
   poison:{w:'sawtooth',f:200,nf:700},dark: {w:'triangle',f:180,nf:600},
   metal:{w:'square',  f:240,nf:2600},light:{w:'sine',f:760,nf:3600},
-  dragon:{w:'sawtooth',f:130,nf:1100},
+  dragon:{w:'sawtooth',f:130,nf:1100},sound:{w:'sine',f:520,nf:2200},
 };
 const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame',ragnarok:'flame',phoenix:'flame',crater:'flame',heat:'flame',wisp:'flame',
   water:'water',pond:'water',sea:'water',steam:'water',tsunami:'water',mist:'water',
@@ -1052,6 +1099,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
 Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light',sekken:'water',cement:'earth',awa:'water',concrete:'earth',shabondama:'water'});
+Object.assign(FAMOF,{sound:'sound',hanabi:'sound',hamon:'sound',jibiki:'sound',fue:'sound',koto:'sound',suzu:'sound',juka:'sound',wakon:'sound',shakudama:'sound',furin:'sound',kusabue:'sound',taiko:'sound',seseragi:'sound',komoriuta:'sound',choonpa:'sound',chinkonka:'sound',sanbika:'sound',orgel:'sound',raimei:'sound',yamabiko:'sound',matsuribayashi:'sound',siren:'sound',kyoumei:'sound',soukyoku:'sound',shukufuku:'sound',shirabe:'sound',tengaku:'sound',goon:'sound',mateki:'sound',tenchi:'sound'}); // 音の系統：鎧の影が防ぐ系統にはない（鎧で弱められない）
 for(const k in ITEMS)if(FAMOF[k])ITEMS[k].fam=FAMOF[k]; // 元素の系統（灰は無属性のため未登録）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
@@ -1077,6 +1125,7 @@ const sfx={
     const F=FAM[d.fam||FAMOF[d.id]]||FAM.earth,t=d.t;
     const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.13,.055+t*.013);
     if(t>=4)tone(f/2,.16,'sine',v*.7,f/3); // 高ティアは低音の芯を足す
+    if(d.fam==='sound'&&d.kind!=='chain'&&d.kind!=='pierce'){bell(f*1.5,.35,v*1.1,0,.4);return} // 音の元素：鐘のような音
     switch(d.kind){
       case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.6,f*.5);break;
       case 'pulse':tone(f*.9,.22,'sine',v*1.7,f*.3);noise(.18,v*.8,F.nf);break;
@@ -1168,6 +1217,10 @@ const dot=(g,x,y,r)=>{g.beginPath();g.arc(x,y,r,0,TAU);g.fill()};
 const flame=g=>{g.beginPath();g.moveTo(0,-14);g.bezierCurveTo(2,-7,10,-3,9,5);g.bezierCurveTo(8,13,-8,13,-9,5);g.bezierCurveTo(-10,0,-5,-2,-4,-7);g.bezierCurveTo(-2,-6,-1,-10,0,-14);g.closePath()};
 const cloud=(g,y)=>{g.beginPath();g.arc(-6,y+1,5.5,0,TAU);g.arc(0,y-3,7,0,TAU);g.arc(7,y+1,5.5,0,TAU);g.rect(-6,y+1,13,5.5);g.fill()};
 const DARK='#0a0814';
+// 音の元素のアイコンで使う部品（音符・きらめき・弧）
+const note=(g,x,y,s=1)=>{g.beginPath();g.ellipse(x,y,5*s,3.6*s,-.45,0,TAU);g.fill();g.fillRect(x+3.6*s,y-15*s,2*s,15.5*s);g.beginPath();g.moveTo(x+5.6*s,y-15*s);g.bezierCurveTo(x+12*s,y-12*s,x+13*s,y-6*s,x+9*s,y-3*s);g.lineTo(x+8.8*s,y-6*s);g.bezierCurveTo(x+11*s,y-9*s,x+9*s,y-11*s,x+5.6*s,y-11*s);g.closePath();g.fill()};
+const spark=(g,x,y,s)=>{poly(g,[x,y-s,x+s*.3,y-s*.3,x+s,y,x+s*.3,y+s*.3,x,y+s,x-s*.3,y+s*.3,x-s,y,x-s*.3,y-s*.3]);g.fill()};
+const arc=(g,x,y,r,a,b)=>{g.beginPath();g.arc(x,y,r,a,b);g.stroke()};
 const ICON={
   // 崩れてできる元素：聖灰（小さな灰の山と光の十字）・錆（錆びた歯車）・浄めの霧（霧と光の輪）・竜の宝玉（爪につかまれた玉）
   fushoku(g,c){g.save();for(let i=0;i<8;i++){g.rotate(TAU/8);g.fillRect(-2.4,-13,4.8,4.5)}g.restore();dot(g,0,0,9);g.fillStyle=DARK;dot(g,0,0,3.2);g.fillStyle='#bff070';dot(g,-5,-3,2.2);dot(g,5,4,1.8);dot(g,6,-4,1.3);g.fillRect(-1,9,2,4)},
@@ -1497,6 +1550,38 @@ const ICON={
     g.strokeStyle='#ffe45c';g.beginPath();g.arc(-2,1,8.8,.4,1.5);g.stroke();
     g.fillStyle='#fff';g.beginPath();g.ellipse(-6,-4,3,1.5,-.7,0,TAU);g.fill();dot(g,3,6,1.3);
     for(const[x,y,r]of[[10,-9,3.4],[-11,10,2.2]]){g.fillStyle=rgba(c,.3);dot(g,x,y,r);g.lineWidth=1.2;g.strokeStyle='#fff';g.beginPath();g.arc(x,y,r,0,TAU);g.stroke()}},
+  // 音の元素：音符・花火・波紋・楽器など
+  sound(g,c){note(g,-5,9,1.3);spark(g,9,-9,3);dot(g,11,2,1.4)},
+  hanabi(g,c){g.lineWidth=2;for(let i=0;i<10;i++){const a=i*TAU/10,ca=Math.cos(a),sa=Math.sin(a);line(g,ca*4,sa*4,ca*10,sa*10);dot(g,ca*12,sa*12,i%2?1.5:2.2)}dot(g,0,0,2.6)},
+  hamon(g,c){g.lineWidth=1.8;for(const[rx,ry]of[[4,2],[8.5,4.2],[13,6.5]]){g.beginPath();g.ellipse(0,4,rx,ry,0,0,TAU);g.stroke()}dot(g,0,4,1.6);g.beginPath();g.moveTo(0,-12);g.quadraticCurveTo(4.5,-6,0,-2);g.quadraticCurveTo(-4.5,-6,0,-12);g.fill()},
+  jibiki(g,c){g.lineWidth=2.4;line(g,-14,8,-7,5,-3,11,3,4,8,10,14,7);g.lineWidth=1.8;arc(g,0,5,8,Math.PI*1.15,Math.PI*1.85);arc(g,0,5,13,Math.PI*1.2,Math.PI*1.8);g.fillRect(-10,11,3,3);g.fillRect(8,12,3,2.5)},
+  fue(g,c){g.save();g.rotate(-.6);g.fillRect(-14,-3.2,28,6.4);g.fillStyle=DARK;for(const x of[-5,-1,3,7])dot(g,x,0,1.4);g.fillRect(-14,-3.2,2.4,6.4);g.restore();g.fillStyle=c;dot(g,9,-11,1.5);dot(g,12,-6,1.1);dot(g,-10,10,1.3)},
+  koto(g,c){poly(g,[-14,-1,11,-9,14,-5,-11,6]);g.fill();g.strokeStyle=DARK;g.lineWidth=1;for(let i=1;i<=5;i++){const t=i/6;line(g,-14+3*t,-1+7*t,11+3*t,-9+4*t)}g.strokeStyle=c;g.lineWidth=2;line(g,-9,6,-9,13);line(g,10,-4,10,11)},
+  suzu(g,c){g.beginPath();g.arc(0,-1,9.5,Math.PI,0);g.lineTo(12,8);g.lineTo(-12,8);g.closePath();g.fill();g.fillRect(-13,8,26,2.4);dot(g,0,12.5,2.4);g.fillStyle=DARK;g.fillRect(-9,3,18,1.2);g.lineWidth=2;g.beginPath();g.arc(0,-13,2.4,0,TAU);g.stroke()},
+  juka(g,c){note(g,-5,9,1);g.strokeStyle=c;g.lineWidth=1.8;g.beginPath();g.moveTo(5,-12);g.bezierCurveTo(14,-8,-2,-2,9,3);g.stroke();g.beginPath();g.moveTo(9,3);g.bezierCurveTo(4,6,10,10,5,13);g.stroke();dot(g,12,-3,1.6)},
+  wakon(g,c){for(const y of[9,2,-5]){g.beginPath();g.ellipse(-3,y,5,3.4,-.45,0,TAU);g.fill()}g.fillRect(1,-14,2,23);g.beginPath();g.moveTo(3,-14);g.bezierCurveTo(9,-12,10,-7,7,-4);g.lineTo(6.5,-7);g.bezierCurveTo(8,-9,6,-10,3,-10);g.closePath();g.fill()},
+  shakudama(g,c){g.lineWidth=2;g.beginPath();g.arc(0,0,5.5,0,TAU);g.stroke();for(let i=0;i<14;i++){const a=i*TAU/14,ca=Math.cos(a),sa=Math.sin(a),r=i%2?11:13.5;line(g,ca*8,sa*8,ca*r,sa*r)}dot(g,0,0,2.6)},
+  furin(g,c){g.beginPath();g.arc(0,-3,9,Math.PI,0);g.lineTo(10,3);g.lineTo(-10,3);g.closePath();g.fill();dot(g,0,5,2);g.lineWidth=1.4;line(g,0,5,0,9);g.fillRect(-4,9,8,5.5);g.fillStyle=DARK;g.fillRect(-2,11,4,.9);g.lineWidth=2;g.beginPath();g.arc(0,-13,2.4,0,TAU);g.stroke()},
+  kusabue(g,c){g.beginPath();g.moveTo(-13,8);g.bezierCurveTo(-12,-6,2,-12,12,-10);g.bezierCurveTo(12,2,2,10,-13,8);g.closePath();g.fill();g.strokeStyle=DARK;g.lineWidth=1.2;line(g,-12,7,8,-7);g.strokeStyle=c;g.lineWidth=1.6;arc(g,8,8,4,-.2,1.3);arc(g,8,8,8,-.1,1.2)},
+  taiko(g,c){g.beginPath();g.ellipse(0,-5,11,4.5,0,0,TAU);g.fill();g.fillRect(-11,-5,22,12);g.beginPath();g.ellipse(0,7,11,4.5,0,0,Math.PI);g.fill();g.strokeStyle=DARK;g.lineWidth=1.2;g.beginPath();g.ellipse(0,-5,8,3,0,0,TAU);g.stroke();for(const x of[-6,0,6])line(g,x,0,x,4);g.strokeStyle=c;g.lineWidth=2;line(g,-13,-13,-3,-6);line(g,13,-13,3,-6)},
+  seseragi(g,c){g.lineWidth=2.2;for(const y of[-8,0,8]){g.beginPath();g.moveTo(-13,y);g.bezierCurveTo(-8,y-5,-4,y-5,0,y);g.bezierCurveTo(4,y+5,8,y+5,13,y);g.stroke()}dot(g,-9,11,1.5);dot(g,8,-12,1.5)},
+  komoriuta(g,c){dot(g,-2,0,10);g.fillStyle=DARK;dot(g,2.5,-3.5,8.5);g.fillStyle=c;note(g,5,11,.7);dot(g,8,-10,1.4)},
+  choonpa(g,c){dot(g,-10,0,2.6);g.lineWidth=2.2;for(const r of[7,12,17])arc(g,-10,0,r,-.8,.8)},
+  chinkonka(g,c){g.beginPath();g.moveTo(-9,12);g.lineTo(-9,-3);g.bezierCurveTo(-9,-14,9,-14,9,-3);g.lineTo(9,12);g.lineTo(4.5,8);g.lineTo(0,12);g.lineTo(-4.5,8);g.closePath();g.fill();g.fillStyle=DARK;dot(g,-3.5,-3,1.9);dot(g,3.5,-3,1.9);g.beginPath();g.ellipse(0,3,1.6,2.2,0,0,TAU);g.fill()},
+  sanbika(g,c){g.lineWidth=2;g.beginPath();g.ellipse(0,-11,6,2.4,0,0,TAU);g.stroke();g.fillRect(-1.5,-5,3,19);g.fillRect(-7,0,14,3);g.fillStyle='#fffbe8';spark(g,-11,5,2.6);spark(g,11,-2,2.2)},
+  orgel(g,c){g.fillRect(-12,3,24,10);g.lineWidth=1.8;poly(g,[-12,3,-8,-10,8,-10,12,3]);g.stroke();g.fillStyle=DARK;g.fillRect(-9,6,14,1.2);g.fillRect(-9,9,14,1.2);g.fillStyle=c;dot(g,8,7.5,2.4);dot(g,0,-4,1.6);dot(g,-3,-7,1.2)},
+  raimei(g,c){poly(g,[-2,-14,-9,2,-3,2,-6,14,7,-3,1,-3,6,-14]);g.fill();g.lineWidth=1.8;arc(g,0,0,13,-.45,.45);arc(g,0,0,13,Math.PI-.45,Math.PI+.45)},
+  yamabiko(g,c){poly(g,[-14,12,-5,-5,0,3,5,-9,14,12]);g.fill();g.fillStyle='#ffffff55';poly(g,[5,-9,2.6,-4.5,5,-5,7.4,-4]);g.fill();g.strokeStyle=c;g.lineWidth=1.6;arc(g,-5,-5,6,3.3,4.7);arc(g,-5,-5,10,3.3,4.7)},
+  matsuribayashi(g,c){g.beginPath();g.ellipse(0,0,9,11,0,0,TAU);g.fill();g.fillRect(-5,-14,10,3.5);g.fillRect(-5,10.5,10,3.5);g.strokeStyle=DARK;g.lineWidth=1.2;for(const y of[-6,-2,2,6]){const w=9*Math.sqrt(1-(y/11)**2);line(g,-w,y,w,y)}g.fillStyle=DARK;g.fillRect(-.6,-10,1.2,20)},
+  siren(g,c){g.beginPath();g.moveTo(0,12);g.arc(0,12,22,-2.2,-.94);g.closePath();g.fill();g.strokeStyle=DARK;g.lineWidth=1.2;for(let i=0;i<5;i++){const a=-2.2+i*(1.26/4);line(g,0,12,Math.cos(a)*22,12+Math.sin(a)*22)}g.fillRect(-4,12,8,2.5)},
+  kyoumei(g,c){poly(g,[0,-12,7,-3,0,12,-7,-3]);g.fill();g.strokeStyle=DARK;g.lineWidth=1;line(g,-7,-3,7,-3);line(g,0,-12,-2.5,-3);line(g,0,-12,2.5,-3);line(g,-2.5,-3,0,12);line(g,2.5,-3,0,12);g.strokeStyle=c;g.lineWidth=1.8;arc(g,0,0,11,-.5,.5);arc(g,0,0,11,Math.PI-.5,Math.PI+.5);arc(g,0,0,14,-.4,.4);arc(g,0,0,14,Math.PI-.4,Math.PI+.4)},
+  soukyoku(g,c){g.beginPath();g.moveTo(-8,12);g.lineTo(-8,-4);g.arc(0,-4,8,Math.PI,0);g.lineTo(8,12);g.closePath();g.fill();g.fillRect(-12,12,24,2.2);g.fillStyle=DARK;note(g,-2.5,6,.55)},
+  shukufuku(g,c){g.beginPath();g.arc(0,-1,8.5,Math.PI,0);g.lineTo(11,7);g.lineTo(-11,7);g.closePath();g.fill();g.fillRect(-12,7,24,2.2);dot(g,0,11.5,2.4);g.lineWidth=2;g.beginPath();g.arc(0,-12,2.4,0,TAU);g.stroke();g.fillStyle='#fffbe8';spark(g,-11,-9,3);spark(g,11,-6,2.4)},
+  shirabe(g,c){g.lineWidth=2.2;g.beginPath();g.moveTo(-14,-5);g.bezierCurveTo(-4,-9,6,-9,8,-4);g.bezierCurveTo(10,1,4,3,3,-1);g.stroke();g.beginPath();g.moveTo(-14,3);g.bezierCurveTo(-2,0,8,1,11,6);g.bezierCurveTo(12,11,5,12,4,8);g.stroke();line(g,-11,10,-2,10);dot(g,-9,-11,1.4);dot(g,12,-9,1.4)},
+  tengaku(g,c){g.lineWidth=2.6;g.beginPath();g.moveTo(-8,12);g.lineTo(-8,-4);g.bezierCurveTo(-8,-12,4,-12,6,-5);g.lineTo(9,12);g.stroke();line(g,-8,12,9,12);g.lineWidth=1.2;for(const[x,y]of[[-4,-9],[-.5,-10],[3,-8],[6,-5]])line(g,x,y,x,12);g.fillStyle='#fffbe8';spark(g,-12,-10,2.6)},
+  goon(g,c){poly(g,[-13,-3.5,-5,-3.5,5,-10,5,10,-5,3.5,-13,3.5]);g.fill();g.lineWidth=2.2;arc(g,6,0,6,-.9,.9);arc(g,6,0,11,-.8,.8)},
+  mateki(g,c){g.save();g.rotate(-.6);g.fillRect(-14,-2.6,26,5.2);g.fillStyle=DARK;for(const x of[-7,-3,1])dot(g,x,0,1.2);g.restore();g.fillStyle=c;spark(g,8,-8,4.5);g.lineWidth=1.8;g.beginPath();g.moveTo(-10,10);g.bezierCurveTo(-4,14,0,6,5,10);g.stroke()},
+  tenchi(g,c){g.lineWidth=2;for(let i=0;i<7;i++){const a=Math.PI+(i+.5)*Math.PI/7,ca=Math.cos(a),sa=Math.sin(a);line(g,ca*9,2+sa*9,ca*14,2+sa*14)}g.beginPath();g.arc(0,2,5,0,TAU);g.fill();g.lineWidth=1.8;arc(g,0,2,9,0,Math.PI);g.lineWidth=2.2;line(g,-14,8,-8,5,-3,11,3,5,8,11,14,7)},
 };
 
 /* ---------------- 元素のスプライト ---------------- */
@@ -1656,6 +1741,7 @@ const VIS={
   gem:'snipe',diamond:'snipe',vampire:'ghost',shinso:'ghost',thicket:'fog',jungle:'fog',jukai:'fog',tomb:'fog',twilight:'fog',nightfall:'fog',
   flower:'ripple',rainbow:'rays',aurora:'rays',holylight:'rays',
   hai:'puff',awa:'ripple',concrete:'rock',
+  sound:'sonic',hanabi:'sonic',hamon:'sonic',jibiki:'sonic',suzu:'sonic',shakudama:'sonic',furin:'sonic',taiko:'sonic',seseragi:'sonic',komoriuta:'sonic',chinkonka:'sonic',yamabiko:'sonic',siren:'sonic',soukyoku:'sonic',goon:'sonic',mateki:'sonic',tenchi:'sonic',choonpa:'blade2',
 };
 const POISON=new Set(['fushoku','ekibyo','barbwire','miasma','abyss','bog','spore','reaper','mire','forest','yggdrasil','flower','venom','toxin','jungle','jukai','thorn','thornwall']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
 const LOB={rock:1,glob:1,puff:1,shell:1};                        // 山なりに飛ぶ弾
@@ -1717,6 +1803,7 @@ function pulseFx(v,x,y,R,d){ // まわりへの波動
     case'rays':FXP({ty:'rays',x,y,r:R,color:c,dur:.4});P(x,y,0,0,.3,R*.9,'#fff3c0');break;
     case'spin':FXP({ty:'spin',x,y,r:R,color:c,dur:.5,a:rnd(TAU),grit:d.id==='sandstorm'});break;
     case'snow':flakes(x,y,14,R*2.4);ring(x,y,'#eaf8ff',R,.5,3,10);FXP({ty:'pool',x,y,r:R,color:'#bfeaff',dur:.8});break;
+    case'sonic':for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?c:'#ffffff',r0:8,r1:R,dur:.5,lw:3-i*.7,t:-i*.09});if(d.t>=3)for(let i=0;i<4;i++){const a=rnd(TAU);P(x+Math.cos(a)*R*.6,y+Math.sin(a)*R*.5,0,-30,.6,5,c,{drag:1})}if(d.t>=5)shake(2);break;
     case'fog':for(let i=0;i<9;i++){const a=rnd(TAU),r=rnd(R*.9);smoke(x+Math.cos(a)*r,y+Math.sin(a)*r*.8,c,1,6,16,1.3,.35)}ring(x,y,c,R,.6,1.5,10);break;
     case'slam':FXP({ty:'slam',x,y,r:R,color:c,dur:.5,seed:rnd(99)});chunks(x,y+6,c,8,170);smoke(x,y+6,'#a89880',7,R*.6,10,.7,.6);ring(x,y,'#ffffff',R,.3,4,6);shake(d.t);break;
     case'rain':for(let i=0;i<22;i++){const px=x+rnd(-R,R),py=y+rnd(-R,R)*.7;P(px,py-60,rnd(-8,8),rnd(320,420),.18,2,c,{ty:'w',drag:0})}
@@ -1888,6 +1975,7 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
   if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(e.curseT>0)e.dnC=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
+const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
 const STOP_RES=6,STOP_BOSS=.6; // 停止が解けたあとの耐性秒数／ボスに停止の代わりにかかる減速
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
@@ -1991,10 +2079,10 @@ function goldAt(x,y){ // 竜の宝玉：その場所で倒した影の魔力の�
   return g;
 }
 function calcBuffs(){
-  const sup=[];for(const sl of slots){const it=sl.item;if(!it)continue;it.buff=null;if(sl.field&&isSupport(it.id)&&!(it.hide>0)&&!it.held)sup.push(sl)}
+  const sup=[];for(const sl of slots){const it=sl.item;if(!it)continue;it.buff=null;if(sl.field&&isBuffer(it.id)&&!(it.hide>0)&&!it.held)sup.push(sl)}
   if(!sup.length)return;
   for(const sl of slots){const it=sl.item;if(!it||!sl.field||isSupport(it.id))continue;
-    for(const sp of sup){const b=ITEMS[sp.item.id];if((sl.x-sp.x)**2+(sl.y-sp.y)**2<=b.range*b.range&&(!it.buff||b.buffD>it.buff.buffD))it.buff=b}}
+    for(const sp of sup){if(sp===sl)continue;const b=ITEMS[sp.item.id];if((sl.x-sp.x)**2+(sl.y-sp.y)**2<=b.range*b.range&&(!it.buff||b.buffD>it.buff.buffD))it.buff=b}}
 }
 // 万華鏡：1 発ごとに 5 属性（炎・氷・雷・光・闇）から 1 つを選ぶ
 const KALEIDO=[
@@ -2071,6 +2159,7 @@ function towerFire(sl,it,dt){
   }
   if(ad.kind==='pulse'){
     for(const e of ts){applyHit(e,ad,m,ad.c);hurt(e,ad.dmg*m,ad.fam)}
+    if(ad.echo)(S.echoes=S.echoes||[]).push({t:ad.echo,x,y,R,ad,m}); // 山彦：少し遅れて、もう一度当たる
     if(FX)pulseFx(VIS[ad.id],x,y,R,ad);sfx.shoot(ad);return;
   }
   // 毒・氷・呪いは、まだ効いていない敵を先に狙う
@@ -2121,6 +2210,7 @@ function shotHit(s){
 }
 function update(dt){
   S.time+=dt;
+  if(S.echoes&&S.echoes.length){for(const o of S.echoes){o.t-=dt;if(o.t>0)continue;o.done=true;for(const e of inRange(o.x,o.y,o.R)){applyHit(e,o.ad,o.m,o.ad.c);hurt(e,o.ad.dmg*o.m*ECHO_POW,o.ad.fam)}if(FX){pulseFx(VIS[o.ad.id],o.x,o.y,o.R*.85,o.ad);sfx.shoot(o.ad)}}S.echoes=S.echoes.filter(o=>!o.done)}
   if(S.active){
     S.wt+=dt;
     if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
@@ -2368,6 +2458,7 @@ function openDetail(id,from){
   if(d.rust)fx2.push([TT('dRustK'),TT('dRustV')]);
   if(d.boom)fx2.push([TT('dBoomK'),TT('dBoomV',d.boom,d.splash)]);
   if(d.plague)fx2.push([TT('dPlagueK'),TT('dPlagueV',d.plague)]);
+  if(d.echo)fx2.push([TT('dEchoK'),TT('dEchoV',num(d.echo),Math.round(ECHO_POW*100))]);
   if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
@@ -2379,7 +2470,7 @@ function openDetail(id,from){
   h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
-  if(sup)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
+  if(d.buffD!=null)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
   h+=`<div class="dsec">${TT('dMadeBy')}</div>`;
   if(d.t===1){h+=`<div class="dn">${TT('dBase')}</div>`+mkK.map(m=>row(m[0],m[1],id)).join('');if(mk.length>mkK.length)h+=`<div class="dn">${TT('dMoreWays',mk.length-mkK.length)}</div>`} // 水・土は、崩れて戻る作り方もある
   else{h+=mkK.map(m=>row(m[0],m[1],id)).join('');if(mk.length>mkK.length)h+=`<div class="dn">${TT('dMoreWays',mk.length-mkK.length)}</div>`}
@@ -3023,7 +3114,7 @@ function render(dt){
   for(const s of slots){const it=s.item;if(!it||!s.field||it.hide>0||it===held?.item)continue;
     const d=ITEMS[it.id];ctx.save();ctx.translate(s.x,s.y);ctx.rotate(T*(.4+d.t*.15)+it.ph);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1.5;ctx.setLineDash([5,7]);
     ctx.beginPath();ctx.arc(0,0,31,0,TAU);ctx.stroke();ctx.restore();
-    if(d.kind==='support'||d.kind==='ward'){ // 支援の塔・結界：効く広さの輪（癒す影の輪と同じ点線。ゆっくり回り、淡く明滅する）
+    if(d.kind==='support'||d.kind==='ward'||d.buffD!=null){ // 支援の塔・結界：効く広さの輪（癒す影の輪と同じ点線。ゆっくり回り、淡く明滅する）
       const pu=.5+.5*Math.sin(T*1.6+it.ph);ctx.fillStyle=rgba(d.c,.025);ctx.strokeStyle=rgba(d.c,.26+.16*pu);ctx.lineWidth=1.3;ctx.setLineDash([3,7]);ctx.lineDashOffset=-T*6;
       ctx.beginPath();ctx.arc(s.x,s.y,d.range,0,TAU);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}}
   if((held||sel)&&ITEMS[(held||sel).item?.id]?.kind==='relic'){ // 聖灰を持っている・選んでいる間は、使える砦を光らせる
