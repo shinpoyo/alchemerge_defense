@@ -1,4 +1,4 @@
-# アルケマージ（Alchemerge / alchemerge_defense）
+# アルケマージ・ディフェンス（Alchemerge Defense / alchemerge_defense）
 
 元素を重ねて新しい元素を錬成し、できた元素で砦を守る **マージ×タワーディフェンス**。ブラウザで動く。
 
@@ -30,7 +30,7 @@
 
 ## English
 
-**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (198 elements, 226 recipes), place them on magic circles as towers, and put traps on the road. Eight stages, with Nightmare and Abyss difficulties. No install, no sign-up. Switch the language with the button on the title screen.
+**Alchemerge Defense** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (198 elements, 226 recipes), place them on magic circles as towers, and put traps on the road. Eight stages, with Nightmare and Abyss difficulties. No install, no sign-up. Switch the language with the button on the title screen.
 
 ## ファイル
 
