@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス</title>
+<title>アルケマージ・ディフェンス — 元素を重ねて守る、マージ×タワーディフェンス</title>
 <meta name="description" content="火・水・土・風を重ねて新しい元素を錬成し、できた元素で砦を守るマージ×タワーディフェンス。登録なし・無料で、ブラウザですぐ遊べます。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス">
+<meta property="og:title" content="アルケマージ・ディフェンス — 元素を重ねて守る、マージ×タワーディフェンス">
 <meta property="og:description" content="元素を重ねて錬成し、できた元素で砦を守る。全198種の元素を見つけて、20の夜波を越えよう。">
 <meta property="og:url" content="https://shinpoyo.com/alchemerge_defense/">
 <meta name="theme-color" content="#050409">
@@ -273,7 +273,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 <script>
 'use strict';
 /* ============================================================
-   アルケマージ（Alchemerge） — マージ×タワーディフェンス
+   アルケマージ・ディフェンス（Alchemerge Defense） — マージ×タワーディフェンス
    画面は 450×800 の論理座標で描き、表示サイズに合わせて拡大する
    ============================================================ */
 const W=450,TAU=Math.PI*2,H_MIN=800,H_MAX=940;
@@ -302,8 +302,8 @@ addEventListener('resize',resize);resize();
 let LANG='ja';
 try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.lang||((navigator.language||'ja').startsWith('ja')?'ja':'en')}catch(e){}
 const TX={ // [日本語, English]。{0}{1}… に値が入る
-  title:['アルケマージ','Alchemerge'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
-  docTitle:['アルケマージ — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge — Merge × Tower Defense'],
+  title:['アルケマージ・ディフェンス','Alchemerge Defense'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
+  docTitle:['アルケマージ・ディフェンス — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge Defense — Merge × Tower Defense'],
   how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>も、その戦いの間は呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
        '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you make</b> can be summoned for the rest of the battle</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
@@ -1664,7 +1664,7 @@ function orb(id,named){
   orbCache.set(key,c);return c;
 }
 if(document.fonts&&document.fonts.load){
-  document.fonts.load('800 25px "Shippori Mincho"',Object.values(ITEMS).map(d=>d.name).join('')+'第波アルケマージ').then(()=>{orbCache=new Map();bgCanvas=null}).catch(()=>{});
+  document.fonts.load('800 25px "Shippori Mincho"',Object.values(ITEMS).map(d=>d.name).join('')+'第波アルケマージ・ディフェンス').then(()=>{orbCache=new Map();bgCanvas=null}).catch(()=>{});
 }
 function drawItem(it,x,y,sc=1,alpha=1){
   const d=ITEMS[it.id],s=sc*it.s*(1+it.kick*.14);
@@ -2453,7 +2453,7 @@ function press(b){
 }
 
 /* ---------------- 重ね合わせの画面（DOM） ---------------- */
-const spanify=t=>[...t].map((c,i)=>`<span style="animation-delay:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join('');
+const spanify=t=>[...t].map((c,i)=>c==='\n'?'<br>':`<span style="animation-delay:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join(''); // \n で改行
 let shownAt=-1e9;
 function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle('on',o.id===id))}
 // スマホでは、タップのあとにブラウザが同じ場所へ「クリック」も送る。盤面のボタンで開いた画面が、
@@ -2723,7 +2723,7 @@ $('#bEndless').onclick=()=>{S.endless=true;S.cele=0;show(null);sfx.ui();saveRun(
 function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
   document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
-  $('#t1').innerHTML=spanify(ja?'アルケマージ':'ALCHEMERGE');
+  $('#t1').innerHTML=spanify(ja?'アルケマージ\nディフェンス':'ALCHEMERGE\nDEFENSE');
   set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
