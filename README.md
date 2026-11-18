@@ -11,7 +11,7 @@
 2. 元素を **重ねる** と新しい元素になる。ちがうもの同士（火＋水＝蒸気）でも、おなじもの同士（水＋水＝池、池＋池＝海）でも変わる
 3. できた元素を **魔法陣** に置くと塔になって戦う。沼などの **罠は道の上** に置く。灯籠などの **支援の塔** は攻撃せず、まわりの塔を強める
 4. **20 の夜波** を退ければクリア。その先はエンドレス
-5. ステージは 6 つ（宵の回廊・螺旋の庭・双つの門・三叉の谷・迷いの森・王の間）。クリアすると次のステージと、難しい「悪夢」が開く。見つけた元素はどのステージにも持ち越される
+5. ステージは 8 つ（宵の回廊・螺旋の庭・双つの門・三叉の谷・迷いの森・王の間・砂時計の峠・最果ての祭壇）。クリアすると次のステージと、難しい「悪夢」が開く。悪夢でクリアすると、さらに上の「深淵」（敵の体力 2.2 倍・灯 8・くせのある敵 1.5 倍）が開く。見つけた元素はどのステージにも持ち越される
 6. 基本元素の **木・光・闇・音** は、それぞれ宵の回廊・螺旋の庭・双つの門・三叉の谷をクリアすると届く（図鑑の数では開かない）。**音** から作る元素は鎧の影に弱められず、ひるませる・もろくする・まわりの塔を強めるなどの効果を持つ（山彦は少し遅れてもう一度当たる、天地鳴動は攻撃しながら塔を強める）
 7. 強いもの同士を重ねても、誰でも知っている弱点や結末なら崩れて★が下がる（吸血鬼＋聖光＝灰、鉄＋雨雲＝錆 など）。**聖灰・浄めの霧・竜の宝玉・錆** と、そこから作る **腐蝕・聖域**、それに **火薬・疫病**、錆から作る **有刺鉄線・古戦場・廃墟** は特別な効果を持つ（聖灰は砦へ運ぶと灯がもどる、火薬は踏まれると爆ぜて消える など）
 
@@ -30,7 +30,7 @@
 
 ## English
 
-**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (198 elements, 226 recipes), place them on magic circles as towers, and put traps on the road. Six stages, plus a Nightmare difficulty. No install, no sign-up. Switch the language with the button on the title screen.
+**Alchemerge** is a merge × tower defense game that runs in the browser. Stack elements to discover new ones (198 elements, 226 recipes), place them on magic circles as towers, and put traps on the road. Eight stages, with Nightmare and Abyss difficulties. No install, no sign-up. Switch the language with the button on the title screen.
 
 ## ファイル
 
