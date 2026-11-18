@@ -2357,7 +2357,7 @@ function press(b){
   if(b.id==='trash'){if(sel){sell(sel);sel=null}else floatText(b.x+b.w/2,b.y-8,TT('trashHint'),'#b9b1d0',FS.f1);return}
   if(b.id==='wave'){startWave();return}
   sfx.ui();
-  if(b.id==='speed')S.speed=S.speed===1?2:1;
+  if(b.id==='speed')S.speed=S.speed>=3?1:S.speed+1; // ×1 → ×2 → ×3 → ×1
   if(b.id==='menu'){openMenu();shownAt=performance.now()}
   if(b.id==='codex'){openCodex();shownAt=performance.now()}
 }
