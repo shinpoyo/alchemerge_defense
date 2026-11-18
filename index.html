@@ -57,6 +57,14 @@ button.b:active{transform:scale(.92)}
 button.b.done{border-color:#7df0c0;color:#7df0c0}
 button.b.s{font-size:calc(var(--u)*var(--f2));padding:calc(var(--u)*9) calc(var(--u)*24);min-height:44px;border-color:#4a4070;color:var(--ink);box-shadow:none}
 .big{font-size:calc(var(--u)*58)}
+/* 進捗の初期化：設定メニューの下に小さく置き、押すと確認の画面を出す */
+button.lnk{font-family:inherit;background:none;border:0;color:var(--dim);text-decoration:underline;cursor:pointer;
+  font-size:calc(var(--u)*var(--f1));margin-top:calc(var(--u)*10);min-height:44px;padding:0 calc(var(--u)*12)}
+button.lnk:hover{color:#ff9aa8}
+#wipe h2{color:#ff9aa8}
+.wipeTxt{max-width:calc(var(--u)*330);text-align:left;margin:0 0 calc(var(--u)*16);line-height:1.7;white-space:pre-line}
+.wipeTxt b{color:#ff9aa8}
+button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(180deg,#4a1426,#1e0710)}
 .en h1{font-size:calc(var(--u)*41);letter-spacing:.07em}
 .en .big{font-size:calc(var(--u)*54)}
 .en .how li{font-size:calc(var(--u)*var(--f2))}
@@ -226,6 +234,14 @@ button.b.s{font-size:calc(var(--u)*var(--f2));padding:calc(var(--u)*9) calc(var(
     <div class="mrow"><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
     <button class="b s m" id="mStages"></button>
     <button class="b m" id="mClose"></button>
+    <button class="lnk" id="mReset"></button>
+  </div>
+
+  <div class="ov red" id="wipe">
+    <h2 id="hWipe"></h2>
+    <div class="wipeTxt" id="wipeTxt"></div>
+    <button class="b s danger" id="wYes"></button>
+    <button class="b s" id="wNo"></button>
   </div>
 
   <div class="ov" id="codex">
@@ -332,7 +348,11 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
-  mStages:['ステージ選択へ戻る','Back to stages'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
+  mStages:['ステージ選択へ戻る','Back to stages'],
+  mReset:['進捗を初期化する','Reset progress'],wipeTitle:['進捗を初期化しますか？','Reset all progress?'],
+  wipeTxt:['図鑑・ステージのクリア・解放した元素・実績・統計・今日の挑戦の記録・途中の戦いを、すべて消して最初からにします。\n<b>消した進捗は元に戻せません。</b>\n音・言語・ダメージ数字の設定は残ります。',
+    'This erases your codex, stage clears, unlocked elements, achievements, stats, daily records and any saved battle, and starts over.\n<b>This cannot be undone.</b>\nSound, language and damage number settings are kept.'],
+  wipeYes:['初期化する','Reset'],wipeNo:['やめる','Cancel'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
@@ -890,7 +910,8 @@ try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
-function save(){try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,seVol,bgmVol}))}catch(e){}}
+let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
+function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -2594,7 +2615,7 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
   $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');
-  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');
+  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
@@ -2611,6 +2632,14 @@ $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
+// 進捗の初期化：設定（音・言語・ダメージ数字）だけを残して保存を書きかえ、ページを読みこみ直す。
+// 状態をその場で 1 つずつ戻すより、読みこみ直すほうが取りこぼしがない
+$('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#wipeTxt').innerHTML=TT('wipeTxt');
+  $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
+$('#wNo').onclick=()=>{sfx.ui();openMenu()};
+$('#wYes').onclick=()=>{
+  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,seVol,bgmVol}))}catch(e){}
+  wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();
 
