@@ -119,9 +119,11 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 .card em{font-style:normal;color:var(--gold);display:block}
 .card img.o{border:0;background:none;box-shadow:none;width:calc(var(--u)*62);height:calc(var(--u)*62);margin:calc(var(--u)*-8) auto calc(var(--u)*-5);display:block}
 #stages{justify-content:flex-start;padding-top:calc(var(--u)*40)}
-.diff{margin:calc(var(--u)*10) 0 calc(var(--u)*2)}
+.diff{margin:calc(var(--u)*10) 0 calc(var(--u)*2);display:flex;gap:calc(var(--u)*6);justify-content:center}
+.diff .b.s{padding:calc(var(--u)*9) calc(var(--u)*14);margin:0;letter-spacing:.12em}
 .diff .b.on{border-color:var(--gold);color:#fff3cf;box-shadow:0 0 calc(var(--u)*16) #8b5cf688}
 .diff #dNight.on{border-color:#ff3b6b;box-shadow:0 0 calc(var(--u)*16) #ff3b6b88}
+.diff #dAbyss.on{border-color:#b45aff;color:#f0dcff;box-shadow:0 0 calc(var(--u)*16) #b45aff99}
 .diff .b:disabled{opacity:.35;cursor:default}
 #dNote{color:var(--dim);font-size:calc(var(--u)*var(--f1));min-height:calc(var(--u)*22);margin-bottom:calc(var(--u)*6)}
 #slist{width:100%;min-height:0;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - calc(var(--u)*28)),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - calc(var(--u)*28)),transparent);padding-bottom:calc(var(--u)*30)!important;display:flex;flex-direction:column;gap:calc(var(--u)*10);overflow-y:auto;touch-action:pan-y;padding:calc(var(--u)*4) calc(var(--u)*2) calc(var(--u)*12)}
@@ -149,7 +151,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 #stats h2,#ach h2{margin:0 0 calc(var(--u)*6);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 .sbody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*var(--f2));line-height:1.6;padding:0 calc(var(--u)*4)}
 .sbody .dst b{text-align:right}
-.sbt{display:grid;grid-template-columns:auto 1fr 1fr;gap:calc(var(--u)*4) calc(var(--u)*10);color:var(--dim);font-size:calc(var(--u)*var(--f1));align-items:center}
+.sbt{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:calc(var(--u)*4) calc(var(--u)*10);color:var(--dim);font-size:calc(var(--u)*var(--f1));align-items:center}
 .sbt b{color:var(--ink);font-size:calc(var(--u)*var(--f2))}
 .sbt i{font-style:normal;color:var(--gold);font-size:calc(var(--u)*var(--f1));letter-spacing:.2em}
 .sbt em{font-style:normal;color:var(--gold)}
@@ -199,7 +201,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 
   <div class="ov" id="stages">
     <h2 id="hStages">ステージ</h2>
-    <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button></div>
+    <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button><button class="b s" id="dAbyss">深淵</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
     <div id="sNav"><button class="b s" id="sAch"></button><button class="b s" id="sStats"></button></div>
@@ -305,11 +307,13 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>も、その戦いの間は呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
        '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you make</b> can be summoned for the rest of the battle</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
-  stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],
+  stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],abyss:['深淵','Abyss'],
   nightNote:['悪夢：敵の体力 {0} 倍・灯は {1}','Nightmare: enemy HP ×{0}, only {1} lives'],
+  abyssNote:['深淵：敵の体力 {0} 倍・灯は {1}・くせのある敵が {2} 倍','Abyss: enemy HP ×{0}, only {1} lives, ×{2} tricky foes'],
+  abyssHint:['（悪夢でクリアすると「深淵」が開く）',' (clear it to unlock Abyss)'],
   nightLocked:['ステージをクリアすると「悪夢」が開く','Clear a stage to unlock Nightmare'],
   carry:['見つけた元素は、どのステージにも持ち越される','Discovered elements carry over to every stage'],
-  needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
+  needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needNight:['悪夢でクリアすると開く','Clear on Nightmare to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
   codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
   k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],k_ward:['結界','Ward'],k_relic:['砦で使う','Use at fort'],k_mirror:['特殊','Special'],
@@ -354,7 +358,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
     'This erases your codex, stage clears, unlocked elements, achievements, stats, daily records and any saved battle, and starts over.\n<b>This cannot be undone.</b>\nSound, language and damage number settings are kept.'],
   wipeYes:['初期化する','Reset'],wipeNo:['やめる','Cancel'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
-  unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],
+  unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],abyssDot:['・深淵',' · Abyss'],abyssParen:['（深淵）',' (Abyss)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['魔力◆で元素を呼び出し、さらに重ねよう','Spend mana ◆ to summon more, then keep merging'],
   lockN:['{0}\nクリアで解放','Clear\n{0}'],
@@ -384,9 +388,10 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   a_firstBoss:['主を討つ','Lordslayer'],ad_firstBoss:['夜の主を初めて倒す','Defeat a Night Lord'],
   a_king:['王を討つ','Kingslayer'],ad_king:['夜の王を倒す','Defeat the Night King'],
   a_clear1:['はじめての夜明け','First Dawn'],ad_clear1:['いずれかのステージをクリアする','Clear any stage'],
-  a_clearAll:['六つの夜明け','Six Dawns'],ad_clearAll:['全 {0} ステージを通常でクリアする','Clear all {0} stages on Normal'],
+  a_clearAll:['すべての夜明け','Every Dawn'],ad_clearAll:['全 {0} ステージを通常でクリアする','Clear all {0} stages on Normal'],
   a_night1:['悪夢を越えて','Through the Nightmare'],ad_night1:['いずれかのステージを悪夢でクリアする','Clear any stage on Nightmare'],
   a_nightAll:['悪夢の覇者','Nightmare Conqueror'],ad_nightAll:['全 {0} ステージを悪夢でクリアする','Clear all {0} stages on Nightmare'],
+  a_abyss1:['深淵の底から','Up from the Abyss'],ad_abyss1:['いずれかのステージを深淵でクリアする','Clear any stage on Abyss'],
   a_codex25:['見習い錬金術師','Apprentice Alchemist'],ad_codex25:['図鑑の 25% を見つける（{0} 種）','Find 25% of the codex ({0} elements)'],
   a_codex50:['一人前の錬金術師','Adept Alchemist'],ad_codex50:['図鑑の 50% を見つける（{0} 種）','Find 50% of the codex ({0} elements)'],
   a_codex100:['大錬金術師','Grand Alchemist'],ad_codex100:['図鑑をすべて見つける（{0} 種）','Find every element ({0})'],
@@ -748,9 +753,24 @@ const STAGES=[
    paths:[[[-30,90],[400,90],[400,290],[225,290]],[[480,490],[50,490],[50,290],[225,290]]],
    field:[[100,170],[180,170],[260,170],[340,170],[150,235],[300,235],[150,345],[300,345],[120,410],[200,410],[280,410],[360,410]],
    traps:[[200,90],[400,190],[250,490],[50,390],[100,290]]},
+  // 左右の門から入った道が、まん中の細い首で 1 本になり、まっすぐ下の灯へ落ちる。道は短いが、首から下は両側から挟み撃ちにできる
+  {name:'砂時計の峠',note:'左右の門が細い首でひとつに',en:'Hourglass Pass',noteEn:'Two gates pinch into one neck',hp:.8,spice:1.1,
+   paths:[[[-30,90],[130,90],[130,230],[225,230],[225,480]],[[480,90],[320,90],[320,230],[225,230],[225,480]]],
+   field:[[225,150],[55,175],[395,175],[75,310],[150,310],[300,310],[375,310],[75,390],[150,390],[300,390],[375,390],[150,465]],
+   traps:[[60,90],[390,90],[225,230],[225,320],[225,420]]},
+  // 最後のステージ。四隅の門から短い道が中央の灯へ。どの道も短く、くせのある敵も多い
+  {name:'最果ての祭壇',note:'四隅の門から中央の灯へ',en:'Altar at World\'s End',noteEn:'Four gates close in on the center',hp:.6,spice:1.25,
+   paths:[[[-30,110],[120,110],[120,290],[225,290]],[[480,110],[330,110],[330,290],[225,290]],[[-30,470],[120,470],[120,290],[225,290]],[[480,470],[330,470],[330,290],[225,290]]],
+   field:[[190,180],[260,180],[190,400],[260,400],[225,110],[225,470],[50,190],[50,290],[50,390],[400,190],[400,290],[400,390]],
+   traps:[[60,110],[390,110],[60,470],[390,470],[170,290],[280,290]]},
 ];
 const NIGHT_HP=1.5,NIGHT_LIVES=12; // 「悪夢」：敵の体力 1.5 倍・灯 12
-let STAGE=0,NIGHT=false;
+const ABYSS_HP=2.2,ABYSS_LIVES=8,ABYSS_SPICE=1.5; // 「深淵」：悪夢のさらに上。敵の体力 2.2 倍・灯 8・くせのある敵 1.5 倍
+// 難易度：NIGHT は 0（通常）・1（悪夢）・2（深淵）。保存にある true/false（これまでの悪夢）は 1/0 として読む
+const DIFF=[{hp:1,lives:20,spice:1},{hp:NIGHT_HP,lives:NIGHT_LIVES,spice:1},{hp:ABYSS_HP,lives:ABYSS_LIVES,spice:ABYSS_SPICE}];
+const toDiff=n=>n===2?2:n?1:0;
+const dParen=n=>n===2?TT('abyssParen'):n?TT('nightParen'):'';
+let STAGE=0,NIGHT=0;
 const PATHS=[],CORE={x:0,y:0},slots=[];
 function loadStage(i){
   STAGE=i;const st=STAGES[i];PATHS.length=0;
@@ -836,13 +856,13 @@ const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},ear
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
-const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*(NIGHT?NIGHT_HP:1);
+const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};
   const gap=Math.max(.38,.95-w*.028);
   if(w>=3&&w%3===0){add('mite',8+w,gap*.38);t+=1}
-  const sp=STAGES[STAGE].spice??1; // くせのある敵の多さ（最初のステージは半分）
+  const sp=(STAGES[STAGE].spice??1)*DIFF[NIGHT].spice; // くせのある敵の多さ（最初のステージは半分）
   // 癒す影（第 9 波から）と鎧の影（第 13 波から）は、数を足すのではなく、影・硬い影と入れかわる（敵の総数と魔力の入りはこれまでと同じ）
   const nHeal=w>=9?Math.ceil((1+Math.floor((w-9)/4))*sp):0,nArm=w>=13?Math.ceil((1+Math.floor((w-13)/3))*sp):0;
   add('shade',5+Math.floor(w*1.25)-nHeal,gap);
@@ -904,7 +924,7 @@ let nightSel=null; // 今日の挑戦に入る前に、ステージ選択で選�
 // 実際に出す今日の挑戦。そのステージの悪夢がまだ開いていなければ、悪夢の日でも通常にする。
 // その日の記録がすでにあれば、記録と同じステージ・難易度のままにする（途中で悪夢が開いても、同じ日の記録に通常と悪夢がまざらない）
 function dailyNow(k=dayKey()){const r=daily[k];if(r)return{stage:r.stage,night:r.night};const c=dailyOf(k);return{stage:c.stage,night:c.night&&nightOpen(c.stage)}}
-function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=c.night;reset()}
+function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=+c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
@@ -925,20 +945,22 @@ function saveRun(){
 function clearRun(){if(RUN&&FX){RUN=null;save()}}
 function resumeRun(){
   const r=RUN;if(!r)return;
-  const n0=NIGHT;STAGE=r.stage;NIGHT=!!r.night;DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
+  const n0=NIGHT;STAGE=r.stage;NIGHT=toDiff(r.night);DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
   for(const sl of slots)sl.item=null;
   r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
   S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
 }
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[],chg:0,chgT:0,chgB:0}}
-const pkey=(i=STAGE,n=NIGHT)=>i+(n?'n':'');
+const pkey=(i=STAGE,n=NIGHT)=>i+(n===2?'a':n?'n':'');
 const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
 const stageOpen=i=>i===0||rec(i-1,false).clear;      // 前のステージをクリアすると開く
 const nightOpen=i=>stageOpen(i)&&rec(i,false).clear; // そのステージをクリアすると「悪夢」が開く
+const abyssOpen=i=>nightOpen(i)&&rec(i,1).clear;     // 悪夢でクリアすると「深淵」が開く
+const diffOpen=(i,n)=>n===2?abyssOpen(i):n?nightOpen(i):stageOpen(i);
 function reset(){
   loadStage(STAGE);
-  S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:NIGHT?NIGHT_LIVES:20,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
+  S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
      tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
   const bench=slots.filter(s=>s.bench);
@@ -2215,7 +2237,7 @@ const FW=['#ffe9a0','#ff9ae0','#8fe6ff','#b98cff','#7df0c0','#ff6a3d','#ffffff',
 function victory(){
   S.cleared=true;S.cele=.0001;S.slowmo=0;S.flash=1;S.flashC='#fff6d8';shake(14);
   if(!FX)return;
-  if(!DAILY&&S.lives>=(NIGHT?NIGHT_LIVES:20))grantAch('flawless'); // 今日の挑戦のクリアは数えない（「はじめての夜明け」などと同じ扱い）
+  if(!DAILY&&S.lives>=DIFF[NIGHT].lives)grantAch('flawless'); // 今日の挑戦のクリアは数えない（「はじめての夜明け」などと同じ扱い）
   sfx.clear();buzz([40,60,40,60,120]);
   // 置いてある塔すべてから光の柱
   for(const sl of slots)if(sl.item){const c=ITEMS[sl.item.id].c;ring(sl.x,sl.y,c,90,.9,4);
@@ -2446,14 +2468,16 @@ function miniMap(c,st){ // ステージの縮図
 $('#grid').addEventListener('click',ev=>{const c=ev.target.closest('.card.tap');if(c)openDetail(c.dataset.id,'codex')});
 function openStages(){
   if(nightSel!==null){NIGHT=nightSel;nightSel=null} // 今日の挑戦から戻ったら、難易度の選択を挑戦の前に戻す
-  if(NIGHT&&!STAGES.some((_,i)=>nightOpen(i)))NIGHT=false;
-  $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT);
+  NIGHT=toDiff(NIGHT);
+  while(NIGHT&&!STAGES.some((_,i)=>diffOpen(i,NIGHT)))NIGHT--; // 開いていない難易度が選ばれていたら、1 段ずつ下げる
+  $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT===1);$('#dAbyss').classList.toggle('on',NIGHT===2);
   $('#dNight').disabled=!STAGES.some((_,i)=>nightOpen(i));
-  $('#dNote').textContent=NIGHT?TT('nightNote',NIGHT_HP,NIGHT_LIVES):$('#dNight').disabled?TT('nightLocked'):TT('carry');
+  $('#dAbyss').disabled=!STAGES.some((_,i)=>abyssOpen(i));
+  $('#dNote').textContent=NIGHT===2?TT('abyssNote',ABYSS_HP,ABYSS_LIVES,ABYSS_SPICE):NIGHT?TT('nightNote',NIGHT_HP,NIGHT_LIVES)+($('#dAbyss').disabled?TT('abyssHint'):''):$('#dNight').disabled?TT('nightLocked'):TT('carry');
   const box=$('#slist');box.innerHTML='';
   if(RUN){ // 途中保存があれば、先頭に「つづきから」
     const st=STAGES[RUN.stage],b=document.createElement('button');b.className='stg res';
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('resume')}</b><span>${sn(st)}${RUN.night?TT('nightParen'):''}${RUN.daily?TT('dailyParen'):''}</span><span><em>${TT('resumeNote',RUN.wave+1,RUN.lives,RUN.mana)}</em></span></div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('resume')}</b><span>${sn(st)}${dParen(toDiff(RUN.night))}${RUN.daily?TT('dailyParen'):''}</span><span><em>${TT('resumeNote',RUN.wave+1,RUN.lives,RUN.mana)}</em></span></div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -2464,16 +2488,16 @@ function openStages(){
   const dayBtn=()=>{
     const k=dayKey(),c=dailyNow(k),st=STAGES[c.stage],r=daily[k],b=document.createElement('button');b.className='stg day';b.disabled=!dayOpen;
     const date=new Date().toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'});
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${c.night?TT('nightParen'):''}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span></div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${dParen(+c.night)}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span></div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();startDaily();show(null);sfx.merge(2)};
     box.appendChild(b);
   };
   if(dayOpen)dayBtn();
   STAGES.forEach((st,i)=>{
-    const open=NIGHT?nightOpen(i):stageOpen(i),r=rec(i,NIGHT),b=document.createElement('button');
+    const open=diffOpen(i,NIGHT),r=rec(i,NIGHT),b=document.createElement('button');
     b.className='stg';b.disabled=!open;
-    const state=!open?TT(NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
+    const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
     b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}</div>`;
     miniMap(b.querySelector('canvas'),st);
@@ -2501,6 +2525,7 @@ const ACH=[
   {id:'clear1',ok:()=>anyClear(false)||anyClear(true)},
   {id:'clearAll',arg:()=>[STAGES.length],ok:()=>clearN(false)>=STAGES.length,pg:()=>[clearN(false),STAGES.length]},
   {id:'night1',ok:()=>anyClear(true)},
+  {id:'abyss1',ok:()=>anyClear(2)},
   {id:'nightAll',arg:()=>[STAGES.length],ok:()=>clearN(true)>=STAGES.length,pg:()=>[clearN(true),STAGES.length]},
   achCodex('codex25',.25),achCodex('codex50',.5),achCodex('codex100',1),
   {id:'star6',ok:()=>T6.some(i=>disc.has(i))},
@@ -2544,16 +2569,16 @@ function subBack(){if(subFrom==='stages')openStages();else if(subFrom==='menu')o
 function openStats(from){
   if(from)subFrom=from;
   const row=(k,v)=>`<span>${k}</span><b>${v}</b>`;
-  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>MAX_WAVE?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):(n?nightOpen(i):stageOpen(i))?TT('untried'):TT('stNone')};
+  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>MAX_WAVE?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):diffOpen(i,n)?TT('untried'):TT('stNone')};
   let h=`<div class="dsec">${TT('stTotal')}</div><div class="dst">`
     +row(TT('stKills'),fmtN(stats.kills))+row(TT('stBosses'),fmtN(stats.bosses))+row(TT('stMerges'),fmtN(stats.merges))
     +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
     +row(TT('stFound'),`${disc.size} / ${TOTAL}`)+'</div>';
-  h+=`<div class="dsec">${TT('stStage')}</div><div class="sbt"><span></span><i>${TT('normal')}</i><i>${TT('night')}</i>`
-    +STAGES.map((st,i)=>`<b>${sn(st)}</b><span>${best(i,false)}</span><span>${best(i,true)}</span>`).join('')+'</div>';
+  h+=`<div class="dsec">${TT('stStage')}</div><div class="sbt"><span></span><i>${TT('normal')}</i><i>${TT('night')}</i><i>${TT('abyss')}</i>`
+    +STAGES.map((st,i)=>`<b>${sn(st)}</b><span>${best(i,0)}</span><span>${best(i,1)}</span><span>${best(i,2)}</span>`).join('')+'</div>';
   const dk=Object.keys(daily).sort().reverse(),dl=k=>{const[y,m,d]=k.split('-');return new Date(+y,m-1,+d).toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'})};
   h+=`<div class="dsec">${TT('stDaily')}</div><div class="dst">`+row(TT('stDays'),fmtN(dk.length))
-    +dk.slice(0,7).map(k=>row(`${dl(k)}　${sn(STAGES[daily[k].stage])}${daily[k].night?TT('nightParen'):''}`,TT(daily[k].clear?'stDayClear':'stDayWave',daily[k].best))).join('')+'</div>';
+    +dk.slice(0,7).map(k=>row(`${dl(k)}　${sn(STAGES[daily[k].stage])}${dParen(+daily[k].night)}`,TT(daily[k].clear?'stDayClear':'stDayWave',daily[k].best))).join('')+'</div>';
   $('#hStats').textContent=TT('statsTitle');$('#stClose').textContent=TT('close');
   $('#stBody').innerHTML=h;$('#stBody').scrollTop=0;show('stats');shownAt=performance.now();
 }
@@ -2563,7 +2588,7 @@ $('#sStats').onclick=()=>{audio();sfx.ui();openStats('stages')};
 /* ---------------- 共有 ---------------- */
 const SITE='https://shinpoyo.com/alchemerge_defense/';
 function shareLines(kind){
-  const st=sn(STAGES[STAGE])+(NIGHT?TT('nightParen'):'')+(DAILY?TT('dailyParen'):'');
+  const st=sn(STAGES[STAGE])+dParen(NIGHT)+(DAILY?TT('dailyParen'):'');
   const res=kind==='codex'?'':S.cleared?TT('shareClear',MAX_WAVE):TT('shareOver',S.wave);
   return{title:TT('title'),st:kind==='codex'?TT('codexTitle'):st,res,found:TT('found',disc.size,TOTAL)};
 }
@@ -2597,8 +2622,9 @@ async function share(btn,kind){
 $('#bShare1').onclick=e=>share(e.currentTarget,'result');
 $('#bShare2').onclick=e=>share(e.currentTarget,'result');
 $('#bShare3').onclick=e=>share(e.currentTarget,'codex');
-$('#dNorm').onclick=()=>{NIGHT=false;sfx.ui();openStages()};
-$('#dNight').onclick=()=>{NIGHT=true;sfx.ui();openStages()};
+$('#dNorm').onclick=()=>{NIGHT=0;sfx.ui();openStages()};
+$('#dNight').onclick=()=>{NIGHT=1;sfx.ui();openStages()};
+$('#dAbyss').onclick=()=>{NIGHT=2;sfx.ui();openStages()};
 $('#bStart').onclick=()=>{audio();sfx.ui();openStages()};
 $('#bRetry').onclick=()=>{audio();reset();show(null);sfx.merge(1)};
 $('#bAgain').onclick=$('#bStages1').onclick=()=>{audio();sfx.ui();S.cleared=false;S.over=true;openStages()};
@@ -2607,7 +2633,7 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
   document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
   $('#t1').innerHTML=spanify(ja?'アルケマージ':'ALCHEMERGE');
-  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');
+  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
   orbCache=new Map();bgCanvas=null;
@@ -2967,7 +2993,7 @@ function drawHud(dt){
   // 波
   ctx.textAlign='center';ctx.font=FONT(FS.f2);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
   ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,23);
-  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT?'#ff8a9a':'#a9a2c0';const stn=sn(STAGES[STAGE])+(NIGHT?TT('nightDot'):'')+(DAILY?TT('dailyDot'):'');
+  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(DAILY?TT('dailyDot'):'');
   if(S.active){ // 戦闘中は、ステージ名の右に残りの敵の数を金色で出す
     const lt='　'+TT('left',S.queue.length+S.enemies.length),w1=ctx.measureText(stn).width,w2=ctx.measureText(lt).width,x0=W/2-(w1+w2)/2;
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';
@@ -3223,7 +3249,7 @@ window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},
   const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle,REVM,seVol,bgmVol,musicOff]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
-},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=!!n;reset()},startDaily,dailyOf,dailyNow,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=toDiff(n);reset()},startDaily,dailyOf,dailyNow,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
 requestAnimationFrame(frame);
 </script>
 </body>
