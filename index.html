@@ -3151,6 +3151,11 @@ function render(dt){
   }
   // 魔法陣・作業台の強調（運んでいるとき）
   const held=drag&&drag.moved?drag:null,src=held?held.slot:sel;
+  // 運んでいる・選んでいる元素と★の数がちがう元素は重ねられないので、暗くして禁止の印をつける（★が同じでレシピが無いものは、そのまま）
+  const offT=src&&src.item?ITEMS[src.item.id].t:0,rankOff=it=>!!offT&&it!==src.item&&ITEMS[it.id].t!==offT;
+  const banMark=(x,y)=>{ctx.save();ctx.translate(x,y);ctx.lineCap='round';
+    for(const[w,c]of[[5.5,'#07060d'],[2.4,'#ff6a7a']]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.arc(0,0,8,0,TAU);ctx.moveTo(-5.6,5.6);ctx.lineTo(5.6,-5.6);ctx.stroke()}
+    ctx.restore()};
   for(const s of slots){
     if(src&&s!==src){
       let ok=false;
@@ -3191,13 +3196,13 @@ function render(dt){
     ctx.fillStyle=rgba(d.c,.2+pu*.08);ctx.strokeStyle=rgba(d.c,.55);ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(s.x,s.y,d.range+pu*1.5,0,TAU);ctx.fill();ctx.stroke();
     trapFx(s,it,d,T,dt);
-    drawItem(it,it.rx,it.ry,.8,.9)}
+    const off=rankOff(it);drawItem(it,it.rx,it.ry,.8,off?.3:.9);if(off)banMark(it.rx+17,it.ry-17)}
   for(const e of S.enemies)drawEnemy(e);
   // 置いてある元素
   ctx.save();if(S.benchShake>0){S.benchShake-=dt}
   for(const s of slots){const it=s.item;if(!it||s.path||it.hide>0||it===held?.item)continue;
     const bx=s.bench&&S.benchShake>0?Math.sin(S.benchShake*60)*S.benchShake*10:0;
-    drawItem(it,it.rx+bx,it.ry+Math.sin(T*2+it.ph)*1.5);
+    const off=rankOff(it);drawItem(it,it.rx+bx,it.ry+Math.sin(T*2+it.ph)*1.5,1,off?.3:1);if(off)banMark(it.rx+bx+19,it.ry-19);
     if(it.buff&&s.field){ // 支援を受けている塔：右上に上向きの矢印（支援の★が高いほど 1〜3 本）
       const b=it.buff,n=b.t-2,ax=it.rx+21,ay=it.ry-17+Math.sin(T*3+it.ph)*1.2;ctx.lineCap=ctx.lineJoin='round';
       for(const[w,c]of[[4.4,'#07060d'],[2,b.c]]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();
