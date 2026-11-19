@@ -2157,8 +2157,9 @@ function spawnRico(x,y,d,m,rem,hit){
   if(vis==='snipe'&&FX)fx.push({ty:'line',x,y,ex:best.x,ey:best.y,color:d.c,t:0,dur:.14});
   sh.d0=Math.max(30,Math.hypot(best.x-x,best.y-y));S.shots.push(sh);
 }
-function idleChg(it,d,dt){ // 射程内に敵がいない間、1.5 秒ごとにチャージが 1 溜まる（最大 d.chg）
+function idleChg(it,d,dt){ // 波の最中、射程内に敵がいない間、1.5 秒ごとにチャージが 1 溜まる（最大 d.chg）
   it.chgB=0;if(!d.chg||(it.chg||0)>=d.chg){it.chgT=0;return}
+  if(!S.active)return; // 波が止まっている間は溜めない（溜まりかけの時間もそのまま止める）
   it.chgT=(it.chgT||0)+dt;while(it.chgT>=CHG_EVERY&&it.chg<d.chg){it.chgT-=CHG_EVERY;it.chg=(it.chg||0)+1;if(FX)ring(it.rx,it.ry,d.c,28,.3,1.8,8)}
 }
 function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージを全て消費し、その数だけ追加の高速連射（間隔 0.12 秒）を行う
