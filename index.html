@@ -345,7 +345,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],rankWait:['★{0}を作るには工房レベル{1}','★{0} needs Workshop Lv{1}'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],rankWait:['工房レベルが足りない','Workshop level too low'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -1687,7 +1687,7 @@ function drawItem(it,x,y,sc=1,alpha=1){
 /* ---------------- 錬成 ---------------- */
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
-  if(r)return rankOpen(ITEMS[r].t)?{id:r}:{fail:TT('rankWait',ITEMS[r].t,rankLv(ITEMS[r].t))};
+  if(r)return rankOpen(ITEMS[r].t)?{id:r}:{fail:TT('rankWait')};
   return{fail:TT('noReact')}; // ★の数がちがうものどうしは錬成できない（決まりはタイトル画面と図鑑に書いてある）
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
