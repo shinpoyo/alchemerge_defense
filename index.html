@@ -772,7 +772,7 @@ const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 // 最高ランク（いまは★6）：これより上の錬成がない★。盤面で選ぶと魔力で「+1」ずつ強化できる（上限なし）
 // +n の威力は (1+ENH_POW×n) 倍。+n から +n+1 への値段は ENH_COST+ENH_STEP×n（段ごとに少しずつ上がる）
 const MAX_T=Math.max(...Object.values(ITEMS).map(d=>d.t));
-let ENH_POW=.5,ENH_COST=160,ENH_STEP=80;
+let ENH_POW=.5,ENH_COST=10,ENH_STEP=40;
 const enhM=it=>1+ENH_POW*(it.lv||0),enhCost=it=>ENH_COST+ENH_STEP*(it.lv||0),enhSpent=it=>{const n=it.lv||0;return ENH_COST*n+ENH_STEP*n*(n-1)/2};
 const canEnh=it=>!!it&&ITEMS[it.id].t===MAX_T&&ITEMS[it.id].kind!=='relic';
 const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1)+(it.lv?enhSpent(it):0);
