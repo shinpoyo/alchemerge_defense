@@ -345,7 +345,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],rankWait:['★{0}を作るには工房レベル{1}','★{0} needs Workshop Lv{1}'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -372,7 +372,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dFam:['{0}の系統','{0} type'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
-  wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
+  wsName:['工房','Workshop'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
   needMake:['この戦いで作るか、工房レベル{0}で呼び出せる','Make it this battle, or reach Workshop Lv{0}'],
   shareClear:['全 {0} 波 クリア','All {0} waves cleared'],shareOver:['第 {0} 波で陥落','Fell on wave {0}'],
   stBurn:['燃焼','Burn'],stPoison:['毒','Poison'],stSlow:['減速','Slow'],stStop:['停止','Stop'],stCurse:['呪い','Curse'],stKnock:['押し戻し','Knockback'],stSil:['沈黙','Silence'],stRust:['鎧が朽ちた','Armor rusted'],useOnCore:['砦（灯）へ運んで使う','Carry it to the fort to use'],livesUp:['灯 +{0}','+{0} lives'],dNoAtk2:['しない','None'],dWardArea:['効く広さ','Range of effect'],dPlaceCore:['作業台から砦（灯）へ運ぶと使える','Carry it from the bench to the fort to use'],dHealK:['灯','Lives'],dHealV:['使うと {0} もどる','Restores {0} when used'],dGoldK:['魔力','Mana'],dGoldV:['広さの中で倒した影の魔力が {0} 倍','Foes slain in range drop ×{0} mana'],dWardDpsK:['ダメージ','Damage'],dWardAtk:['広さの中の影すべて','Every foe inside'],dWardDps:['広さの中の影に毎秒 {0}','{0} per second to every foe inside'],dWardSil:['広さの中の影を沈黙させつづける（回復・軽減を無効）','Keeps foes in range silenced (no heal or armor)'],dRustK:['錆','Rust'],dSlowWard:['{0}% 遅く（広さの中にいる間）','{0}% slower (while in range)'],dBoomK:['爆発','Blast'],dBoomV:['踏まれると、まわり {1} の影すべてに {0}。1 回で消える','When stepped on, deals {0} to all foes within {1}. Used up'],dPlagueK:['うつる','Spreads'],dPlagueV:['毒で倒れた影から、まわり {0} の影へ同じ毒がうつる（うつった毒もまたうつる）','When a poisoned foe dies, the poison spreads to foes within {0} (and keeps spreading)'],stBoom:['爆発','Boom'],stPlague:['感染','Infected'],dRustV:['当てた鎧の影の鎧がなくなる','Removes the armor of armored foes it hits'],
@@ -858,6 +858,8 @@ const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5
 const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:19}));
 // 一覧から買える元素：★1（解放済みの基本元素）／この戦いで作ったもの／工房レベル以下の★で、図鑑にあるもの
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
+// ★t を錬成するには工房レベル t-1 が要る（序盤に上位元素ひとつで押し切れないように）
+const rankLv=t=>t-1,rankOpen=t=>S.ws>=rankLv(t);
 const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
 function shopList(t){
   const a=Object.values(ITEMS).filter(d=>d.t===t);
@@ -874,7 +876,7 @@ function upgradeWs(t,b){
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',FS.f1);return}
   S.mana-=cost;S.ws=t;S.manaBump=1;sfx.merge(t);buzz(20);
   const cx=b.x+b.w/2,cy=b.y+b.h/2;if(FX){burst(cx,cy,'#e8c36a',24,160);ring(cx,cy,'#ffe9a0',60,.5,3);sparks(cx,cy,'#fff',12,220)}
-  floatText(W/2,SHOP.y-18,TT('wsUp',t),'#ffe9a0',FS.f2);floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);SHOP.scroll[t]=0;
+  floatText(W/2,SHOP.y-18,t<6?TT('wsUp2',t,t+1):TT('wsUp',t),'#ffe9a0',FS.f2);floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);SHOP.scroll[t]=0;
   if(!S.active)saveRun();
 }
 const shopMax=t=>Math.max(0,shopList(t).length*SHOP.pitch-5-SHOP.w);
@@ -1685,7 +1687,7 @@ function drawItem(it,x,y,sc=1,alpha=1){
 /* ---------------- 錬成 ---------------- */
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
-  if(r)return{id:r};
+  if(r)return rankOpen(ITEMS[r].t)?{id:r}:{fail:TT('rankWait',ITEMS[r].t,rankLv(ITEMS[r].t))};
   return{fail:TT('noReact')}; // ★の数がちがうものどうしは錬成できない（決まりはタイトル画面と図鑑に書いてある）
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
