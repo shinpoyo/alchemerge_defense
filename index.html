@@ -345,7 +345,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   fallen:['陥 落','FALLEN'],retry:['もう一度','Retry'],toStages:['ステージ選択','Stages'],
   overSub:['第 {0} 波で砦は闇に沈んだ（最高 第 {1} 波）','The keep fell on wave {0} (best: wave {1})'],
   dawn:['夜明け','DAWN'],clearSub:['全 {0} 波 撃退 ・ 発見 {1} / {2}','All {0} waves repelled · Found {1} / {2}'],endless:['さらに夜を越える','Keep going'],
-  noReact:['反応なし…','No reaction…'],rankWait:['★{0}を作るには工房レベル{1}','★{0} needs Workshop Lv{1}'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
+  noReact:['反応なし…','No reaction…'],enhBtn:['強化 +{0}  ◆{1}','Upgrade +{0}  ◆{1}'],rankWait:['★{0}を作るには工房レベル{1}','★{0} needs Workshop Lv{1}'],onlyTrap:['道に置けるのは罠だけ','Only traps go on the road'],trapOnPath:['罠は道の上に置く','Traps go on the road'],
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
@@ -769,11 +769,13 @@ const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
 const UNLOCK={wood:0,light:1,dark:2,sound:3}; // 基本元素の木・光・闇・音は、このステージ（の通常）をクリアすると届く。図鑑の数では開かない
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
-// 最高ランク（いまは★6）：これより上の錬成がない★。最高ランクどうしを重ねると、重ねた先が「+1」強くなる（上限なし）
-// +n の威力は (n+1) 倍。重ねた最高ランクの数だけ倍になる（+1 は 2 倍、+2 は 3 倍）
+// 最高ランク（いまは★6）：これより上の錬成がない★。盤面で選ぶと魔力で「+1」ずつ強化できる（上限なし）
+// +n の威力は (1+ENH_POW×n) 倍。+n から +n+1 への値段は ENH_COST×(n+1)（段ごとに上がる）
 const MAX_T=Math.max(...Object.values(ITEMS).map(d=>d.t));
-const enhM=it=>1+(it.lv||0);
-const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1)*(1+(it.lv||0));
+let ENH_POW=.5,ENH_COST=160;
+const enhM=it=>1+ENH_POW*(it.lv||0),enhCost=it=>ENH_COST*((it.lv||0)+1),enhSpent=it=>ENH_COST*(it.lv||0)*((it.lv||0)+1)/2;
+const canEnh=it=>!!it&&ITEMS[it.id].t===MAX_T&&ITEMS[it.id].kind!=='relic';
+const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1)+(it.lv?enhSpent(it):0);
 const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support',isBuffer=id=>ITEMS[id].buffD!=null; // 支援の塔のほか、攻撃しながらまわりを強める元素（天地鳴動）も強める側
 const noAtk=d=>d.kind==='support'||d.kind==='ward'||d.kind==='relic'; // 攻撃しない（支援・結界・砦で使うもの）
 // 置ける場所：魔法陣には塔、道の上には罠、作業台にはなんでも
@@ -1696,7 +1698,6 @@ function drawItem(it,x,y,sc=1,alpha=1){
 function tryCombine(a,b){
   const r=RECIPE[rkey(a.id,b.id)];
   if(r)return rankOpen(ITEMS[r].t)?{id:r}:{fail:TT('rankWait',ITEMS[r].t,rankLv(ITEMS[r].t))};
-  if(ITEMS[a.id].t===MAX_T&&ITEMS[b.id].t===MAX_T)return{id:b.id,enh:1}; // 最高ランクどうし：重ねた先を強化
   return{fail:TT('noReact')}; // ★の数がちがうものどうしは錬成できない（決まりはタイトル画面と図鑑に書いてある）
 }
 function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
@@ -1729,7 +1730,6 @@ function dropOn0(from,to){
     it.shake=.35;to.item.shake=.35;sfx.fail();buzz([10,40,10]);
     floatText(to.x,to.y-34,res.fail,'#b9b1d0',FS.f2);return;
   }
-  if(res.enh){enhance(from,to);return}
   // できたものが置けない場所なら、運んできた側のマスに残す
   const dst=fits(res.id,to)?to:fits(res.id,from)?from:null;
   if(!dst){it.shake=.35;sfx.fail();floatText(to.x,to.y-34,TT('mergeOnBench'),'#b9b1d0',FS.f2);return}
@@ -1742,13 +1742,13 @@ function dropOn0(from,to){
   S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
 }
-function enhance(from,to){ // 最高ランクどうしを重ねた：重ねた先が +（運んだ側の + も引き継ぐ）
-  const n=to.item,a=from.item,d=ITEMS[n.id];
-  n.lv=(n.lv||0)+(a.lv||0)+1;from.item=null;n.s=.5;n.sv=8;n.kick=1;
-  if(FX){burst(to.x,to.y,d.c,30,200);burst(to.x,to.y,ITEMS[a.id].c,10,110);sparks(to.x,to.y,'#ffffff',18,300);
-    ring(to.x,to.y,d.c,120,.5,3.5);ring(to.x,to.y,'#ffe9a0',70,.35,2);shake(6);buzz(30);sfx.merge(d.t)}
-  floatText(to.x,to.y-36,'+'+n.lv,'#ffe9a0',FS.f3);
-  if(FX){stats.merges++;checkAch()}
+function enhance(sl){ // 選んでいる最高ランクを魔力で +1
+  const n=sl.item;if(!canEnh(n))return;const cost=enhCost(n),d=ITEMS[n.id];
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(sl.x,sl.y-40,TT('noMana'),'#ff8a9a',FS.f1);return}
+  S.mana-=cost;S.manaBump=1;n.lv=(n.lv||0)+1;n.s=.6;n.sv=7;n.kick=1;
+  if(FX){burst(sl.x,sl.y,d.c,26,190);sparks(sl.x,sl.y,'#ffffff',16,280);ring(sl.x,sl.y,d.c,110,.5,3.5);ring(sl.x,sl.y,'#ffe9a0',64,.35,2);shake(4);buzz(25)}
+  sfx.merge(d.t);floatText(sl.x,sl.y-36,'+'+n.lv,'#ffe9a0',FS.f3);floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);
+  if(!S.active)saveRun();
 }
 function mergeDone(f){
   const n=f.res,d=ITEMS[n.id];
@@ -2399,7 +2399,7 @@ function gameOver(){
 }
 
 /* ---------------- 入力 ---------------- */
-let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null;
+let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null,ENH_R=null,ENH_R0p=0;
 const LONG_MS=480; // これだけ押し続けると詳細を開く
 const lpClear=()=>{if(lpT){clearTimeout(lpT);lpT=null}};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
@@ -2415,6 +2415,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(S.banner&&S.banner.t>.4){S.banner.t=Math.max(S.banner.t,S.banner.dur-.25)}
   ring(p.x,p.y,'#8b5cf6',18,.3,1.5,2);
   if(INFO_R&&sel&&sel.item&&inBtn(INFO_R,p.x,p.y)){buzz(12);openDetail(INFO_R.id,'game');return}
+  if(ENH_R&&sel&&canEnh(sel.item)&&inBtn(ENH_R,p.x,p.y)){ENH_R0p=1;enhance(sel);return}
   const tb=p.y>=TABS[0].y-3&&p.y<TABS[0].y+TABS[0].h+2&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);
   if(tb){if(SHOP.tab!==tb.t){SHOP.tab=tb.t;sfx.ui();wsHint(tb.t)}return}
   if(inBtn(SHOP,p.x,p.y)){strip={sx:p.x,s0:SHOP.scroll[SHOP.tab],moved:false,i:Math.floor((p.x-SHOP.x+SHOP.scroll[SHOP.tab])/SHOP.pitch)};
@@ -3296,6 +3297,13 @@ function render(dt){
   INFO_R=inf&&!held?{x:40,y:50+iy,w:W-80,h:44,id:inf.id}:null; // 説明の帯（と下の一言）を押すと詳細を開く
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50+iy,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f2);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy,W-92);ctx.font=FONT(FS.f1);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84+iy)}
+  // 最高ランクを選んでいるときの強化ボタン（押すたびに +1。値段は段ごとに上がる）
+  ENH_R=null;
+  if(sel&&!held&&canEnh(sel.item)){const it=sel.item,cost=enhCost(it),can=S.mana>=cost,bw=132,bh=30,bx=clamp(sel.x-bw/2,6,W-bw-6),by=sel.bench?sel.y-36-bh-14:sel.y+40;
+    ENH_R={x:bx,y:by,w:bw,h:bh,p:ENH_R0p=Math.max(0,ENH_R0p-dt*6)};
+    const sc=1-ENH_R.p*.08;ctx.save();ctx.translate(bx+bw/2,by+bh/2);ctx.scale(sc,sc);ctx.translate(-bx-bw/2,-by-bh/2);
+    ctx.fillStyle='#07060de8';rr(ctx,bx,by,bw,bh,15);ctx.fill();ctx.strokeStyle=rgba('#e8c36a',can?.9:.3);ctx.lineWidth=1.5;ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f1,800);ctx.fillStyle=can?'#ffe9a0':'#8d86a3';ctx.fillText(TT('enhBtn',(it.lv||0)+1,cost),bx+bw/2,by+bh/2+1,bw-12);ctx.restore()}
   // 最初の手引き
   if(S.tut<9&&!held&&!S.banner&&!S.over)drawTut(T);
   // 運んでいる元素
@@ -3370,7 +3378,7 @@ window.G={tune(a,b,m,bh){HP0=a;HP_GROW=b;if(m)FINAL_M=m;if(bh)ENEMY.boss.hp=bh},
   const buf=await AC.startRendering();[AC,BUS,REV,MUS,noiseBuf,muted,FX,musT,musStep,musBattle,REVM,seVol,bgmVol,musicOff]=keep;
   let pk=0,sq=0;const d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const a=Math.abs(d[i]);if(a>pk)pk=a;sq+=d[i]*d[i]}
   return{peak:+pk.toFixed(3),rms:+Math.sqrt(sq/d.length).toFixed(4),nan:d.some(x=>x!==x)};
-},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=toDiff(n);reset()},startDaily,dailyOf,dailyNow,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b}};
+},saveRun,resumeRun,get run(){return RUN},get ui(){return{TABS,SHOP,buttons,LY,H}},setLang(l){LANG=l;applyLang()},shareCard,start(i,n){DAILY=null;STAGE=i;NIGHT=toDiff(n);reset()},startDaily,dailyOf,dailyNow,dayKey,get daily(){return daily},get DAILY(){return DAILY},openStages,STAGES,get prog(){return prog},get stats(){return stats},openStats,save,get ach(){return ach},ACH,openAch,checkAch,grantAch,get S(){return S},slots,dnums,DNUM_MAX,ENEMY,ELEM,armorFam,buildWave,ITEMS,RECIPES,update,startWave,mkItem,dropOn,spawnBase,itemValue,victory,get disc(){return disc},setFX(v){FX=v},tune(a,b){HP0=a;HP_GROW=b},enhance,enhCost,enhTune(p,c){ENH_POW=p;ENH_COST=c}};
 requestAnimationFrame(frame);
 </script>
 </body>
