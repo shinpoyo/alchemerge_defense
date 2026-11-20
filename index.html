@@ -232,6 +232,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
     <button class="b s m" id="mMusic"></button>
     <label class="vol" id="vBgm"><span id="lBgm"></span><input type="range" id="rBgm" min="0" max="100" step="5"><b id="nBgm"></b></label>
     <button class="b s m" id="mDmg"></button>
+    <button class="b s m" id="mVib"></button>
     <button class="b s m" id="mLang"></button>
     <div class="mrow"><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
     <button class="b s m" id="mStages"></button>
@@ -353,6 +354,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
+  mVibOn:['振動：オン','Vibration: On'],mVibOff:['振動：オフ','Vibration: Off'],
   mStages:['ステージ選択へ戻る','Back to stages'],
   mReset:['進捗を初期化する','Reset progress'],wipeTitle:['進捗を初期化しますか？','Reset all progress?'],
   wipeTxt:['図鑑・ステージのクリア・解放した元素・実績・統計・今日の挑戦の記録・途中の戦いを、すべて消して最初からにします。\n<b>消した進捗は元に戻せません。</b>\n音・言語・ダメージ数字の設定は残ります。',
@@ -978,11 +980,13 @@ function dailyNow(k=dayKey()){const r=daily[k];if(r)return{stage:r.stage,night:r
 function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=+c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
+let vibOff=false; // 振動させない設定（設定メニューで切りかえ）
+try{vibOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').vibOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
 let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
-function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,seVol,bgmVol}))}catch(e){}}
+function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -1211,7 +1215,7 @@ const sfx={
   ach(){bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
   ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
 };
-const buzz=ms=>{try{if(FX&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
+const buzz=ms=>{try{if(FX&&!vibOff&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 
 /* ---------------- パーティクルと演出 ---------------- */
 const parts=[],fx=[];
@@ -2738,7 +2742,7 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 }
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
-  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');
+  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
@@ -2753,16 +2757,17 @@ $('#rSe').oninput=e=>{seVol=volOf(+e.target.value);audio();applyVol();volShow();
 $('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow()};
 $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
+$('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
-// 進捗の初期化：設定（音・言語・ダメージ数字）だけを残して保存を書きかえ、ページを読みこみ直す。
+// 進捗の初期化：設定（音・言語・ダメージ数字・振動）だけを残して保存を書きかえ、ページを読みこみ直す。
 // 状態をその場で 1 つずつ戻すより、読みこみ直すほうが取りこぼしがない
 $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#wipeTxt').innerHTML=TT('wipeTxt');
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();
