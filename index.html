@@ -149,6 +149,8 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
   background:linear-gradient(180deg,#2a2148,#120e22);border:1px solid var(--gold);border-radius:calc(var(--u)*8)}
 .cbuy:active{transform:scale(.95)}
 .cbuy.poor{opacity:.4;border-color:#4a4070;color:var(--dim)}
+.cbuy:disabled{opacity:.5;border-color:#3a3355;color:#a890ff;background:#0d0b16;cursor:default}.cbuy:disabled:active{transform:none}
+#dBody .cbuy{margin:calc(var(--u)*8) 0 calc(var(--u)*2)}
 #cnt .cmana{color:var(--gold)}#cnt .cmana.err{color:#ff8a9a}
 .card.tap:active{transform:scale(.95)}
 .card.q .o{--c:#3a3355;color:#5d5580;box-shadow:none;text-shadow:none}
@@ -366,7 +368,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
     'This erases your codex, stage clears, unlocked elements, achievements, stats, daily records and any saved battle, and starts over.\n<b>This cannot be undone.</b>\nSound, language and damage number settings are kept.'],
   wipeYes:['初期化する','Reset'],wipeNo:['やめる','Cancel'],mBack:['つづける','Resume'],trapMark:['罠','TRAP'],
   bTrash:['還す','Sell'],bUndo:['戻す','Undo'],undone:['ひとつ戻した','Undone'],noUndo:['戻せる操作がない','Nothing to undo'],
-  dragBuy:['つかんで作業台か魔法陣へ置くと呼び出せる','Drag it onto the bench or a circle to summon'],cBuy:['作業台へ','To bench'],cMana:['魔力 ◆{0}','Mana ◆{0}'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
+  dragBuy:['つかんで作業台か魔法陣へ置くと呼び出せる','Drag it onto the bench or a circle to summon'],cBuy:['作業台へ','To bench'],cWs:['工房Lv{0}で呼べる','Needs Workshop Lv{0}'],cMana:['魔力 ◆{0}','Mana ◆{0}'],bCodex:['図鑑','Codex'],bMute:['無音','Muted'],bSound:['音','Sound'],
   unknown:['未発見','Unknown'],lives:['灯','Lives'],wave:['夜波','Wave'],nightDot:['・悪夢',' · Nightmare'],nightParen:['（悪夢）',' (Nightmare)'],abyssDot:['・深淵',' · Abyss'],abyssParen:['（深淵）',' (Abyss)'],
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['一覧の元素を作業台へ運ぶと呼び出せる（魔力◆）','Drag one from the list onto the bench to summon it (mana ◆)'],
@@ -2601,7 +2603,7 @@ function openDetail(id,from){
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam&&TX['f_'+d.fam]?`<i>${TT('dFam',TT('f_'+d.fam))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
-  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>`;
+  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(d.buffD!=null)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
@@ -2615,8 +2617,16 @@ function openDetail(id,from){
   if(from!==undefined)detailFrom=from;
   show('detail');shownAt=performance.now();sfx.ui();
 }
-$('#dBody').addEventListener('click',ev=>{const p=ev.target.closest('[data-el]');if(p){openDetail(p.dataset.el);return}const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
+$('#dBody').addEventListener('click',ev=>{const bb=ev.target.closest('[data-buy]');
+  if(bb){const r=undoable(()=>spawnBase(bb.dataset.buy));if(r){bb.textContent=TT(r==='full'?'benchFull':'noMana');bb.classList.add('poor')}else{const y=$('#dBody').scrollTop;openDetail(bb.dataset.buy);$('#dBody').scrollTop=y}return}
+  const p=ev.target.closest('[data-el]');if(p){openDetail(p.dataset.el);return}const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
 $('#dClose').onclick=()=>{sfx.ui();if(detailFrom==='codex')openCodex();else show(null);detailFrom=null};
+// 図鑑・詳細の呼び出しボタン。一覧と同じ canBuy（★1／この戦いで作った／工房レベル以下の★）で判定し、届かないものは押せない札にする
+function buyBtn(d){
+  if(!disc.has(d.id))return'';
+  if(!canBuy(d.id))return`<button class="cbuy" disabled>${TT('cWs',d.t)}</button>`;
+  const cost=itemValue(d);return`<button class="cbuy${S.mana<cost?' poor':''}" data-buy="${d.id}">◆${cost} ${TT('cBuy')}</button>`;
+}
 function openCodex(){
   const all=Object.values(ITEMS);
   $('#cnt').innerHTML=TT('found',disc.size,all.length)+`　<b class="cmana">${TT('cMana',Math.floor(S.mana))}</b>`+'<br><small>'+TT('codexRule')+'</small>';
@@ -2628,7 +2638,7 @@ function openCodex(){
       if(disc.has(d.id)){
         // 作り方は、実際にその組み合わせで錬成したことがあるものだけ、最大 3 通り（材料を持っているだけでは出さない。詳細画面と同じ決まり）
         const rs=mk?mk.filter(m=>madeR.has(rkey(m[0],m[1]))).slice(0,3):[];
-        const cost=itemValue(d),buy=canBuy(d.id)?`<button class="cbuy${S.mana<cost?' poor':''}" data-buy="${d.id}">◆${cost} ${TT('cBuy')}</button>`:''; // 図鑑からも呼び出せる（作業台の空いたマスへ置く）
+        const buy=buyBtn(d); // 図鑑からも呼び出せる（作業台の空いたマスへ置く）
         h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}${buy}</div>`;
       }else{ // 作ったことのある組み合わせがあれば、片方だけ教える
         const kn=mk&&mk.find(m=>madeR.has(rkey(m[0],m[1])));
