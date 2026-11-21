@@ -474,14 +474,14 @@ const EN={ // 英語の名前と説明
   hotaru:['Firefly Swarm','Light hops to 5'],gokuen:['Hellfire','Black fire from hell'],
   lantern:['Stone Lantern','Its light empowers nearby towers'],bonfire:['Watchfire','Its fire empowers nearby towers'],moonlamp:['Moon Lamp','Moonlight greatly empowers towers'],
   shinso:['Elder Vampire','The first vampire'],tenkou:['Heaven Light','Twin beams from the sky'],jukai:['Sea of Trees','Lost and trapped'],
-  mirror:['Mirror','Copies a nearby tower’s attack'],mirage:['Mirage','Trap: warps foes back along the road'],kaleidoscope:['Kaleidoscope','Rainbow beam changes element each shot'],
+  mirror:['Mirror','Copies a nearby tower’s attack'],mirage:['Mirage','Trap: slows foes and warps them back along the road'],kaleidoscope:['Kaleidoscope','Rainbow beam changes element each shot'],
   desert:['Desert','Hot sand slows what it hits'],kagerou:['Heat Haze','Trap: slows and briefly stops foes'],
   hai:['Ash','Burned-out remains'],sekken:['Soap','Trap: foes slip and slow down'],cement:['Cement','Trap: hardens on foes to slow them'],
   awa:['Foam','Wraps nearby foes in foam'],concrete:['Concrete','Crushes foes with a solid block'],shabondama:['Bubble Cage','Trap: traps foes in bubbles to stop them'],
   sound:['Sound','A wave that hits every foe in range and flinches them'],hanabi:['Fireworks','Bursts around it for light area damage'],hamon:['Ripples','Slightly slows nearby foes'],jibiki:['Rumble','Briefly flinches nearby foes'],
   fue:['Flute','A fast, long-range sound shot'],koto:['Koto','Speeds up nearby towers'],suzu:['Bell','Each chime makes nearby foes brittle'],juka:['Curse Song','Bounces between foes, making them brittle'],wakon:['Chord','Raises nearby towers\' damage'],
   shakudama:['Grand Firework','A huge burst that scorches a wide area'],furin:['Wind Chime','Each chime stirs a breeze that pushes foes back a little'],kusabue:['Grass Whistle','Sound that hops from foe to foe'],taiko:['Taiko','Flinches foes hard at steady intervals'],
-  seseragi:['Babbling Brook','The sound of a stream slows nearby foes a little'],komoriuta:['Lullaby','Puts nearby foes to sleep briefly'],choonpa:['Ultrasound','Sound that pierces in a straight line'],chinkonka:['Requiem','Makes foes in range brittle'],
+  seseragi:['Babbling Brook','The sound of a stream slows nearby foes a little'],komoriuta:['Lullaby','Slows nearby foes and puts them to sleep briefly'],choonpa:['Ultrasound','Sound that pierces in a straight line'],chinkonka:['Requiem','Makes foes in range brittle'],
   sanbika:['Hymn','Empowers towers in range'],orgel:['Music Box','Speeds up towers in range'],raimei:['Thunderclap','Lightning and flinch at once'],
   yamabiko:['Echo','The attack lands a second time, a moment later'],matsuribayashi:['Festival Music','Greatly empowers towers in range'],siren:['Siren','Stalls foes with a song and pulls them back'],kyoumei:['Resonance','Damage spreads to nearby foes'],
   soukyoku:['Funeral March','Makes foes in range very brittle'],shukufuku:['Blessing Bell','Strong support: more damage and faster attacks'],shirabe:['Melody of Wind','A very fast chain'],
@@ -619,7 +619,7 @@ const ITEMS={
   titan:   {name:'巨砲',    t:4,c:'#ff8a4a',kind:'bolt', dmg:150,rate:1.1, range:160,splash:60,                 desc:'大爆発を撃ちこむ'},
   bonfire: {name:'篝火',    t:4,c:'#ff9a5a',kind:'support',                range:150,buffD:.25,buffR:.15,       desc:'燃える火でまわりの塔を強める'},
   mirror:  {name:'鏡',      t:4,c:'#e8f0ff',kind:'mirror',     rate:1,   range:150,                           desc:'隣の塔の力を映して放つ'},
-  desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'bolt', dmg:55, rate:1,   range:130,slow:.25,slowT:1.5,         desc:'熱砂を浴びせて足を奪う'},
+  desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'bolt', dmg:75, rate:1,   range:130,splash:25,slow:.25,slowT:1.5,desc:'熱砂を浴びせて足を奪う'}, // 材料の熱風（★3）より弱かったので、威力と小さな爆風を足した
   kagerou: {name:'陽炎',    t:4,c:'#ffd9a0',kind:'trap',                   range:90, slow:.35,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：ゆらめく熱気で遅くし、ときに足を止める'},
   awa:     {name:'泡',      t:4,c:'#c0f0ff',kind:'pulse',dmg:30, rate:1,   range:120,slow:.4,slowT:1.2,         desc:'まわりを泡で包みこむ'},
   concrete:{name:'コンクリート',t:4,c:'#9aa4b2',kind:'bolt',dmg:120,rate:.55,range:120,splash:45,knock:10,      desc:'固まった塊で押しつぶす'},
@@ -648,8 +648,8 @@ const ITEMS={
   dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,slow:.4,slowT:2,           desc:'すべてを貫く息吹'},
   moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   kaleidoscope:{name:'万華鏡',t:5,c:'#ffb0e8',kind:'beam',dmg:260,rate:1.2,range:190,splash:38,kaleido:1,       desc:'撃つたび属性が変わる虹の光'},
-  mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:38, warp:60,warpP:.25,warpCd:4,desc:'幻に惑い、敵を後戻りさせる'},
-  shabondama:{name:'泡の檻',t:5,c:'#a8f0ff',kind:'trap',               range:42, slow:.5,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：包んだ敵を止める'},
+  mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:90, slow:.4,slowT:.3,warp:120,warpP:.5,warpCd:3,desc:'罠：熱気で遅くし、幻に惑わせて後戻りさせる'}, // 陽炎（★4）の広さと減速を受け継ぎ、後戻りを強めた
+  shabondama:{name:'泡の檻',t:5,c:'#a8f0ff',kind:'trap',               range:60, slow:.6,slowT:.3,stun:1.5,stunP:.4,stunCd:3,desc:'罠：包んだ敵を止める'}, // 材料の泡（★4）や陽炎（★4）より弱かったので強めた
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
   eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,curse:1.5,slow:.3,slowT:1,desc:'終わらない雷と呪い'},
@@ -687,7 +687,7 @@ const ITEMS={
   kusabue: {name:'草笛',    t:3,c:'#90e090',kind:'chain',dmg:20, rate:1.5, range:140,chain:4,                 desc:'敵から敵へ跳ねる音'},
   taiko:   {name:'太鼓',    t:3,c:'#e0a070',kind:'pulse',dmg:38, rate:.7,  range:85, stop:.5,stopP:.35,        desc:'一定の間隔で大きくひるませる'},
   seseragi:{name:'せせらぎ',t:3,c:'#7ad0f0',kind:'pulse',dmg:8,  rate:1.1, range:115,slow:.4,slowT:1.3,        desc:'川の音で周りの敵を少し遅くする'},
-  komoriuta:{name:'子守唄', t:3,c:'#b8b0ff',kind:'pulse',dmg:6,  rate:.8,  range:110,stop:1.2,stopP:.25,       desc:'周りの敵を短く眠らせる'},
+  komoriuta:{name:'子守唄', t:3,c:'#b8b0ff',kind:'pulse',dmg:14, rate:.8,  range:110,slow:.35,slowT:1,stop:1.2,stopP:.25,desc:'周りの敵をまどろませて遅くし、短く眠らせる'}, // 材料の黄昏（★2）より弱かったので、威力と減速を足した
   choonpa: {name:'超音波',  t:3,c:'#d0b8ff',kind:'pierce',dmg:34,rate:1,   range:150,                          desc:'一直線に貫く音'},
   chinkonka:{name:'鎮魂歌', t:3,c:'#b8a8e8',kind:'pulse',dmg:12, rate:1,   range:110,curse:1.35,              desc:'範囲の敵をもろくする'},
   sanbika: {name:'讃美歌',  t:3,c:'#ffe8b0',kind:'support',                range:140,buffD:.16,buffR:.08,      desc:'範囲内の塔を強める'},
