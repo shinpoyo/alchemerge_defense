@@ -241,6 +241,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 
   <div class="ov" id="menu">
     <h2 id="hMenu">設定</h2>
+    <button class="b s m" id="mCodex"></button>
     <button class="b s m" id="mSound"></button>
     <label class="vol" id="vSe"><span id="lSe"></span><input type="range" id="rSe" min="0" max="100" step="5"><b id="nSe"></b></label>
     <button class="b s m" id="mMusic"></button>
@@ -366,7 +367,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],fighting:['⏸ 迎撃中…','⏸ Fighting…'],pauseT:['一時停止','Paused'],pResume:['▶ 再開','▶ Resume'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
-  bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
+  bMenu:['図鑑・設定','Codex・Menu'],bTrashHot:['ここで還す','Sell here'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
   mVibOn:['振動：オン','Vibration: On'],mVibOff:['振動：オフ','Vibration: Off'],
@@ -866,20 +867,21 @@ const LY={top:516,pitch:66,panelH:138,benchY:r=>516+5+33+r*66,k:1};
 function layout(){
   const e=clamp(H-H_MIN,0,H_MAX-H_MIN),q=e/(H_MAX-H_MIN); // q：0（9:16）〜1（縦長）
   LY.k=1+q*.16;                                            // 文字の拡大率
-  LY.pitch=66+q*16;LY.panelH=LY.pitch*2+6;LY.benchY=r=>LY.top+5+LY.pitch/2+r*LY.pitch;
+  LY.pitch=62+q*18;LY.panelH=LY.pitch*2+6;LY.benchY=r=>LY.top+5+LY.pitch/2+r*LY.pitch; // マスを少し詰め、そのぶんタブと下のボタンを指で押しやすい大きさにする
   let y=LY.top+LY.panelH+3+q*3;
-  for(const t of TABS){t.y=y;t.h=26+q*18}
-  y+=26+q*18+4+q*4;SHOP.y=y;SHOP.h=56+q*28;
-  y+=SHOP.h+5+q*6;for(const b of buttons){b.y=y;b.h=44+q*20}
+  for(const t of TABS){t.y=y;t.h=34+q*14}
+  y+=34+q*14+4+q*4;SHOP.y=y;SHOP.h=56+q*24;
+  y+=SHOP.h+5+q*6;for(const b of buttons){if(b.top)continue;b.y=y;b.h=52+q*20}
   for(const s of slots)if(s.bench)s.y=LY.benchY(s.row);
   bgCanvas=null;
 }
-const buttons=[{id:'wave',x:12,y:747,w:115,h:46,p:0},{id:'undo',x:132,y:747,w:45,h:46,p:0},{id:'trash',x:182,y:747,w:60,h:46,p:0},{id:'codex',x:247,y:747,w:60,h:46,p:0},
-  {id:'speed',x:312,y:747,w:60,h:46,p:0},{id:'menu',x:377,y:747,w:60,h:46,p:0}];
+// 下のボタンは 4 つ（波・戻す・還す・図鑑と設定）。倍速は右上の丸ボタン（top:true は layout で動かさない）
+const buttons=[{id:'wave',x:12,y:747,w:180,h:52,p:0},{id:'undo',x:198,y:747,w:76,h:52,p:0},{id:'trash',x:280,y:747,w:76,h:52,p:0},{id:'menu',x:362,y:747,w:76,h:52,p:0},
+  {id:'speed',x:W-50,y:5,w:44,h:44,p:0,top:true}];
 const btn=id=>buttons.find(b=>b.id===id);
 // 呼び出し一覧：ランクのタブと、横に流せるボタンの列。見つけた元素はここから直接呼び出せる
 const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
-const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:19}));
+const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*72,y:660,w:66,h:34}));
 // 一覧から買える元素：★1（解放済みの基本元素）／この戦いで作ったもの／工房レベル以下の★で、図鑑にあるもの
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
 // ★t を錬成するには工房レベル t-1 が要る（序盤に上位元素ひとつで押し切れないように）
@@ -897,10 +899,10 @@ function wsHint(t,delay=0){ // 工房の札が初めて目に入ったとき、�
 function upgradeWs(t,b){
   if(t!==S.ws+1){sfx.fail();floatText(b.x+b.w/2,SHOP.y-10,TT('wsFirst',t-1),'#b9b1d0',FS.f1);return}
   const cost=WS_COST[t];
-  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',FS.f1);return}
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return}
   S.mana-=cost;S.ws=t;S.manaBump=1;sfx.merge(t);buzz(20);
   const cx=b.x+b.w/2,cy=b.y+b.h/2;if(FX){burst(cx,cy,'#e8c36a',24,160);ring(cx,cy,'#ffe9a0',60,.5,3);sparks(cx,cy,'#fff',12,220)}
-  floatText(W/2,SHOP.y-18,t<6?TT('wsUp2',t,t+1):TT('wsUp',t),'#ffe9a0',FS.f2);floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);SHOP.scroll[t]=0;
+  floatText(W/2,SHOP.y-18,t<6?TT('wsUp2',t,t+1):TT('wsUp',t),'#ffe9a0',FS.f2);floatText(W-74,48,'−'+cost,'#ffb89a',FS.f2);SHOP.scroll[t]=0;
   if(!S.active)saveRun();
 }
 const shopMax=t=>Math.max(0,shopList(t).length*SHOP.pitch-5-SHOP.w);
@@ -1771,7 +1773,7 @@ function enhance(sl){ // 選んでいる最高ランクを魔力で +1
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(sl.x,sl.y-40,TT('noMana'),'#ff8a9a',FS.f1);return}
   S.mana-=cost;S.manaBump=1;n.lv=(n.lv||0)+1;n.s=.6;n.sv=7;n.kick=1;
   if(FX){burst(sl.x,sl.y,d.c,26,190);sparks(sl.x,sl.y,'#ffffff',16,280);ring(sl.x,sl.y,d.c,110,.5,3.5);ring(sl.x,sl.y,'#ffe9a0',64,.35,2);shake(4);buzz(25)}
-  sfx.merge(d.t);floatText(sl.x,sl.y-36,'+'+n.lv,'#ffe9a0',FS.f3);floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);
+  sfx.merge(d.t);floatText(sl.x,sl.y-36,'+'+n.lv,'#ffe9a0',FS.f3);floatText(W-74,48,'−'+cost,'#ffb89a',FS.f2);
   if(!S.active)saveRun();
 }
 function mergeDone(f){
@@ -1795,7 +1797,7 @@ function tutDone(){S.tut=9;if(TUT<9&&FX){TUT=9;save()}}
 function spawnBase(id,b,to){ // 失敗したら理由（'full'／'mana'）を返す。to：置く場所（つかんで運んだとき。空いていて置けるマス）
   const free=to||slots.find(s=>s.bench&&!s.item),cost=itemValue({id});
   if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,LY.top+14,TT('benchFull'),'#ff8a9a',FS.f2);return'full'}
-  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',FS.f1);return'mana'}
+  if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return'mana'}
   S.mana-=cost;
   const it=mkItem(id,to?ptr.x:b?b.x+b.w/2:free.x,to?ptr.y:b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;
   if(S.tut===3)tutDone();
@@ -1803,7 +1805,7 @@ function spawnBase(id,b,to){ // 失敗したら理由（'full'／'mana'）を返
   else it.fly=.55; // ボタンから作業台へ、光の尾を引いて飛ぶ
   sfx.spawn(Math.max(0,BASES.indexOf(id))+ITEMS[id].t-1);tone(N(12+ITEMS[id].t*2),.18,'sine',.06,null,.16);buzz(10);
   if(FX){sparks(it.rx,it.ry,ITEMS[id].c,10,160);fx.push({ty:'land',x:free.x,y:free.y,color:ITEMS[id].c,t:to?0:-.22,dur:.7})}
-  floatText(W-34,48,'−'+cost,'#ffb89a',FS.f2);S.manaBump=1;S.started2=true;
+  floatText(W-74,48,'−'+cost,'#ffb89a',FS.f2);S.manaBump=1;S.started2=true;
   if(!S.active)saveRun();
   return'';
 }
@@ -1842,7 +1844,7 @@ function undo(){
     if(b.lv[i])it.lv=b.lv[i];else delete it.lv;
     if(a.items[i]!==it||a.lv[i]!==b.lv[i]){it.held=false;it.hide=0;it.fly=0;it.s=.6;it.sv=6;it.shake=0}});
   S.mana-=dm;S.lives-=dl;S.ws=b.ws;S.made=b.made;S.manaBump=1;
-  if(dm)floatText(W-34,48,(dm>0?'−':'+')+Math.abs(dm),dm>0?'#ffb89a':'#e8c36a',FS.f2);
+  if(dm)floatText(W-74,48,(dm>0?'−':'+')+Math.abs(dm),dm>0?'#ffb89a':'#e8c36a',FS.f2);
   sfx.drop();tone(520,.12,'sine',.05,330);buzz(8);floatText(clamp(bx,70,W-70),b0.y-8,TT('undone'),'#cfc8e6',FS.f1);
   if(!S.active)saveRun();
 }
@@ -2504,7 +2506,7 @@ cv.addEventListener('pointermove',ev=>{
     if(!strip.moved&&Math.hypot(dx,dy)>10&&(Math.abs(dy)>Math.abs(dx)*.6||shopMax(SHOP.tab)<1)||strip.moved&&p.y<SHOP.y-12){
       const d=shopList(SHOP.tab)[strip.i];
       if(d&&!d.ws&&canBuy(d.id)){const st=strip;strip=null;SHOP.press=null;lpClear();
-        if(S.mana<itemValue(d)){S.manaErr=.5;sfx.fail();floatText(W-70,48,TT('noMana'),'#ff8a9a',FS.f1);return}
+        if(S.mana<itemValue(d)){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return}
         const it=mkItem(d.id,p.x,p.y);it.held=true;it.sv=5;drag={shop:d.id,slot:{x:shopBtnX(st.i)+SHOP.bw/2,y:SHOP.y+SHOP.h/2,item:it},item:it,sx:p.x,sy:p.y,moved:true,touch:st.touch};sfx.pick();buzz(5);return}}}
   if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null;lpClear()}
     if(strip.moved)SHOP.scroll[SHOP.tab]=clamp(strip.s0-dx,0,shopMax(SHOP.tab))}
@@ -2551,7 +2553,6 @@ function press(b){
   sfx.ui();
   if(b.id==='speed')S.speed=S.speed>=3?1:S.speed+1; // ×1 → ×2 → ×3 → ×1
   if(b.id==='menu'){openMenu();shownAt=performance.now()}
-  if(b.id==='codex'){openCodex();shownAt=performance.now()}
 }
 
 /* ---------------- 重ね合わせの画面（DOM） ---------------- */
@@ -2777,6 +2778,7 @@ function openAch(from){
   $('#aBody').scrollTop=0;show('ach');shownAt=performance.now();
 }
 $('#aClose').onclick=()=>{sfx.ui();subBack()};
+$('#mCodex').onclick=()=>{sfx.ui();openCodex();shownAt=performance.now()};
 $('#mAch').onclick=()=>{sfx.ui();openAch('menu')};
 $('#sAch').onclick=()=>{audio();sfx.ui();openAch('stages')};
 /* ---------------- 統計 ---------------- */
@@ -2861,6 +2863,7 @@ function openMenu(){
   $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
+  $('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
 $('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
@@ -3095,7 +3098,7 @@ function drawBtn(b,dt){
   if(b.id==='undo')on=canUndo();
   const hot=b.id==='trash'&&drag&&drag.moved&&!drag.shop&&inBtn(b,ptr.x,ptr.y);
   const gr=ctx.createLinearGradient(0,b.y,0,b.y+b.h);gr.addColorStop(0,hot?'#3a1020':'#191430');gr.addColorStop(1,'#0a0814');
-  ctx.fillStyle=gr;rr(ctx,b.x,b.y,b.w,b.h,12);ctx.fill();
+  ctx.fillStyle=gr;rr(ctx,b.x,b.y,b.w,b.h,b.top?b.h/2:12);ctx.fill();
   ctx.strokeStyle=rgba(hot?'#ff3b6b':col,on?(.55+b.p*.45):.2);ctx.lineWidth=1.3;ctx.stroke();
   ctx.textAlign='center';ctx.textBaseline='middle';
   if(BASES.includes(b.id)){
@@ -3109,13 +3112,21 @@ function drawBtn(b,dt){
     ctx.globalAlpha=on?1:.85;ctx.font=FONT(FS.f3*LY.k,800);ctx.fillStyle=on?'#fff3cf':'#b9b1d0';
     ctx.fillText(S.active?TT('fighting'):TT('nextWave',S.wave+1),cx,cy+1,b.w-10);on=!S.active;
   }else{
-    ctx.font=FONT((b.id==='speed'?FS.f3:FS.f2)*LY.k,800);ctx.fillStyle=hot?'#ff8a9a':'#cfc8e6';
-    label={trash:TT('bTrash'),codex:TT('bCodex'),speed:'×'+S.speed,menu:TT('bMenu'),undo:TT('bUndo')}[b.id];
-    if(b.id==='undo')ctx.globalAlpha=on?1:.35;
-    ctx.fillText(label,cx,cy+(b.id==='codex'||b.id==='trash'||b.id==='undo'?-6*LY.k:1),b.w-6);
-    if(b.id==='undo'){ctx.font=FONT(FS.f2*LY.k,800);ctx.fillStyle='#e8c36a';ctx.fillText('↶',cx,cy+11*LY.k);ctx.globalAlpha=1}
-    if(b.id==='trash'){ctx.font=FONT(FS.f1*LY.k,800);ctx.fillStyle=hot?'#ff8a9a':'#e8c36a';ctx.fillText('→◆',cx,cy+11*LY.k)}
-    if(b.id==='codex'){ctx.font=FONT(FS.f1*LY.k,800);ctx.fillStyle=disc.size>=TOTAL?'#ffe9a0':'#e8c36a';ctx.fillText(`${disc.size}/${TOTAL}`,cx,cy+11*LY.k)}
+    const fg=hot?'#ff8a9a':'#cfc8e6';
+    if(b.id==='speed'){ // 右上の丸ボタン：早送りの印と倍率
+      ctx.fillStyle=fg;for(const ox of[-7,1]){ctx.beginPath();ctx.moveTo(cx+ox-1,cy-13);ctx.lineTo(cx+ox+7,cy-8);ctx.lineTo(cx+ox-1,cy-3);ctx.fill()}
+      ctx.font=FONT(FS.f2,800);ctx.fillText('×'+S.speed,cx,cy+9);
+    }else{ // 上に絵、下に名前
+      if(b.id==='undo')ctx.globalAlpha=on?1:.3;
+      const k=LY.k,iy=cy-8*k;ctx.save();ctx.translate(cx,iy);ctx.scale(k,k);ctx.lineWidth=1.9;ctx.lineCap='round';ctx.lineJoin='round';
+      if(b.id==='undo'){ctx.strokeStyle='#e8c36a';ctx.beginPath();ctx.moveTo(-4,-6);ctx.lineTo(-9,-1);ctx.lineTo(-4,4);ctx.moveTo(-9,-1);ctx.lineTo(3,-1);ctx.arc(3,4,5,-Math.PI/2,Math.PI/2);ctx.lineTo(0,9);ctx.stroke()}
+      if(b.id==='trash'){ctx.strokeStyle=hot?'#ff8a9a':'#e8c36a';ctx.beginPath();ctx.moveTo(-9,-5);ctx.lineTo(9,-5);ctx.moveTo(-3,-5);ctx.lineTo(-3,-8.5);ctx.lineTo(3,-8.5);ctx.lineTo(3,-5);
+        ctx.moveTo(-6.5,-5);ctx.lineTo(-5.5,9);ctx.lineTo(5.5,9);ctx.lineTo(6.5,-5);ctx.moveTo(-2,-1);ctx.lineTo(-2,5);ctx.moveTo(2,-1);ctx.lineTo(2,5);ctx.stroke()}
+      if(b.id==='menu'){ctx.strokeStyle=fg;ctx.lineWidth=2.1;ctx.beginPath();for(const oy of[-6,0,6]){ctx.moveTo(-8,oy);ctx.lineTo(8,oy)}ctx.stroke()}
+      ctx.restore();
+      ctx.font=FONT(FS.f1*LY.k,800);ctx.fillStyle=fg;
+      ctx.fillText(b.id==='trash'&&hot?TT('bTrashHot'):{trash:TT('bTrash'),menu:TT('bMenu'),undo:TT('bUndo')}[b.id],cx,cy+13*k,b.w-6);ctx.globalAlpha=1;
+    }
   }
   ctx.restore();
 }
@@ -3125,7 +3136,7 @@ function drawShop(dt){
   for(const t of TABS){const on=SHOP.tab===t.t,has=shopList(t.t).some(d=>disc.has(d.id));
     ctx.fillStyle=on?'#2a2148':'#0d0b18';rr(ctx,t.x,t.y,t.w,t.h,11);ctx.fill();
     ctx.strokeStyle=on?'#e8c36a':rgba('#8b5cf6',has?.5:.2);ctx.lineWidth=1.2;ctx.stroke();
-    ctx.font=FONT(Math.min(13*LY.k,58/t.t),800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#5d5580';ctx.fillText('★'.repeat(t.t),t.x+t.w/2,t.y+t.h/2+.5);
+    ctx.font=FONT(FS.f3*LY.k,800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#8a82ad';ctx.fillText('★'+t.t,t.x+t.w/2,t.y+t.h/2+.5); // ★の数を数えなくて済むよう数字で
     if(t.t>1&&t.t<=S.ws){ctx.fillStyle=rgba('#e8c36a',.8);ctx.fillRect(t.x+10,t.y+t.h-3,t.w-20,1.6)}
     if(SHOP.dotT[t.t]>0){SHOP.dotT[t.t]-=dt;if(on)SHOP.dotT[t.t]=Math.min(SHOP.dotT[t.t],1.2);
       ctx.fillStyle=rgba('#ffe9a0',.6+.4*Math.sin(T*9));ctx.beginPath();ctx.arc(t.x+t.w-5,t.y+3,3.2,0,TAU);ctx.fill()}}
@@ -3232,11 +3243,11 @@ function drawHud(dt){
   }else ctx.fillText(stn,W/2,43);
   { // 工房レベル（★をどこまで錬成できるか）を魔力の下に出す。次のレベルに届く魔力があれば金色に。ステージ名と重なるときは短く
     const cw=ctx.measureText(stn+(S.active?'　'+TT('left',S.queue.length+S.enemies.length):'')).width,nx=WS_COST[S.ws+1];
-    let t=TT('wsHud',S.ws,Math.min(6,S.ws+1));if(W-16-ctx.measureText(t).width<W/2+cw/2+10)t=TT('wsHudS',S.ws);
-    ctx.textAlign='right';ctx.fillStyle=nx&&S.mana>=nx?'#e8c36a':'#a9a2c0';ctx.fillText(t,W-16,43);ctx.textAlign='center';
+    let t=TT('wsHud',S.ws,Math.min(6,S.ws+1));if(W-56-ctx.measureText(t).width<W/2+cw/2+10)t=TT('wsHudS',S.ws);
+    ctx.textAlign='right';ctx.fillStyle=nx&&S.mana>=nx?'#e8c36a':'#a9a2c0';ctx.fillText(t,W-56,43);ctx.textAlign='center';
   }
   // 魔力
-  const mx=W-16,sc=1+S.manaBump*.35;
+  const mx=W-56,sc=1+S.manaBump*.35;
   ctx.save();ctx.translate(mx+(S.manaErr>0?Math.sin(S.manaErr*70)*5*S.manaErr:0),25);ctx.scale(sc,sc);
   ctx.textAlign='right';ctx.font=FONT(FS.f4,800);ctx.fillStyle=S.manaErr>0?'#ff3b6b':'#ffe9a0';
   const tx=(Math.abs(S.mana-S.manaShow)<.5?Math.floor(S.mana):Math.round(S.manaShow))+'';ctx.fillText(tx,0,1);
