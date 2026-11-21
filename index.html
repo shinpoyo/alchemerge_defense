@@ -274,6 +274,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 
   <div class="ov" id="flt"><div class="fp" id="fltP">
     <div class="fps" id="fltPs"></div>
+    <h4 id="fhRank"></h4><div class="chips" id="fRank"></div>
     <h4 id="fhPlace"></h4><div class="chips" id="fPlace"></div>
     <h4 id="fhRole"></h4><div class="chips" id="fRole"></div>
     <h4 id="fhSort"></h4><div class="chips" id="fSort"></div>
@@ -392,9 +393,9 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],fighting:['⏸ 迎撃中…','⏸ Fighting…'],pauseT:['一時停止','Paused'],pResume:['▶ 再開','▶ Resume'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
-  bMenu:['図鑑・設定','Codex・Menu'],tabAll:['全','All'],
+  bMenu:['図鑑・設定','Codex・Menu'],fRank:['★（ランク）','★ Rank'],
   fPlace:['置き場所','Placement'],fRole:['はたらき','Effect'],fSort:['並べ替え','Sort'],fOnly:['呼べるものだけ出す','Only what I can summon'],fReset:['リセット','Reset'],fPaused:['⏸ 一時停止中','⏸ Paused'],
-  fAll:['すべて','All'],fTower:['塔','Tower'],fTrap:['罠','Trap'],fBurn:['燃やす・毒','Burn/Poison'],fSlow:['遅くする','Slow'],fArea:['巻きこむ','Area'],fChain:['連鎖','Chain'],fPierce:['貫通','Pierce'],fBuff:['強くする','Buff'],
+  fTower:['塔','Tower'],fTrap:['罠','Trap'],fBurn:['燃やす・毒','Burn/Poison'],fSlow:['遅くする','Slow'],fArea:['巻きこむ','Area'],fChain:['連鎖','Chain'],fPierce:['貫通','Pierce'],fBuff:['強くする','Buff'],
   sRank:['★順','By ★'],sCost:['安い順','Cheapest'],sPow:['威力順','Strongest'],sNew:['最近作った順','Recently made'],bTrashHot:['ここで還す','Sell here'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
@@ -908,19 +909,23 @@ const buttons=[{id:'wave',x:12,y:747,w:180,h:52,p:0},{id:'undo',x:198,y:747,w:76
   {id:'speed',x:W-50,y:5,w:44,h:44,p:0,top:true}];
 const btn=id=>buttons.find(b=>b.id===id);
 // 呼び出し一覧：ランクのタブと、横に流せるボタンの列。見つけた元素はここから直接呼び出せる
-const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:1,scroll:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
-// ★のタブ：全（t:0）・★1〜★6、右端の ⇅（t:'f'）でしぼりこみと並べ替えの窓を開く
-const TABS=[0,1,2,3,4,5,6].map((t,i)=>({t,x:12+i*(49.6+5),y:660,w:49.6,h:34})).concat([{t:'f',x:W-12-44,y:660,w:44,h:34}]);
+const SHOP={x:12,y:683,w:426,h:58,bw:62,pitch:67,tab:0,scroll:{0:0,1:0,2:0,3:0,4:0,5:0,6:0},newId:null,newT:0,press:null,pressT:0,dotT:{}};
+// ★のタブ：★1〜★6（窓の★の近道。光っているタブをもう一度押すと全部に戻る）、右端の ⇅（t:'f'）でしぼりこみと並べ替えの窓を開く
+const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*(58.7+5),y:660,w:58.7,h:34})).concat([{t:'f',x:W-12-44,y:660,w:44,h:34}]);
 // 一覧から買える元素：★1（解放済みの基本元素）／この戦いで作ったもの／工房レベル以下の★で、図鑑にあるもの
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
 // ★t を錬成するには工房レベル t-1 が要る（序盤に上位元素ひとつで押し切れないように）
 const rankLv=t=>t-1,rankOpen=t=>S.ws>=rankLv(t);
 const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
-// しぼりこみと並べ替え（⇅の窓で選ぶ）。place：all/tower/trap、role：all/burn/slow/area/chain/pierce/buff
-const FLT={place:'all',role:'all',sort:'rank',only:false};
-const fltOn=()=>FLT.place!=='all'||FLT.role!=='all'||FLT.only; // 札をしぼっているか（並べ替えだけなら札は減らない）
+// しぼりこみと並べ替え（⇅の窓で選ぶ）。rank・place・role は複数選べ、何も選んでいなければ全部を出す
+// rank：1〜6、place：tower/trap、role：burn/slow/area/chain/pierce/buff
+const FLT={rank:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
+const fltOn=()=>FLT.place.size>0||FLT.role.size>0||FLT.only; // ★以外で札をしぼっているか（並べ替えだけなら札は減らない）
+const rankKey=()=>FLT.rank.size===1?[...FLT.rank][0]:0; // ★が 1 つだけなら、その★のタブとして扱う（横に流した位置を★ごとに覚える）
+function setRank(a){FLT.rank=new Set(a);SHOP.tab=rankKey();SHOP.scroll[SHOP.tab]=0}
 const ROLE={burn:d=>!!d.dot,slow:d=>!!(d.slow||d.stop||d.stun),area:d=>!!d.splash||d.kind==='pulse',chain:d=>d.kind==='chain',pierce:d=>d.kind==='pierce',buff:d=>d.kind==='support'};
-const fltOk=d=>(FLT.place==='all'||(FLT.place==='trap'?d.kind==='trap':d.kind!=='trap'&&d.kind!=='relic'))&&(FLT.role==='all'||ROLE[FLT.role](d));
+const PLACE={tower:d=>d.kind!=='trap'&&d.kind!=='relic',trap:d=>d.kind==='trap'};
+const fltOk=d=>(!FLT.place.size||[...FLT.place].some(k=>PLACE[k](d)))&&(!FLT.role.size||[...FLT.role].some(k=>ROLE[k](d)));
 const power=d=>(d.dmg||0)*(d.rate||1)*(d.beams||1)+(d.dot||0);
 function fltSort(a){
   if(FLT.sort==='cost')return a.sort((x,y)=>itemValue(x)-itemValue(y));
@@ -929,8 +934,9 @@ function fltSort(a){
   return a.sort((x,y)=>x.t-y.t);
 }
 function shopList(t){
-  const a=Object.values(ITEMS).filter(d=>(t===0||d.t===t)&&fltOk(d)),f=fltOn();
-  const head=t===0?(S.ws<6&&!f?[{id:'__ws',ws:S.ws+1}]:[]):t>1&&S.ws<t?[{id:'__ws',ws:t}]:[]; // まだ届いていない★のタブの先頭に、工房レベルを上げる札
+  // t：1〜6 はその★だけ、0 は窓で選んだ★（何も選んでいなければ全部）
+  const rk=t?new Set([t]):FLT.rank,a=Object.values(ITEMS).filter(d=>(!rk.size||rk.has(d.t))&&fltOk(d)),f=fltOn(),nx=S.ws+1;
+  const head=t>1&&S.ws<t?[{id:'__ws',ws:t}]:t===0&&nx<=6&&!f&&(!rk.size||rk.has(nx))?[{id:'__ws',ws:nx}]:[]; // まだ届いていない★のタブの先頭に、工房レベルを上げる札
   return head.concat(fltSort(a.filter(d=>canBuy(d.id))),FLT.only?[]:fltSort(a.filter(d=>disc.has(d.id)&&!canBuy(d.id))),f?[]:a.filter(d=>!disc.has(d.id))); // しぼっている間は、まだ見つけていない札は出さない
 }
 function wsHint(t,delay=0){ // 工房の札が初めて目に入ったとき、何をする札かを一言で知らせる（その戦いで 1 回）
@@ -949,9 +955,8 @@ function upgradeWs(t,b){
 const shopMax=t=>Math.max(0,shopList(t).length*SHOP.pitch-5-SHOP.w);
 const shopBtnX=i=>SHOP.x+i*SHOP.pitch-SHOP.scroll[SHOP.tab];
 function shopShow(id){ // その元素のボタンが見える位置までタブと列を動かす
-  let t=ITEMS[id].t,i=shopList(t).findIndex(d=>d.id===id);
-  if(SHOP.tab===0){const j=shopList(0).findIndex(d=>d.id===id);if(j>=0){t=0;i=j}}
-  if(i<0)return; // しぼりこみで見えない札は追わない
+  let t=SHOP.tab,i=shopList(t).findIndex(d=>d.id===id);
+  if(i<0){t=ITEMS[id].t;i=shopList(t).findIndex(d=>d.id===id);if(i<0)return;setRank([t])} // 今の一覧に無ければ、その★へ切り替える（しぼりこみで見えない札は追わない）
   SHOP.tab=t;SHOP.scroll[t]=clamp(i*SHOP.pitch-(SHOP.w-SHOP.bw)/2,0,shopMax(t));SHOP.newId=id;SHOP.newT=5;wsHint(t,2.2);
 }
 
@@ -2527,7 +2532,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(INFO_R&&sel&&sel.item&&inBtn(INFO_R,p.x,p.y)){buzz(12);openDetail(INFO_R.id,'game');return}
   if(ENH_R&&sel&&canEnh(sel.item)&&inBtn(ENH_R,p.x,p.y)){ENH_R0p=1;undoable(()=>enhance(sel));return}
   const tb=p.y>=TABS[0].y-3&&p.y<TABS[0].y+TABS[0].h+2&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);
-  if(tb){if(tb.t==='f'){sfx.ui();openFilter();return}if(SHOP.tab!==tb.t){SHOP.tab=tb.t;sfx.ui();wsHint(tb.t)}return}
+  if(tb){if(tb.t==='f'){sfx.ui();openFilter();return}sfx.ui();if(FLT.rank.size===1&&FLT.rank.has(tb.t))setRank([]);else{setRank([tb.t]);wsHint(tb.t)}return}
   if(inBtn(SHOP,p.x,p.y)){strip={sx:p.x,sy:p.y,s0:SHOP.scroll[SHOP.tab],moved:false,touch:ev.pointerType==='touch',i:Math.floor((p.x-SHOP.x+SHOP.scroll[SHOP.tab])/SHOP.pitch)};
     SHOP.press=strip.i;SHOP.pressT=1;
     lpClear();lpT=setTimeout(()=>{if(strip&&!strip.moved){const d=shopList(SHOP.tab)[strip.i];if(d&&!d.ws&&disc.has(d.id)){strip=null;SHOP.press=null;buzz(12);openDetail(d.id,'game')}}},LONG_MS);
@@ -2822,11 +2827,17 @@ function openAch(from){
 }
 $('#aClose').onclick=()=>{sfx.ui();subBack()};
 function openFilter(){
-  const grp=(el,key,opts)=>{$(el).innerHTML=opts.map(([v,l])=>`<button data-v="${v}" class="${FLT[key]===v?'on':''}">${TT(l)}</button>`).join('');
-    $(el).onclick=e=>{const b=e.target.closest('button');if(!b)return;FLT[key]=b.dataset.v;sfx.ui();SHOP.scroll[SHOP.tab]=0;openFilter()}};
+  // 複数選べる項目（Set）は押すたびに入れたり外したり、並べ替えは 1 つだけ
+  const grp=(el,key,opts)=>{const multi=FLT[key] instanceof Set,has=v=>multi?FLT[key].has(v):FLT[key]===v;
+    $(el).innerHTML=opts.map(([v,l])=>`<button data-v="${v}" class="${has(v)?'on':''}">${l.startsWith('★')?l:TT(l)}</button>`).join('');
+    $(el).onclick=e=>{const b=e.target.closest('button');if(!b)return;let v=b.dataset.v;sfx.ui();
+      if(key==='rank'){v=+v;const r=new Set(FLT.rank);r.has(v)?r.delete(v):r.add(v);setRank(r)}
+      else{if(multi)FLT[key].has(v)?FLT[key].delete(v):FLT[key].add(v);else FLT[key]=v;SHOP.scroll[SHOP.tab]=0}
+      openFilter()}};
+  $('#fhRank').textContent=TT('fRank');grp('#fRank','rank',[1,2,3,4,5,6].map(n=>[n,'★'+n]));
   $('#fhPlace').textContent=TT('fPlace');$('#fhRole').textContent=TT('fRole');$('#fhSort').textContent=TT('fSort');
-  grp('#fPlace','place',[['all','fAll'],['tower','fTower'],['trap','fTrap']]);
-  grp('#fRole','role',[['all','fAll'],['burn','fBurn'],['slow','fSlow'],['area','fArea'],['chain','fChain'],['pierce','fPierce'],['buff','fBuff']]);
+  grp('#fPlace','place',[['tower','fTower'],['trap','fTrap']]);
+  grp('#fRole','role',[['burn','fBurn'],['slow','fSlow'],['area','fArea'],['chain','fChain'],['pierce','fPierce'],['buff','fBuff']]);
   grp('#fSort','sort',[['rank','sRank'],['cost','sCost'],['pow','sPow'],['new','sNew']]);
   $('#fOnlyL').textContent=TT('fOnly');$('#fOnly').classList.toggle('on',FLT.only);
   $('#fReset').textContent=TT('fReset');$('#fClose').textContent=TT('close');
@@ -2835,7 +2846,7 @@ function openFilter(){
   show('flt');
 }
 $('#fOnly').onclick=()=>{FLT.only=!FLT.only;sfx.ui();SHOP.scroll[SHOP.tab]=0;openFilter()};
-$('#fReset').onclick=()=>{Object.assign(FLT,{place:'all',role:'all',sort:'rank',only:false});sfx.ui();SHOP.scroll[SHOP.tab]=0;openFilter()};
+$('#fReset').onclick=()=>{Object.assign(FLT,{place:new Set(),role:new Set(),sort:'rank',only:false});setRank([]);sfx.ui();openFilter()};
 $('#fClose').onclick=()=>{sfx.ui();show(null)};
 $('#flt').onclick=e=>{if(e.target.id==='flt'){sfx.ui();show(null)}}; // 窓の外を押しても閉じる
 $('#mCodex').onclick=()=>{sfx.ui();openCodex();shownAt=performance.now()};
@@ -3200,10 +3211,10 @@ function drawShop(dt){
       ctx.moveTo(-4,7);ctx.lineTo(-4,-7);ctx.moveTo(-8,-3);ctx.lineTo(-4,-7);ctx.lineTo(0,-3);ctx.moveTo(4,-7);ctx.lineTo(4,7);ctx.moveTo(0,3);ctx.lineTo(4,7);ctx.lineTo(8,3);ctx.stroke();ctx.restore();
       if(act){ctx.fillStyle='#ffe9a0';ctx.beginPath();ctx.arc(t.x+t.w-6,t.y+6,3,0,TAU);ctx.fill()}
       continue}
-    const on=SHOP.tab===t.t,has=shopList(t.t).some(d=>disc.has(d.id));
+    const on=FLT.rank.has(t.t),has=shopList(t.t).some(d=>disc.has(d.id));
     ctx.fillStyle=on?'#2a2148':'#0d0b18';rr(ctx,t.x,t.y,t.w,t.h,11);ctx.fill();
     ctx.strokeStyle=on?'#e8c36a':rgba('#8b5cf6',has?.5:.2);ctx.lineWidth=1.2;ctx.stroke();
-    ctx.font=FONT(FS.f3*LY.k,800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#8a82ad';ctx.fillText(t.t?'★'+t.t:TT('tabAll'),t.x+t.w/2,t.y+t.h/2+.5); // ★の数を数えなくて済むよう数字で
+    ctx.font=FONT(FS.f3*LY.k,800);ctx.fillStyle=on?'#ffe9a0':has?'#cfc8e6':'#8a82ad';ctx.fillText('★'+t.t,t.x+t.w/2,t.y+t.h/2+.5); // ★の数を数えなくて済むよう数字で
     if(t.t>1&&t.t<=S.ws){ctx.fillStyle=rgba('#e8c36a',.8);ctx.fillRect(t.x+10,t.y+t.h-3,t.w-20,1.6)}
     if(SHOP.dotT[t.t]>0){SHOP.dotT[t.t]-=dt;if(on)SHOP.dotT[t.t]=Math.min(SHOP.dotT[t.t],1.2);
       ctx.fillStyle=rgba('#ffe9a0',.6+.4*Math.sin(T*9));ctx.beginPath();ctx.arc(t.x+t.w-5,t.y+3,3.2,0,TAU);ctx.fill()}}
