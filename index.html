@@ -1815,14 +1815,15 @@ function buyDrop(id,p,touch){
 }
 // 戻す：直前の 1 操作（移動・錬成・還す・呼び出し・工房レベル・強化・聖灰）だけを取り消す。
 // 操作の前後でマスの中身を覚えておき、いまの盤面が操作した直後のままのときだけ戻せる（罠が弾けた、などで変わっていたら戻さない）。
-// 魔力と灯は、その操作で増減した分だけを戻す（波の最中に倒して得た魔力は残す）
+// 魔力と灯は、その操作で増減した分だけを戻す（波の最中に倒して得た魔力は残す）。
+// 波が始まった・終わったあとは戻せない（波の間だけ塔を置いて、終わってから戻して魔力を取り返す、ができないように）
 const undoSnap=()=>({items:slots.map(s=>s.item),lv:slots.map(s=>s.item&&s.item.lv||0),mana:S.mana,lives:S.lives,ws:S.ws,made:new Set(S.made)});
 function undoable(fn){
   const b=undoSnap(),r=fn(),a=undoSnap();
-  if(a.items.some((x,i)=>x!==b.items[i])||a.lv.some((v,i)=>v!==b.lv[i])||a.ws!==b.ws||a.mana!==b.mana||a.lives!==b.lives)UNDO={b,a,dm:a.mana-b.mana,dl:a.lives-b.lives};
+  if(a.items.some((x,i)=>x!==b.items[i])||a.lv.some((v,i)=>v!==b.lv[i])||a.ws!==b.ws||a.mana!==b.mana||a.lives!==b.lives)UNDO={b,a,dm:a.mana-b.mana,dl:a.lives-b.lives,w:S.wave,act:S.active};
   return r;
 }
-const canUndo=()=>!!UNDO&&!S.over&&!(S.cleared&&!S.endless)&&slots.every((s,i)=>s.item===UNDO.a.items[i]&&(s.item&&s.item.lv||0)===UNDO.a.lv[i])&&S.ws===UNDO.a.ws&&S.mana-UNDO.dm>=0&&S.lives-UNDO.dl>0;
+const canUndo=()=>!!UNDO&&!S.over&&S.wave===UNDO.w&&S.active===UNDO.act&&!(S.cleared&&!S.endless)&&slots.every((s,i)=>s.item===UNDO.a.items[i]&&(s.item&&s.item.lv||0)===UNDO.a.lv[i])&&S.ws===UNDO.a.ws&&S.mana-UNDO.dm>=0&&S.lives-UNDO.dl>0;
 function undo(){
   const b0=btn('undo'),bx=b0.x+b0.w/2;
   if(!canUndo()){UNDO=null;sfx.fail();floatText(clamp(bx,70,W-70),b0.y-8,TT('noUndo'),'#b9b1d0',FS.f1);return}
