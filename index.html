@@ -2134,7 +2134,7 @@ function applyHit(e,d,m,color,sl){
   if(d.stun&&!isBoss&&!(e.hazT>0)&&!(e.stopT>0)&&!(e.stopRes>0)){
     e.hazT=d.stunCd;
     if(Math.random()<d.stunP){
-      e.slow=1;e.slowT=d.stun;tag(e,'stSlow',color);
+      e.slow=1;e.slowT=d.stun;tag(e,'stStop',color);
       if(FX)ring(e.x,e.y,color,22,.35,2);
     }
   }
@@ -2602,7 +2602,7 @@ function openDetail(id,from){
   if(d.knock)fx2.push([TT('stKnock'),TT('dKnock')]);
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
-  if(d.stun)fx2.push([TT('stSlow'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
+  if(d.stun)fx2.push([TT('stStop'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
   const mk=MADE_BY[id]||[],mkK=mk.filter(m=>madeR.has(rkey(m[0],m[1]))),us=USES[id]||[],usK=us.filter(u=>madeR.has(rkey(id,u[0]))),usU=us.length-usK.length;
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
