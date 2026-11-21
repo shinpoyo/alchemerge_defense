@@ -94,6 +94,8 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 .rc.go{cursor:pointer}
 .dn{color:var(--dim);font-size:calc(var(--u)*var(--f2))}
 .dn b{color:#a890ff}
+#pause{background:#05040999;cursor:pointer} /* 一時停止：盤面が透けて見えるよう薄く暗くする */
+#pause h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 #menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 #menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
 #menu #mClose{margin-top:calc(var(--u)*22)}
@@ -240,6 +242,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
     <button class="lnk" id="mReset"></button>
   </div>
 
+  <div class="ov" id="pause"><h2 id="hPause"></h2><button class="b m" id="pResume"></button></div>
   <div class="ov red" id="wipe">
     <h2 id="hWipe"></h2>
     <div class="wipeTxt" id="wipeTxt"></div>
@@ -350,7 +353,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   mergeOnBench:['作業台で錬成しよう','Merge these on the bench'],benchFull:['作業台がいっぱい','The bench is full'],noMana:['魔力が足りない','Not enough mana'],
   allFound:['全 {0} 種 発見','All {0} found'],waveDone:['第 {0} 波 撃退','Wave {0} repelled'],manaPlus:['魔力 +{0}','Mana +{0}'],
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
-  left:['のこり {0}','{0} left'],fighting:['迎撃中…','Fighting…'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
+  left:['のこり {0}','{0} left'],fighting:['迎撃中…','Fighting…'],pauseT:['一時停止','Paused'],pResume:['▶ 再開','▶ Resume'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
   bMenu:['設定','Menu'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
@@ -2479,7 +2482,7 @@ cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=TABS[0].y&&p.y<=SHOP.y+
 addEventListener('keydown',e=>{if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}});
 function press(b){
   if(b.id==='trash'){if(sel){sell(sel);sel=null}else floatText(b.x+b.w/2,b.y-8,TT('trashHint'),'#b9b1d0',FS.f1);return}
-  if(b.id==='wave'){startWave();return}
+  if(b.id==='wave'){if(S.active&&!S.over)openPause();else startWave();return} // 波の最中は一時停止
   sfx.ui();
   if(b.id==='speed')S.speed=S.speed>=3?1:S.speed+1; // ×1 → ×2 → ×3 → ×1
   if(b.id==='menu'){openMenu();shownAt=performance.now()}
@@ -2784,6 +2787,11 @@ $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // 
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
+// 一時停止：止まるだけ。開いている間は盤面にも一覧にも触れない。どこを押しても再開
+function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
+$('#pause').onclick=()=>{sfx.ui();show(null)};
+addEventListener('keydown',e=>{if(e.code!=='Space'&&e.code!=='KeyP')return; // Space／P でも止める・再開する
+  if($('#pause').classList.contains('on')){e.preventDefault();sfx.ui();show(null)}else if(!$('.ov.on')&&S.active&&!S.over){e.preventDefault();openPause()}});
 // 進捗の初期化：設定（音・言語・ダメージ数字・振動）だけを残して保存を書きかえ、ページを読みこみ直す。
 // 状態をその場で 1 つずつ戻すより、読みこみ直すほうが取りこぼしがない
 $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#wipeTxt').innerHTML=TT('wipeTxt');
@@ -3008,7 +3016,7 @@ function drawBtn(b,dt){
     const pulse=on&&!S.over?.5+.5*Math.sin(S.time*4):0;
     if(on){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.12+pulse*.12;ctx.fillStyle='#e8c36a';rr(ctx,b.x,b.y,b.w,b.h,12);ctx.fill();ctx.globalCompositeOperation='source-over'}
     ctx.globalAlpha=on?1:.85;ctx.font=FONT(FS.f3*LY.k,800);ctx.fillStyle=on?'#fff3cf':'#b9b1d0';
-    ctx.fillText(S.active?TT('fighting'):TT('nextWave',S.wave+1),cx,cy+1);on=!S.active;
+    ctx.fillText(S.active?'⏸ '+TT('fighting'):TT('nextWave',S.wave+1),cx,cy+1);on=!S.active;
   }else{
     ctx.font=FONT((b.id==='speed'?FS.f3:FS.f2)*LY.k,800);ctx.fillStyle=hot?'#ff8a9a':'#cfc8e6';
     label={trash:TT('bTrash'),codex:TT('bCodex'),speed:'×'+S.speed,menu:TT('bMenu')}[b.id];
@@ -3361,7 +3369,7 @@ function render(dt){
 
 /* ---------------- メインループ ---------------- */
 let last=performance.now(),ambT=0;
-const PAUSE_OV=['title','codex','stages','menu','detail','stats','ach']; // 開いている間は戦闘を止める画面
+const PAUSE_OV=['title','codex','stages','menu','detail','stats','ach','pause']; // 開いている間は戦闘を止める画面
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   const paused=PAUSE_OV.some(id=>$('#'+id).classList.contains('on'));
