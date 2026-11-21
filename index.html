@@ -937,11 +937,13 @@ function buildWave(w){
 }
 
 /* ---------------- 状態 ---------------- */
-let S,disc,prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
+let S,disc,madeR=new Set(),prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
 // 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
 const runOK=r=>!!r&&typeof r==='object'&&!!STAGES[r.stage]&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i])); // 前の仕組み（図鑑の数）ですでに開いた木・光・闇はそのまま残す
+  if(Array.isArray(d.madeR))madeR=new Set(d.madeR.filter(k=>typeof k==='string'&&RECIPE[k])); // 実際に作った組み合わせ（rkey 形式）
+  else{madeR=new Set();for(const k in RECIPE){const[a,b]=k.split('+');if(disc.has(a)&&disc.has(b))madeR.add(k)}} // madeR が無い古いセーブ：材料が両方そろっているレシピを、作ったものとして引き継ぐ
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
   TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};
   for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
@@ -992,7 +994,7 @@ let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セー�
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
 let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
-function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
+function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -1742,6 +1744,8 @@ function dropOn0(from,to){
   if(isNew){disc.add(res.id);save()}
   if(FX)fx.push({ty:'merge',x:dst.x,y:dst.y,a:{id:it.id,x:it.rx,y:it.ry},b:{id:to.item.id,x:to.item.rx,y:to.item.ry},t:0,dur:.3,res:n,isNew});
   else n.hide=0,n.s=1;
+  const rk=rkey(it.id,to.item.id); // to.item を null にする前にキーを作る
+  if(RECIPE[rk]&&!madeR.has(rk)){madeR.add(rk);save()} // ★合成など、レシピ表にない組み合わせは記録しない
   from.item=null;to.item=null;dst.item=n;
   S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
@@ -2536,7 +2540,7 @@ function openDetail(id,from){
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
   if(d.stun)fx2.push([TT('stSlow'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
-  const mk=MADE_BY[id]||[],mkK=mk.filter(m=>disc.has(m[0])&&disc.has(m[1])),us=USES[id]||[],usK=us.filter(u=>disc.has(u[1])&&disc.has(u[0])),usU=us.length-usK.length;
+  const mk=MADE_BY[id]||[],mkK=mk.filter(m=>madeR.has(rkey(m[0],m[1]))),us=USES[id]||[],usK=us.filter(u=>madeR.has(rkey(id,u[0]))),usU=us.length-usK.length;
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam&&TX['f_'+d.fam]?`<i>${TT('dFam',TT('f_'+d.fam))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
@@ -2565,11 +2569,11 @@ function openCodex(){
     for(const d of all.filter(d=>d.t===tr)){
       const mk=MADE_BY[d.id];
       if(disc.has(d.id)){
-        // 作り方は、材料をどちらも見つけているものだけ、最大 3 通り（まだ見つけていない元素の名前は出さない。詳細画面と同じ決まり）
-        const rs=mk?mk.filter(m=>disc.has(m[0])&&disc.has(m[1])).slice(0,3):[];
+        // 作り方は、実際にその組み合わせで錬成したことがあるものだけ、最大 3 通り（材料を持っているだけでは出さない。詳細画面と同じ決まり）
+        const rs=mk?mk.filter(m=>madeR.has(rkey(m[0],m[1]))).slice(0,3):[];
         h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
-      }else{ // 材料が両方見つかっていれば、片方だけ教える
-        const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
+      }else{ // 作ったことのある組み合わせがあれば、片方だけ教える
+        const kn=mk&&mk.find(m=>madeR.has(rkey(m[0],m[1])));
         const hint=UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
