@@ -2664,8 +2664,8 @@ function openCodex(){
         // 作り方は、実際にその組み合わせで錬成したことがあるものだけ、最大 3 通り（材料を持っているだけでは出さない。詳細画面と同じ決まり）
         const rs=mk?mk.filter(m=>madeR.has(rkey(m[0],m[1]))).slice(0,3):[];
         h+=`<div class="card tap" data-id="${d.id}" style="--c:${d.c}"><img class="o" alt="" src="${orb(d.id).toDataURL()}"><b>${nm(d)}</b>${rs.map(m=>`<em>${nm(ITEMS[m[0]])} ＋ ${nm(ITEMS[m[1]])}</em>`).join('')}${ds(d)}</div>`;
-      }else{ // 作ったことのある組み合わせがあれば、片方だけ教える
-        const kn=mk&&mk.find(m=>madeR.has(rkey(m[0],m[1])));
+      }else{ // 材料が両方とも図鑑にあれば、片方だけ教える（作った組み合わせ基準だと、作った時点で発見済みになりヒントが出る場面がなくなるため）
+        const kn=mk&&mk.find(m=>disc.has(m[0])&&disc.has(m[1]));
         const hint=UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
