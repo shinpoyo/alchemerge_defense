@@ -943,7 +943,7 @@ const SAVE='yoiyami-alchemy-v1';
 const runOK=r=>!!r&&typeof r==='object'&&!!STAGES[r.stage]&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i])); // 前の仕組み（図鑑の数）ですでに開いた木・光・闇はそのまま残す
   if(Array.isArray(d.madeR))madeR=new Set(d.madeR.filter(k=>typeof k==='string'&&RECIPE[k])); // 実際に作った組み合わせ（rkey 形式）
-  else{madeR=new Set();for(const k in RECIPE){const[a,b]=k.split('+');if(disc.has(a)&&disc.has(b))madeR.add(k)}} // madeR が無い古いセーブ：材料が両方そろっているレシピを、作ったものとして引き継ぐ
+  else if(Array.isArray(d.disc)){madeR=new Set();for(const k in RECIPE){const[a,b]=k.split('+');if(disc.has(a)&&disc.has(b))madeR.add(k)}} // madeR が無い古いセーブ（disc の記録があるもの）：材料が両方そろっているレシピを、作ったものとして引き継ぐ。初回・初期化直後は disc が無いので種まきしない
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
   TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};
   for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
