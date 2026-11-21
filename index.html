@@ -74,6 +74,11 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
   filter:drop-shadow(0 0 calc(var(--u)*18) #d0375a88)}
 #codex{justify-content:flex-start;padding-top:calc(var(--u)*18)}
 #detail{justify-content:flex-start;padding-top:calc(var(--u)*14);padding-bottom:calc(var(--u)*10)}
+#detail .dnav{display:flex;gap:calc(var(--u)*8);align-items:center}
+#detail .dnav .b{margin-left:0;margin-right:0}
+#dPrev,#dNext{padding-left:calc(var(--u)*16);padding-right:calc(var(--u)*16);letter-spacing:.05em;min-width:44px}
+#dPrev[hidden],#dNext[hidden]{display:none}
+#dPrev:disabled,#dNext:disabled{opacity:.35;cursor:default}
 #dBody{flex:1;width:100%;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;text-align:left;font-size:calc(var(--u)*var(--f2));line-height:1.6;padding:0 calc(var(--u)*4)}
 .dh{display:flex;align-items:center;gap:calc(var(--u)*10);margin-bottom:calc(var(--u)*6)}
 .dh img{width:calc(var(--u)*84);height:calc(var(--u)*84);flex:none;margin:calc(var(--u)*-8)}
@@ -231,7 +236,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 
   <div class="ov" id="detail">
     <div id="dBody"></div>
-    <button class="b s" id="dClose">とじる</button>
+    <div class="dnav"><button class="b s" id="dPrev">‹ 前へ</button><button class="b s" id="dClose">とじる</button><button class="b s" id="dNext">次へ ›</button></div>
   </div>
 
   <div class="ov" id="menu">
@@ -326,7 +331,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   carry:['見つけた元素は、どのステージにも持ち越される','Discovered elements carry over to every stage'],
   needNormal:['通常でクリアすると開く','Clear on Normal to unlock'],needNight:['悪夢でクリアすると開く','Clear on Nightmare to unlock'],needPrev:['前のステージをクリアすると開く','Clear the previous stage to unlock'],
   cleared:['✦ クリア済み','✦ Cleared'],bestWave:['最高 第 {0} 波','Best: wave {0}'],untried:['未挑戦','Not played yet'],
-  codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
+  codexTitle:['錬金図鑑','Codex'],close:['とじる','Close'],dPrev:['‹ 前へ','‹ Prev'],dNext:['次へ ›','Next ›'],shareCodex:['図鑑を共有','Share'],shareResult:['結果を共有','Share'],
   k_bolt:['弾','Shot'],k_chain:['連鎖','Chain'],k_pulse:['波動','Pulse'],k_beam:['照射','Beam'],k_pierce:['貫通','Pierce'],k_trap:['罠','Trap'],k_support:['支援','Support'],k_ward:['結界','Ward'],k_relic:['砦で使う','Use at fort'],k_mirror:['特殊','Special'],
   dMirrorDmg:['射程内の最高★の塔を写す','Copies highest-★ tower in range'],
   dWarp:['{0}% で道の手前へ戻す（再発動 {1} 秒・主と王には無効）','{0}% chance to warp back ({1}s CD, not bosses)'],
@@ -2561,7 +2566,15 @@ cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
 const USES={};for(const[a,b,r]of RECIPES){(USES[a]=USES[a]||[]).push([b,r]);if(a!==b)(USES[b]=USES[b]||[]).push([a,r])}
 const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKMAX[d.t]||{dps:1,range:1};m.dps=Math.max(m.dps,dpsOf(d));m.range=Math.max(m.range,d.range)}
 function dpsOf(d){return d.kind==='trap'||noAtk(d)||d.kind==='mirror'?0:d.kind==='beam'&&!d.rate?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
-let detailFrom=null;
+let detailFrom=null,detailId=null;
+// 図鑑から開いたときは、図鑑の並び（★順）で見つけた元素だけを前後に送れる
+const codexOrder=()=>{const a=Object.values(ITEMS),o=[];for(let tr=1;tr<=6;tr++)for(const d of a)if(d.t===tr&&disc.has(d.id))o.push(d.id);return o};
+function detailStep(dir){
+  if(detailFrom!=='codex'||!detailId)return;
+  const o=codexOrder(),i=o.indexOf(detailId),j=i+dir;
+  if(i<0||j<0||j>=o.length)return;
+  openDetail(o[j]);shownAt=0; // 続けて押せるよう、開いた直後のクリックを捨てる仕組みは使わない
+}
 function openDetail(id,from){
   const d=ITEMS[id],pz=POISON.has(id),R=RANKMAX[d.t],img=i=>`<img alt="" src="${orb(i).toDataURL()}">`,num=v=>+(+v).toFixed(1);
   const bar=(v,max)=>`<span class="bar"><u style="width:${Math.round(clamp(v/max,.03,1)*100)}%"></u></span>`;
@@ -2617,14 +2630,22 @@ function openDetail(id,from){
   h+=`<div class="dsec">${TT('dUses')}</div>`;
   if(!us.length)h+=`<div class="dn">${TT('dNoUse')}</div>`;
   else{h+=usK.map(u=>row(id,u[0],u[1],u[1])).join('');h+=`<div class="dn">${usU?TT('dUnknown',usU):TT('dAllKnown')}　${TT('dKnownN',usK.length,us.length)}</div>`}
-  $('#dBody').innerHTML=h;$('#dBody').scrollTop=0;$('#dClose').textContent=TT('close');
+  $('#dBody').innerHTML=h;$('#dBody').scrollTop=0;$('#dClose').textContent=TT('close');$('#dPrev').textContent=TT('dPrev');$('#dNext').textContent=TT('dNext');
   if(from!==undefined)detailFrom=from;
+  detailId=id;
+  {const o=detailFrom==='codex'?codexOrder():[],i=o.indexOf(id);$('#dPrev').hidden=$('#dNext').hidden=i<0;$('#dPrev').disabled=i<=0;$('#dNext').disabled=i<0||i>=o.length-1}
   show('detail');shownAt=performance.now();sfx.ui();
 }
 $('#dBody').addEventListener('click',ev=>{const bb=ev.target.closest('[data-buy]');
   if(bb){const r=undoable(()=>spawnBase(bb.dataset.buy));if(r){bb.textContent=TT(r==='full'?'benchFull':'noMana');bb.classList.add('poor')}else{const y=$('#dBody').scrollTop;openDetail(bb.dataset.buy);$('#dBody').scrollTop=y}return}
   const p=ev.target.closest('[data-el]');if(p){openDetail(p.dataset.el);return}const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
 $('#dClose').onclick=()=>{sfx.ui();if(detailFrom==='codex')openCodex();else show(null);detailFrom=null};
+$('#dPrev').onclick=()=>detailStep(-1);$('#dNext').onclick=()=>detailStep(1);
+addEventListener('keydown',e=>{if(!$('#detail').classList.contains('on'))return;if(e.code==='ArrowLeft')detailStep(-1);else if(e.code==='ArrowRight')detailStep(1)});
+{let sx=null,sy=0; // スマホでは左右にはらっても前後へ
+  $('#dBody').addEventListener('touchstart',e=>{const t=e.touches[0];sx=e.touches.length===1?t.clientX:null;sy=t.clientY},{passive:true});
+  $('#dBody').addEventListener('touchend',e=>{if(sx===null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)detailStep(dx<0?1:-1)},{passive:true});}
 // 図鑑・詳細の呼び出しボタン。一覧と同じ canBuy（★1／この戦いで作った／工房レベル以下の★）で判定し、届かないものは押せない札にする
 function buyBtn(d){
   if(!disc.has(d.id))return'';
