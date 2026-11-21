@@ -474,7 +474,7 @@ const EN={ // 英語の名前と説明
   hotaru:['Firefly Swarm','Light hops to 5'],gokuen:['Hellfire','Black fire from hell'],
   lantern:['Stone Lantern','Its light empowers nearby towers'],bonfire:['Watchfire','Its fire empowers nearby towers'],moonlamp:['Moon Lamp','Moonlight greatly empowers towers'],
   shinso:['Elder Vampire','The first vampire'],tenkou:['Heaven Light','Twin beams from the sky'],jukai:['Sea of Trees','Lost and trapped'],
-  mirror:['Mirror','Copies a nearby tower’s attack'],mirage:['Mirage','Trap: warps foes back along the road'],kaleidoscope:['Kaleidoscope','Rainbow beam changes element each shot'],
+  mirror:['Mirror','Copies a nearby tower’s attack'],mirage:['Mirage','Trap: slows foes and warps them back along the road'],kaleidoscope:['Kaleidoscope','Rainbow beam changes element each shot'],
   desert:['Desert','Hot sand slows what it hits'],kagerou:['Heat Haze','Trap: slows and briefly stops foes'],
   hai:['Ash','Burned-out remains'],sekken:['Soap','Trap: foes slip and slow down'],cement:['Cement','Trap: hardens on foes to slow them'],
   awa:['Foam','Wraps nearby foes in foam'],concrete:['Concrete','Crushes foes with a solid block'],shabondama:['Bubble Cage','Trap: traps foes in bubbles to stop them'],
@@ -648,7 +648,7 @@ const ITEMS={
   dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,slow:.4,slowT:2,           desc:'すべてを貫く息吹'},
   moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   kaleidoscope:{name:'万華鏡',t:5,c:'#ffb0e8',kind:'beam',dmg:260,rate:1.2,range:190,splash:38,kaleido:1,       desc:'撃つたび属性が変わる虹の光'},
-  mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:38, warp:60,warpP:.25,warpCd:4,desc:'幻に惑い、敵を後戻りさせる'},
+  mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:90, slow:.4,slowT:.3,warp:120,warpP:.5,warpCd:3,desc:'罠：熱気で遅くし、幻に惑わせて後戻りさせる'}, // 陽炎（★4）の広さと減速を受け継ぎ、後戻りを強めた
   shabondama:{name:'泡の檻',t:5,c:'#a8f0ff',kind:'trap',               range:42, slow:.5,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：包んだ敵を止める'},
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
