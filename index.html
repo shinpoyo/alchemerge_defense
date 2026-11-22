@@ -2739,7 +2739,7 @@ function openDetail(id,from){
   if(d.warp)fx2.push([TT('stKnock'),TT('dWarp',Math.round(d.warpP*100),d.warpCd)]);
   if(d.stop)fx2.push([TT('stStop'),d.stopP?TT('dStopP',Math.round(d.stopP*100),num(d.stop),STOP_RES):TT('dStop',num(d.stop),STOP_RES)]);
   if(d.stun)fx2.push([TT('stStop'),TT('dStun',Math.round(d.stunP*100),num(d.stun),d.stunCd)]);
-  const mk=MADE_BY[id]||[],mkK=mk.filter(m=>madeR.has(rkey(m[0],m[1]))),us=USES[id]||[],usK=us.filter(u=>madeR.has(rkey(id,u[0]))),usU=us.length-usK.length;
+  const mk=MADE_BY[id]||[],mkK=mk.filter(m=>madeR.has(rkey(m[0],m[1]))),us=(USES[id]||[]).filter(u=>id==='kaname'||u[0]!=='kaname'),usK=us.filter(u=>madeR.has(rkey(id,u[0]))),usU=us.length-usK.length;
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   const wardRow=w=>`<div class="rc go" data-id="${w}">${chip('kaname')}＋<span class="rcp"><span style="color:${ITEMS[w].c}">${TT('famStar',TT('f_'+ITEMS[w].amp))}</span></span>＝${chip(w)}</div>`; // 系統の結界：要石＋その系統の★4（どれでも）
