@@ -417,7 +417,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
-  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
+  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],dWetV:['雷の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Lightning, {1}s'],dBritV:['土の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Earth, {1}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsHud:['工房 Lv{0}・★{1}まで','Workshop Lv{0} · ★{1}'],wsHudS:['工房 Lv{0}','Workshop Lv{0}'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
@@ -2709,6 +2709,7 @@ function openDetail(id,from){
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
   if(d.ward==='sil')fx2.push([TT('stSil'),TT('dWardSil')]);
   if(d.dps)fx2.push([TT('dWardDpsK'),TT('dWardDps',d.dps)]);
+  if(!noAtk(d)){if(d.fam.includes('water'))fx2.push([TT('stWet'),TT('dWetV',SYN_MUL,num(SYN_T))]);if(d.fam.includes('ice'))fx2.push([TT('stBrit'),TT('dBritV',SYN_MUL,num(SYN_T))])} // 属性シナジー：当てた影を濡らす・脆くする
   if(d.amp)fx2.push([TT('dAmpK'),TT('dAmpV',TT('f_'+d.amp),AMP_MUL)]);
   if(d.gold)fx2.push([TT('dGoldK'),TT('dGoldV',d.gold)]);
   if(d.heal)fx2.push([TT('dHealK'),TT('dHealV',d.heal)]);
@@ -2724,7 +2725,7 @@ function openDetail(id,from){
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam.length?`<i>${TT('dFam',d.fam.map(f=>TT('f_'+f)).join(LANG==='ja'?'・':' / '))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
-  const synK=d.fam.map(f=>({water:'dSynWater',ice:'dSynIce',volt:'dSynVolt',earth:'dSynEarth'})[f]).filter(Boolean); // 属性シナジーの一文（水・氷・雷・土の系統の元素だけ）
+  const synK=d.fam.map(f=>({volt:'dSynVolt',earth:'dSynEarth'})[f]).filter(Boolean); // 属性シナジーで強くなる側の一文（雷・土の系統の元素だけ）。濡れ・脆化をかける側は「敵にかける効果」に出す
   h+=`<div class="dd">${ds(d)}</div>${synK.map(k=>`<div class="dn">${TT(k)}</div>`).join('')}<div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
