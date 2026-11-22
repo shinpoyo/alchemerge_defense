@@ -417,7 +417,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
-  dFam:['{0}の系統','{0} type'],stResist:['はじいた','Resisted'],
+  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],dWetV:['雷の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Lightning, {1}s'],dBritV:['土の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Earth, {1}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsHud:['工房 Lv{0}・★{1}まで','Workshop Lv{0} · ★{1}'],wsHudS:['工房 Lv{0}','Workshop Lv{0}'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
@@ -482,6 +482,7 @@ const EN={ // 英語の名前と説明
   seihai:['Holy Ash','Carry it to the fort to restore 3 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],barbwire:['Barbed Wire','Trap: snags, stabs, and rusts armor'],kosenjo:['Old Battlefield','Curses nearby foes and rusts their armor'],haikyo:['Ruins','Keeps nearby foes slowed'],kayaku:['Gunpowder','Trap: blows up when stepped on, then is gone'],ekibyo:['Plague','Poison spreads from foes that die of it'],
   fushoku:['Corrosion','Rusts armor and pours in poison'],seiiki:['Sanctuary','Silences foes inside and sears them clean'],
   kiyome:['Purifying Mist','Keeps nearby foes silenced'],hougyoku:['Dragon Orb','Foes slain nearby drop double mana'],
+  kaname:['Keystone','Drops a heavy sealing stone'],flameward:['Fire Ward','Foes inside take double damage from Fire attacks'],waterward:['Water Ward','Foes inside take double damage from Water attacks'],earthward:['Earth Ward','Foes inside take double damage from Earth attacks'],windward:['Wind Ward','Foes inside take double damage from Wind attacks'],voltward:['Lightning Ward','Foes inside take double damage from Lightning attacks'],iceward:['Ice Ward','Foes inside take double damage from Ice attacks'],poisonward:['Poison Ward','Foes inside take double damage from Poison attacks'],darkward:['Dark Ward','Foes inside take double damage from Dark attacks'],lightward:['Light Ward','Foes inside take double damage from Light attacks'],
   hotspring:['Hot Spring','Boils and slows nearby foes'],raincloud:['Rain Cloud','Wide rain that slows'],plasma:['Plasma','Burning bolt jumps to 4; charges when idle'],
   glacier:['Glacier','Drops ice that chills'],volcano:['Volcano','Rains burning rocks'],mud:['Mud','Trap: slows and weakens'],
   thunderbird:['Thunderbird','Strikes 4 from the sky'],blueflame:['Blue Flame','Cold fire burns and chills'],geyser:['Geyser','Blasts foes back; charges when idle'],
@@ -706,6 +707,17 @@ const ITEMS={
   seiiki:  {name:'聖域',    t:6,c:'#fff8d8',kind:'ward', range:190,ward:'sil',dps:70,                      desc:'踏みこんだ影の力を封じ、焼き清める'},
   kiyome:  {name:'浄めの霧',t:5,c:'#d8f0ff',kind:'ward', range:150,ward:'sil',                       desc:'まわりの影の力を封じつづける'},
   hougyoku:{name:'竜の宝玉',t:6,c:'#ffd24a',kind:'ward', range:160,gold:2,                           desc:'まわりで倒した影の魔力が 2 倍'},
+  // 要石と系統の結界：輪の中の影が、その系統の攻撃を AMP_MUL 倍受ける（影の側にかかる。同じ系統は重ならない）
+  kaname:  {name:'要石',    t:4,c:'#e8dcb8',kind:'bolt', dmg:90, rate:.6,  range:130,splash:30,                 desc:'地を鎮める重い石を落とす'},
+  flameward:{name:'炎の結界',t:5,c:'#ff6a3d',kind:'ward',range:170,amp:'flame',desc:'輪の中の影は、炎の系統の攻撃を 2 倍受ける'},
+  waterward:{name:'水の結界',t:5,c:'#4aa8ff',kind:'ward',range:170,amp:'water',desc:'輪の中の影は、水の系統の攻撃を 2 倍受ける'},
+  earthward:{name:'土の結界',t:5,c:'#c08a4a',kind:'ward',range:170,amp:'earth',desc:'輪の中の影は、土の系統の攻撃を 2 倍受ける'},
+  windward:{name:'風の結界',t:5,c:'#7df0c0',kind:'ward',range:170,amp:'wind',desc:'輪の中の影は、風の系統の攻撃を 2 倍受ける'},
+  voltward:{name:'雷の結界',t:5,c:'#ffe45c',kind:'ward',range:170,amp:'volt',desc:'輪の中の影は、雷の系統の攻撃を 2 倍受ける'},
+  iceward:{name:'氷の結界',t:5,c:'#8fe6ff',kind:'ward',range:170,amp:'ice',desc:'輪の中の影は、氷の系統の攻撃を 2 倍受ける'},
+  poisonward:{name:'毒の結界',t:5,c:'#8be04a',kind:'ward',range:170,amp:'poison',desc:'輪の中の影は、毒の系統の攻撃を 2 倍受ける'},
+  darkward:{name:'闇の結界',t:5,c:'#9a7ad8',kind:'ward',range:170,amp:'dark',desc:'輪の中の影は、闇の系統の攻撃を 2 倍受ける'},
+  lightward:{name:'光の結界',t:5,c:'#fff2a0',kind:'ward',range:170,amp:'light',desc:'輪の中の影は、光の系統の攻撃を 2 倍受ける'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,curse:1.5,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
   // 音（三叉の谷をクリアすると届く基本元素）と、音から作る元素
   sound:   {name:'音',      t:1,c:'#ff8ec8',kind:'pulse',dmg:3,  rate:1,   range:90, stop:.3,stopP:.25,         desc:'範囲の敵全員に当たる波。少しひるませる'},
@@ -809,6 +821,17 @@ const RECIPES=[
   ['juka','bat','choonpa'],['juka','tomb','chinkonka'],['wakon','flash','sanbika'],['suzu','gem','orgel'],['hanabi','bolt','raimei'],
   ['taiko','mountain','yamabiko'],['taiko','shakudama','matsuribayashi'],['komoriuta','sea','siren'],['choonpa','crystal','kyoumei'],['chinkonka','curse','soukyoku'],['sanbika','holylight','shukufuku'],['furin','kusabue','shirabe'],
   ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
+  // 要石と系統の結界：要石 ＋ その系統の★4 ならどれでも
+  ['mountain','holylight','kaname'],
+  ['kaname','eruption','flameward'],['kaname','foxfire','flameward'],['kaname','purgatory','flameward'],['kaname','sun','flameward'],['kaname','bonfire','flameward'],
+  ['kaname','ryugu','waterward'],['kaname','seaserpent','waterward'],['kaname','tsunami','waterward'],['kaname','awa','waterward'],
+  ['kaname','bottomless','earthward'],['kaname','antlion','earthward'],['kaname','colossus','earthward'],['kaname','peak','earthward'],['kaname','desert','earthward'],['kaname','concrete','earthward'],['kaname','jukai','earthward'],
+  ['kaname','typhoon','windward'],['kaname','storm','windward'],
+  ['kaname','raijin','voltward'],['kaname','thunderstorm','voltward'],['kaname','railgun','voltward'],['kaname','cataclysm','voltward'],
+  ['kaname','iceage','iceward'],['kaname','icespear','iceward'],['kaname','permafrost','iceward'],
+  ['kaname','forest','poisonward'],['kaname','mire','poisonward'],['kaname','abyss','poisonward'],['kaname','ekibyo','poisonward'],
+  ['kaname','wraith','darkward'],['kaname','shinso','darkward'],['kaname','reaper','darkward'],
+  ['kaname','particle','lightward'],['kaname','tenkou','lightward'],['kaname','star','lightward'],['kaname','mirror','lightward'],['kaname','kagerou','lightward'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -1208,9 +1231,9 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   earth:'earth',rock:'earth',mountain:'earth',peak:'earth',sand:'earth',quicksand:'earth',sandstorm:'earth',golem:'earth',colossus:'earth',swamp:'earth',
   wind:'wind',gust:'wind',tornado:'wind',typhoon:'wind',storm:'wind',fujin:'wind',
   bolt:'volt',inazuma:'volt',cataclysm:'volt',magnet:'volt',railgun:'volt',
-  ice:'ice',blizzard:'ice',frost:'ice',crystal:'ice',glass:'ice',
+  ice:'ice',blizzard:'ice',frost:'ice',crystal:'light',glass:'light',
   miasma:'poison',spore:'poison',bog:'poison',abyss:'poison',
-  curse:'dark',reaper:'dark',obsidian:'dark',
+  curse:'dark',reaper:'dark',obsidian:'earth',
   iron:'metal',titan:'metal',engine:'metal',
   star:'light',stone:'light',genesis:'light',dragon:'dragon',
   hotspring:'water',raincloud:'water',geyser:'water',plasma:'volt',thunderbird:'volt',eel:'volt',raijin:'volt',thunderlord:'volt',eternity:'dark',
@@ -1220,12 +1243,21 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',
   seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',fushoku:'poison',seiiki:'light',kayaku:'flame',ekibyo:'poison',barbwire:'metal',kosenjo:'dark',haikyo:'earth',
   wood:'earth',thicket:'earth',root:'earth',thorn:'earth',thornwall:'earth',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
-  flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
+  flower:'poison',venom:'poison',toxin:'poison',jungle:'earth',jukai:'earth',diamond:'light',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
 Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light',sekken:'water',cement:'earth',awa:'water',concrete:'earth',shabondama:'water'});
 Object.assign(FAMOF,{sound:'sound',hanabi:'sound',hamon:'sound',jibiki:'sound',fue:'sound',koto:'sound',suzu:'sound',juka:'sound',wakon:'sound',shakudama:'sound',furin:'sound',kusabue:'sound',taiko:'sound',seseragi:'sound',komoriuta:'sound',choonpa:'sound',chinkonka:'sound',sanbika:'sound',orgel:'sound',raimei:'sound',yamabiko:'sound',matsuribayashi:'sound',siren:'sound',kyoumei:'sound',soukyoku:'sound',shukufuku:'sound',shirabe:'sound',tengaku:'sound',goon:'sound',mateki:'sound',tenchi:'sound'}); // 音の系統：鎧の影が防ぐ系統にはない（鎧で弱められない）
-for(const k in ITEMS)if(FAMOF[k])ITEMS[k].fam=FAMOF[k]; // 元素の系統（灰は無属性のため未登録）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
+Object.assign(FAMOF,{flameward:'flame',waterward:'water',earthward:'earth',windward:'wind',voltward:'volt',iceward:'ice',poisonward:'poison',darkward:'dark',lightward:'light'});
+// 鋼・竜の系統はなくした（無系統）。発射音の音色だけは元のまま残す
+const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){TONE[k]=FAMOF[k];delete FAMOF[k]}
+// 2 つの系統を持つ元素（先に書いたほうが音色の系統）。鎧・結界・属性シナジーは、どれか 1 つが当てはまれば働く
+const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','flame'],blueflame:['flame','ice'],hotspring:['water','flame'],
+  cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],kaname:['earth','light'],
+  forest:['poison','earth'],abyss:['poison','dark'],yggdrasil:['earth','light'],kagerou:['light','flame'],
+  photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice']};
+for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
+const famL=f=>Array.isArray(f)?f:f&&f!=='none'?[f]:[]; // 系統を配列にそろえる（万華鏡の 1 発などは文字列）
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const sfx={
   pick(){tone(560,.1,'triangle',.17,880,0,{rev:.25});noise(.03,.06,5000,0,{type:'highpass',rev:0})},
@@ -1247,10 +1279,10 @@ const sfx={
   kill(){if(S.time-lastKill<.05)return;lastKill=S.time;const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1})},
   shoot(d){ // アイテムごとの発射音：系統×攻撃タイプ×ティアで合成する
     if(S.time-lastShot<.05)return;lastShot=S.time;
-    const F=FAM[d.fam||FAMOF[d.id]]||FAM.earth,t=d.t;
+    const F=FAM[d.tone||famL(d.fam)[0]]||FAM.earth,t=d.t;
     const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.13,.055+t*.013);
     if(t>=4)tone(f/2,.16,'sine',v*.7,f/3); // 高ティアは低音の芯を足す
-    if(d.fam==='sound'&&d.kind!=='chain'&&d.kind!=='pierce'){bell(f*1.5,.35,v*1.1,0,.4);return} // 音の元素：鐘のような音
+    if(famL(d.fam).includes('sound')&&d.kind!=='chain'&&d.kind!=='pierce'){bell(f*1.5,.35,v*1.1,0,.4);return} // 音の元素：鐘のような音
     switch(d.kind){
       case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.6,f*.5);break;
       case 'pulse':tone(f*.9,.22,'sine',v*1.7,f*.3);noise(.18,v*.8,F.nf);break;
@@ -1713,6 +1745,11 @@ const ICON={
 
 /* ---------------- 元素のスプライト ---------------- */
 let orbCache=new Map();
+// 系統の結界の絵：点線の輪の中に、その系統の元素の絵を小さく
+const wardIcon=f=>(g,c)=>{g.save();g.setLineDash([3.2,2.6]);g.lineWidth=1.7;g.beginPath();g.arc(0,0,15.5,0,TAU);g.stroke();g.restore();g.save();g.scale(.6,.6);ICON[ELEM[f].icon](g,c);g.restore()};
+for(const k in ITEMS)if(ITEMS[k].amp)ICON[k]=wardIcon(ITEMS[k].amp);
+ICON.kaname=(g,c)=>{g.beginPath();g.ellipse(0,3,13,10.5,0,0,TAU);g.fill();g.fillStyle='#00000055';g.beginPath();g.ellipse(4,7,7,4.5,0,0,TAU);g.fill(); // 要石：注連縄を巻いた丸い石
+  g.strokeStyle='#fffbe8';g.lineWidth=2.4;g.beginPath();g.moveTo(-12.5,-1);g.quadraticCurveTo(0,4.5,12.5,-1);g.stroke();g.lineWidth=1.6;for(const x of[-5,0,5]){g.beginPath();g.moveTo(x,2.6);g.lineTo(x,8.5);g.stroke()}};
 function orb(id,named){
   const key=named?id+'@':id;
   let c=orbCache.get(key);if(c)return c;
@@ -2151,20 +2188,28 @@ function bossPhase(e){
 }
 /* 属性シナジー：水の直撃で「濡れ」→雷が、氷の直撃で「脆化」→土が、それぞれ SYN_MUL 倍。ボスは持続が半分。状態は戦闘中のみ（セーブには入れない） */
 const SYN_MUL=1.5,SYN_T=2.5;
-function hurt(e,dmg,fam){ // fam：攻撃した元素の系統
+const AMP_MUL=2; // 系統の結界：輪の中の影が、その系統から受ける傷の倍率
+function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ系統の結界は重ならない）
+  if(!S.amps||!S.amps.length)return 1;
+  for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
+  return 1;
+}
+function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
-  const weak=!!e.armor&&!!fam&&fam!=='none'&&!(e.silT>0)&&fam===e.armor;
+  const fs=famL(fam);
+  const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
   if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
-  const syn=(fam==='volt'&&e.wetT>0)||(fam==='earth'&&e.britT>0)?SYN_MUL:1; // 属性シナジー：濡れ×雷／脆化×土（呪い・vul とは別枠）
-  dmg*=(e.curseT>0?e.curse:1)*(e.vul||1)*syn;e.hp-=dmg;e.flash=.08;
-  if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1)e.dnS=1;else if(e.curseT>0)e.dnC=1}
+  const syn=(fs.includes('volt')&&e.wetT>0)||(fs.includes('earth')&&e.britT>0)?SYN_MUL:1; // 属性シナジー：濡れ×雷／脆化×土（呪い・vul とは別枠）
+  const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
+  dmg*=(e.curseT>0?e.curse:1)*(e.vul||1)*syn*amp;e.hp-=dmg;e.flash=.08;
+  if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1)e.dnS=1;else if(e.curseT>0)e.dnC=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
 const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
 const STOP_RES=6,STOP_BOSS=.6; // 停止が解けたあとの耐性秒数／ボスに停止の代わりにかかる減速
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
-  { const f=d.fam||FAMOF[d.id],sk=f==='water'?'wetT':f==='ice'?'britT':null; // 濡れ・脆化：直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
+  for(const f of famL(d.fam||FAMOF[d.id])){const sk=f==='water'?'wetT':f==='ice'?'britT':null; // 濡れ・脆化：直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
     if(sk){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=bs?SYN_T/2:SYN_T;if(!(e[sk]>0))tag(e,sk==='wetT'?'stWet':'stBrit',sk==='wetT'?'#6ab8ff':'#e8f6ff');if(T>(e[sk]||0))e[sk]=T}}
   if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
   if(d.rust&&e.armor){e.armor=null;tag(e,'stRust',d.c)} // 錆：鎧の影の鎧がなくなる（この戦いの間ずっと）
@@ -2254,8 +2299,11 @@ function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
   a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
 }
 // 支援：魔法陣の上の支援の塔が、広さの中にいる味方の塔を強める。重ならない（いちばん強い 1 つだけ）。支援の塔どうしと罠には効かない
-function wardTick(dt=1/30){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）
-  for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];if(d.ward!=='sil'&&!(d.kind==='ward'&&d.slow))continue;
+function wardTick(dt=1/30){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）。系統の結界の輪もここで集める
+  S.amps=[];
+  for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];
+    if(d.amp){S.amps.push({f:d.amp,x:sl.x,y:sl.y,r2:d.range*d.range});continue}
+    if(d.ward!=='sil'&&!(d.kind==='ward'&&d.slow))continue;
     for(const e of S.enemies){if(e.dead||(e.x-sl.x)**2+(e.y-sl.y)**2>d.range*d.range)continue;
       if(d.slow)applyHit(e,d,1,d.c); // 廃墟：広さの中の影はずっと遅くなる
       if(d.ward!=='sil')continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3);if(d.dps)hurt(e,d.dps*enhM(it)*dt,d.fam)}}
@@ -2662,6 +2710,8 @@ function openDetail(id,from){
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
   if(d.ward==='sil')fx2.push([TT('stSil'),TT('dWardSil')]);
   if(d.dps)fx2.push([TT('dWardDpsK'),TT('dWardDps',d.dps)]);
+  if(!noAtk(d)){if(d.fam.includes('water'))fx2.push([TT('stWet'),TT('dWetV',SYN_MUL,num(SYN_T))]);if(d.fam.includes('ice'))fx2.push([TT('stBrit'),TT('dBritV',SYN_MUL,num(SYN_T))])} // 属性シナジー：当てた影を濡らす・脆くする
+  if(d.amp)fx2.push([TT('dAmpK'),TT('dAmpV',TT('f_'+d.amp),AMP_MUL)]);
   if(d.gold)fx2.push([TT('dGoldK'),TT('dGoldV',d.gold)]);
   if(d.heal)fx2.push([TT('dHealK'),TT('dHealV',d.heal)]);
   if(d.rust)fx2.push([TT('dRustK'),TT('dRustV')]);
@@ -2675,9 +2725,9 @@ function openDetail(id,from){
   const mk=MADE_BY[id]||[],mkK=mk.filter(m=>madeR.has(rkey(m[0],m[1]))),us=USES[id]||[],usK=us.filter(u=>madeR.has(rkey(id,u[0]))),usU=us.length-usK.length;
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
-  let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam&&TX['f_'+d.fam]?`<i>${TT('dFam',TT('f_'+d.fam))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
-  const synK={water:'dSynWater',ice:'dSynIce',volt:'dSynVolt',earth:'dSynEarth'}[d.fam]; // 属性シナジーの一文（水・氷・雷・土の系統の元素だけ）
-  h+=`<div class="dd">${ds(d)}</div>${synK?`<div class="dn">${TT(synK)}</div>`:''}<div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
+  let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam.length?`<i>${TT('dFam',d.fam.map(f=>TT('f_'+f)).join(LANG==='ja'?'・':' / '))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
+  const synK=d.fam.map(f=>({volt:'dSynVolt',earth:'dSynEarth'})[f]).filter(Boolean); // 属性シナジーで強くなる側の一文（雷・土の系統の元素だけ）。濡れ・脆化をかける側は「敵にかける効果」に出す
+  h+=`<div class="dd">${ds(d)}</div>${synK.map(k=>`<div class="dn">${TT(k)}</div>`).join('')}<div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(d.buffD!=null)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
