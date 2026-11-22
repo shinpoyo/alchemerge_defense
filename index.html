@@ -417,7 +417,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
-  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],dWetV:['雷の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Lightning, {1}s'],dBritV:['土の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Earth, {1}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
+  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],affWet:['雷','Lightning'],dWetV:['雷の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Lightning, {1}s'],dBritV:['土の攻撃を ×{0} で受ける、{1} 秒','Takes ×{0} from Earth, {1}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsHud:['工房 Lv{0}・★{1}まで','Workshop Lv{0} · ★{1}'],wsHudS:['工房 Lv{0}','Workshop Lv{0}'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
@@ -821,17 +821,9 @@ const RECIPES=[
   ['juka','bat','choonpa'],['juka','tomb','chinkonka'],['wakon','flash','sanbika'],['suzu','gem','orgel'],['hanabi','bolt','raimei'],
   ['taiko','mountain','yamabiko'],['taiko','shakudama','matsuribayashi'],['komoriuta','sea','siren'],['choonpa','crystal','kyoumei'],['chinkonka','curse','soukyoku'],['sanbika','holylight','shukufuku'],['furin','kusabue','shirabe'],
   ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
-  // 要石と系統の結界：要石 ＋ その系統の★4 ならどれでも
+  // 要石と系統の結界：要石 ＋ 系統ごとに決まった★4
   ['mountain','holylight','kaname'],
-  ['kaname','eruption','flameward'],['kaname','foxfire','flameward'],['kaname','purgatory','flameward'],['kaname','sun','flameward'],['kaname','bonfire','flameward'],
-  ['kaname','ryugu','waterward'],['kaname','seaserpent','waterward'],['kaname','tsunami','waterward'],['kaname','awa','waterward'],
-  ['kaname','bottomless','earthward'],['kaname','antlion','earthward'],['kaname','colossus','earthward'],['kaname','peak','earthward'],['kaname','desert','earthward'],['kaname','concrete','earthward'],['kaname','jukai','earthward'],
-  ['kaname','typhoon','windward'],['kaname','storm','windward'],
-  ['kaname','raijin','voltward'],['kaname','thunderstorm','voltward'],['kaname','railgun','voltward'],['kaname','cataclysm','voltward'],
-  ['kaname','iceage','iceward'],['kaname','icespear','iceward'],['kaname','permafrost','iceward'],
-  ['kaname','forest','poisonward'],['kaname','mire','poisonward'],['kaname','abyss','poisonward'],['kaname','ekibyo','poisonward'],
-  ['kaname','wraith','darkward'],['kaname','shinso','darkward'],['kaname','reaper','darkward'],
-  ['kaname','particle','lightward'],['kaname','tenkou','lightward'],['kaname','star','lightward'],['kaname','mirror','lightward'],['kaname','kagerou','lightward'],
+  ['kaname','purgatory','flameward'],['kaname','tsunami','waterward'],['kaname','peak','earthward'],['kaname','storm','windward'],['kaname','raijin','voltward'],['kaname','permafrost','iceward'],['kaname','mire','poisonward'],['kaname','wraith','darkward'],['kaname','tenkou','lightward'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
 const RECIPE={},MADE_BY={};
@@ -889,7 +881,22 @@ const STAGES=[
    paths:[[[-30,110],[120,110],[120,290],[225,290]],[[480,110],[330,110],[330,290],[225,290]],[[-30,470],[120,470],[120,290],[225,290]],[[480,470],[330,470],[330,290],[225,290]]],
    field:[[190,180],[260,180],[190,400],[260,400],[225,110],[225,470],[50,190],[50,290],[50,390],[400,190],[400,290],[400,390]],
    traps:[[60,110],[390,110],[60,470],[390,470],[170,290],[280,290]]},
+  // 属性の地：aff の系統で、影の受ける傷が変わる（weak ×AFF_WEAK、resist ×AFF_RES）。鎧の影は resist の系統をいつも防ぐ
+  // 凍った湖のまわりを一周してから、湖の真ん中の灯へ。氷の影は炎に弱く、氷が効きにくい
+  {name:'凍てつく湖',note:'凍った湖をめぐって中央の灯へ',en:'Frozen Lake',noteEn:'Circle the frozen lake to its heart',hp:1.25,spice:1.1,
+   aff:{weak:'flame',resist:'ice',c:'#8fe6ff'},neb:['#1d4a6e','#2a3a7e'],
+   paths:[[[-30,300],[60,300],[60,90],[390,90],[390,460],[140,460],[140,300],[225,300]]],
+   field:[[280,330],[200,380],[340,300],[200,230],[280,240],[270,400],[340,390],[110,240],[190,160],[270,160],[340,160],[110,170]],
+   traps:[[60,200],[225,90],[390,280],[265,460],[140,380]]},
+  // 水に沈んだ都。左上と右の水路が合わさり、下の灯へ。影はいつも濡れていて雷がよく効き、水は効きにくい
+  {name:'沈んだ都',note:'いつも濡れた影が水路を進む',en:'Sunken City',noteEn:'Ever-wet shades flood the canals',hp:1,spice:1.1,
+   aff:{resist:'water',wet:true},neb:['#12506a','#1d3a6e'],
+   paths:[[[-30,95],[330,95],[330,195],[120,195],[120,300],[225,300],[225,480]],[[480,300],[330,300],[330,400],[225,400],[225,480]]],
+   field:[[290,460],[160,370],[270,250],[400,370],[190,245],[160,455],[400,220],[55,250],[200,145],[270,145],[400,150],[60,150]],
+   traps:[[100,95],[330,145],[120,250],[225,440],[400,300]]},
 ];
+const AFF_WEAK=1.5,AFF_RES=.5; // 属性の地：弱い系統・効きにくい系統の倍率
+const affText=st=>TT('affLine',st.aff.wet?TT('affWet'):TT('f_'+st.aff.weak),TT('f_'+st.aff.resist));
 const NIGHT_HP=1.5,NIGHT_LIVES=12; // 「悪夢」：敵の体力 1.5 倍・灯 12
 const ABYSS_HP=2.2,ABYSS_LIVES=8,ABYSS_SPICE=1.5; // 「深淵」：悪夢のさらに上。敵の体力 2.2 倍・灯 8・くせのある敵 1.5 倍
 // 難易度：NIGHT は 0（通常）・1（悪夢）・2（深淵）。保存にある true/false（これまでの悪夢）は 1/0 として読む
@@ -1002,7 +1009,7 @@ const HEAL_R=64,HEAL_EVERY=1.2; // 癒す影：この広さの影を、この秒
 const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},earth:{c:'#c08a4a',icon:'earth'},wind:{c:'#7df0c0',icon:'wind'},volt:{c:'#ffe45c',icon:'bolt'},
   ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'}};
 const ARMOR_FAMS=Object.keys(ELEM);
-const armorFam=w=>ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
+const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
 const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
 function buildWave(w){
@@ -1253,7 +1260,7 @@ Object.assign(FAMOF,{flameward:'flame',waterward:'water',earthward:'earth',windw
 const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){TONE[k]=FAMOF[k];delete FAMOF[k]}
 // 2 つの系統を持つ元素（先に書いたほうが音色の系統）。鎧・結界・属性シナジーは、どれか 1 つが当てはまれば働く
 const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','flame'],blueflame:['flame','ice'],hotspring:['water','flame'],
-  cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],kaname:['earth','light'],
+  cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],
   forest:['poison','earth'],abyss:['poison','dark'],yggdrasil:['earth','light'],kagerou:['light','flame'],
   photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice']};
 for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
@@ -2148,6 +2155,7 @@ function startWave(){
   S.wave++;S.active=true;S.wt=0;S.started=true;
   if(S.tut<3)S.tut=3;if(S.wave>=3&&S.tut<9)tutDone();
   S.queue=buildWave(S.wave);
+  {const st=STAGES[STAGE];if(S.wave===1&&st.aff&&FX)fx.push({ty:'text',x:W/2,y:130,txt:affText(st),color:st.aff.c||'#6ab8ff',size:13,t:0,dur:5})} // 属性の地：最初の波で弱点を知らせる
   S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
   const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
@@ -2201,8 +2209,9 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれ
   if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
   const syn=(fs.includes('volt')&&e.wetT>0)||(fs.includes('earth')&&e.britT>0)?SYN_MUL:1; // 属性シナジー：濡れ×雷／脆化×土（呪い・vul とは別枠）
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
-  dmg*=(e.curseT>0?e.curse:1)*(e.vul||1)*syn*amp;e.hp-=dmg;e.flash=.08;
-  if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1)e.dnS=1;else if(e.curseT>0)e.dnC=1}
+  const sa=STAGES[STAGE].aff,af=sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1; // 属性の地
+  dmg*=(e.curseT>0?e.curse:1)*(e.vul||1)*syn*amp*af;e.hp-=dmg;e.flash=.08;
+  if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1||af>1)e.dnS=1;else if(af<1)e.dnW=1;else if(e.curseT>0)e.dnC=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
 const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
@@ -2458,7 +2467,7 @@ function update(dt){
     if(e.stopT>0)e.stopT-=dt;if(e.stopRes>0)e.stopRes-=dt;
     if(e.slowT>0&&!(e.stopT>0))e.slowT-=dt; // 停止中は減速タイマーを進めない（停止明けに効く）
     if(e.curseT>0){e.curseT-=dt;if(e.curseT<=0)e.curse=1}if(e.silT>0)e.silT-=dt;
-    if(e.wetT>0)e.wetT-=dt;if(e.britT>0)e.britT-=dt;
+    if(STAGES[STAGE].aff&&STAGES[STAGE].aff.wet)e.wetT=9;else if(e.wetT>0)e.wetT-=dt;if(e.britT>0)e.britT-=dt; // 沈んだ都：影はいつも濡れている
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
     if(e.flash>0)e.flash-=dt;
@@ -2824,7 +2833,7 @@ function openStages(){
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}</div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -3037,7 +3046,11 @@ function makeBg(){
   {const x=378,y=104;gr=g.createRadialGradient(x,y,0,x,y,74);gr.addColorStop(0,'rgba(232,195,106,.20)');gr.addColorStop(1,'rgba(232,195,106,0)');g.fillStyle=gr;g.fillRect(x-74,y-74,148,148);
    g.fillStyle='#e8dcc0';g.beginPath();g.arc(x,y,17,0,TAU);g.fill();
    g.globalCompositeOperation='destination-out';g.beginPath();g.arc(x+7,y-4,14.5,0,TAU);g.fill();g.globalCompositeOperation='source-over'}
-  for(let i=0;i<7;i++){const x=rnd(W),y=rnd(80,500),r=rnd(80,170);gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,rgba(i%2?'#3a1d6e':'#1d2a6e',.16));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
+  for(let i=0;i<7;i++){const x=rnd(W),y=rnd(80,500),r=rnd(80,170);gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,rgba((STAGES[STAGE].neb||['#3a1d6e','#1d2a6e'])[i%2],.16));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
+  {const sa=STAGES[STAGE].aff; // 属性の地の地面：凍った湖のひび／沈んだ都の波紋
+   if(sa&&sa.c){gr=g.createRadialGradient(225,280,0,225,280,200);gr.addColorStop(0,'rgba(170,230,255,.10)');gr.addColorStop(1,'rgba(170,230,255,0)');g.fillStyle=gr;g.beginPath();g.ellipse(225,280,180,200,0,0,TAU);g.fill();
+     g.strokeStyle='rgba(200,240,255,.10)';g.lineWidth=1;for(let i=0;i<14;i++){let x=rnd(110,340),y=rnd(140,420);g.beginPath();g.moveTo(x,y);for(let j=0;j<3;j++){x+=rnd(-30,30);y+=rnd(-30,30);g.lineTo(x,y)}g.stroke()}}
+   else if(sa&&sa.wet){g.strokeStyle='rgba(120,190,255,.08)';g.lineWidth=1;for(let i=0;i<18;i++){const x=rnd(W),y=rnd(60,500),r=rnd(8,26);for(const k of[1,.6]){g.beginPath();g.ellipse(x,y,r*k,r*k*.4,0,0,TAU);g.stroke()}}}}
   // 道
   const tr=()=>{g.beginPath();for(const P of PATHS)P.pts.forEach((p,i)=>g[i?'lineTo':'moveTo'](p[0],p[1]))};
   g.lineJoin='round';g.lineCap='round';
@@ -3214,6 +3227,7 @@ function drawEnemy(e){
   if(e.britT>0){ // 脆化：白いヒビと、頭上の印
     ctx.strokeStyle='rgba(235,246,255,.85)';ctx.lineWidth=1.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-r*.1,-r*.9);ctx.lineTo(r*.12,-r*.5);ctx.lineTo(-r*.08,-r*.2);ctx.lineTo(r*.15,r*.2);ctx.moveTo(r*.12,-r*.5);ctx.lineTo(r*.45,-r*.4);ctx.stroke();
     const bx=e.wetT>0?-23:-11,by=-r-17-(boss?12:0);ctx.strokeStyle='#e8f6ff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(bx-4,by);ctx.lineTo(bx+4,by);ctx.moveTo(bx,by-4);ctx.lineTo(bx,by+4);ctx.moveTo(bx-3,by-3);ctx.lineTo(bx+3,by+3);ctx.moveTo(bx+3,by-3);ctx.lineTo(bx-3,by+3);ctx.stroke()}
+  {const sa=STAGES[STAGE].aff;if(sa&&sa.c){ctx.strokeStyle=rgba(sa.c,.5);ctx.lineWidth=1.2;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(0,0,r+2,0,TAU);ctx.stroke();ctx.setLineDash([])}} // 属性の地：影のまわりに属性の色の点線
   if(e.silT>0){ // 沈黙：暗い渦と頭上の「×」印
     ctx.strokeStyle='#7a60b8';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r+6,-t*4,-t*4+3.6);ctx.stroke();
     const sx=e.curseT>0?8:0,sy=-r-17-(boss?12:0);ctx.lineCap='round';
