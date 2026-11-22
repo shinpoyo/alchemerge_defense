@@ -2408,7 +2408,8 @@ function update(dt){
     if(e.dead)continue;
     if(e.knT>0)e.knT-=dt;if(e.kb>0)e.kb-=dt;if(e.mirT>0)e.mirT-=dt;if(e.hazT>0)e.hazT-=dt;
     if(e.stopT>0)e.stopT-=dt;if(e.stopRes>0)e.stopRes-=dt;
-    if(e.slowT>0&&!(e.stopT>0))e.slowT-=dt; // 停止中は減速タイマーを進めない（停止明けに効く）if(e.curseT>0){e.curseT-=dt;if(e.curseT<=0)e.curse=1}if(e.silT>0)e.silT-=dt;
+    if(e.slowT>0&&!(e.stopT>0))e.slowT-=dt; // 停止中は減速タイマーを進めない（停止明けに効く）
+    if(e.curseT>0){e.curseT-=dt;if(e.curseT<=0)e.curse=1}if(e.silT>0)e.silT-=dt;
     if(e.wetT>0)e.wetT-=dt;if(e.britT>0)e.britT-=dt;
     if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
