@@ -523,16 +523,16 @@ const EN={ // 英語の名前と説明
   desert:['Desert','Hot sand slows what it hits'],kagerou:['Heat Haze','Trap: slows and briefly stops foes'],
   hai:['Ash','Burned-out remains'],sekken:['Soap','Trap: foes slip and slow down'],cement:['Cement','Trap: hardens on foes to slow them'],
   awa:['Foam','Wraps nearby foes in foam'],concrete:['Concrete','Crushes foes with a solid block'],shabondama:['Bubble Cage','Trap: traps foes in bubbles to stop them'],
-  time:['Time','Sends nearby foes back to where they were a moment ago'],candle:['Candle','Keeps burning nearby foes'],mizudokei:['Water Clock','Slows down time for nearby foes'],fossil:['Fossil','Sometimes turns a foe to stone for a moment'],
+  time:['Time','Sends nearby foes back to where they were a moment ago'],mizudokei:['Water Clock','Slows down time for nearby foes'],fossil:['Fossil','Sometimes turns a foe to stone for a moment'],
   fuka:['Weathering','Makes nearby foes brittle'],nenrin:['Tree Rings','Raises the damage of nearby towers'],hidokei:['Sundial','Its shadow hand burns and slows foes'],boukyaku:['Oblivion','Bounces between foes, sending each one back a little'],
   metronome:['Metronome','Speeds up nearby towers'],setsuna:['Instant','Extremely rapid shots'],sunadokei:['Hourglass','Trap: time nearly stops for foes that step on it'],kohaku:['Amber','Seals a foe and stops it'],
-  chisou:['Strata','A heavy blow that pushes foes back'],shinshoku:['Erosion','Makes nearby foes very brittle'],senkou:['Sparkler','Crackles around it and burns for a long time'],tokeitou:['Clock Tower','Greatly speeds up towers in range'],
+  chisou:['Strata','A heavy blow that pushes foes back'],shinshoku:['Erosion','Makes nearby foes very brittle'],tokeitou:['Clock Tower','Greatly speeds up towers in range'],
   kaichu:['Pocket Watch','A precise shot that briefly stops foes'],zanzou:['Afterimage','Pierces in a line and sends foes back a little'],gyakkou:['Rewind','Rewinds nearby foes'],oodokei:['Great Clock','Strong support: both damage and speed'],
   ancient:['Ancient Times','The weight of ages knocks foes back'],jikuu:['Spacetime','Slows foes over a wide area and rewinds them'],kasekimori:['Petrified Forest','Trap: turns foes to stone'],iseki:['Ruins','Makes foes over a wide area very brittle'],
   chronos:['Chronos','Slows time for foes over a wide area and speeds it up for towers (attack and support)'],doomsday:['Doomsday Clock','Rewinds foes far over a wide area and stops them'],
-  dream:['Dream','Sometimes confuses foes'],gentou:['Magic Lantern','Confuses nearby foes and burns them a little'],nemurigusuri:['Sleeping Potion','Splashes on impact and puts foes to sleep briefly'],toumin:['Hibernation','Slow pulses that put nearby foes to sleep for longer'],
-  chou:['Butterfly','Flutters from foe to foe, confusing them'],nemurigusa:['Sleepy Grass','Slows nearby foes and sometimes puts them to sleep'],hakuchumu:['Daydream','A beam that confuses foes'],muma:['Dream Demon','Bounces between foes, making them brittle'],
-  yochimu:['Prophetic Dream','A long-range shot that never misses'],maboroshi:['Illusion','Confuses all nearby foes'],poppy:['Poppy','Puts nearby foes to sleep'],gencho:['Phantom Butterfly','Confuses with every bounce'],
+  dream:['Dream','Sometimes confuses foes'],gentou:['Magic Lantern','Confuses nearby foes and burns them a little'],
+  nemurigusa:['Sleepy Grass','Slows nearby foes and sometimes puts them to sleep'],hakuchumu:['Daydream','A beam that confuses foes'],muma:['Dream Demon','Bounces between foes, making them brittle'],
+  yochimu:['Prophetic Dream','A long-range shot that never misses'],maboroshi:['Illusion','Confuses all nearby foes'],poppy:['Poppy','Puts nearby foes to sleep'],
   kanashibari:['Sleep Paralysis','Stops foes and makes them brittle'],kagee:['Shadow Play','Confuses nearby foes for a long time'],genshi:['Vision','Pierces in a line and confuses foes'],muyuu:['Sleepwalk','Sends foes back the way they came, asleep (long confusion)'],
   senrigan:['Clairvoyance','A powerful shot that reaches very far'],mugenyume:['Phantasm','Confuses foes over a wide area'],nemurinomori:['Sleeping Forest','Puts foes over a wide area to sleep'],shintaku:['Oracle','A strong light that pierces distant foes'],
   hypnos:['Hypnos','Puts foes over a wide area into a long sleep'],morpheus:['Morpheus','Confuses foes over a wide area and makes them brittle'],slumber:['Eternal Slumber','Long sleep over a wide area; foes wake up confused'],
@@ -775,7 +775,6 @@ const ITEMS={
   tenchi:  {name:'天地鳴動',t:6,c:'#ffd0f0',kind:'pulse',dmg:480,rate:.8,  range:185,stop:1,stopP:.3,curse:1.4,buffD:.30,buffR:.20,desc:'天と地が鳴り響く。広い範囲への攻撃と支援を兼ねる'},
   // 時（迷いの森をクリアすると届く基本元素）と、時から作る元素。rew：巻き戻し（その秒数ぶん前にいた場所へ戻す）
   time:    {name:'時',      t:1,c:'#c8d4ff',kind:'pulse',dmg:3,  rate:.8,  range:90, rew:.6,                   desc:'周りの敵を少し前の場所へ戻す'},
-  candle:  {name:'蝋燭',    t:2,c:'#ffd890',kind:'pulse',dmg:6,  rate:1,   range:85, dot:6,dotT:3,             desc:'周りの敵をじわじわ焼き続ける'},
   mizudokei:{name:'水時計', t:2,c:'#8ab8ff',kind:'pulse',dmg:5,  rate:1,   range:95, slow:.35,slowT:1.5,       desc:'周りの敵の時をゆっくりにする'},
   fossil:  {name:'化石',    t:2,c:'#c8b090',kind:'bolt', dmg:16, rate:.7,  range:110,stop:.6,stopP:.25,        desc:'当てた敵をときどき石のように止める'},
   fuka:    {name:'風化',    t:2,c:'#b8b0a0',kind:'pulse',dmg:6,  rate:1,   range:90, curse:1.25,              desc:'周りの敵をもろくする'},
@@ -788,7 +787,6 @@ const ITEMS={
   kohaku:  {name:'琥珀',    t:3,c:'#ffb040',kind:'bolt', dmg:40, rate:.7,  range:120,stop:.9,stopP:.3,         desc:'当てた敵を閉じ込めて止める'},
   chisou:  {name:'地層',    t:3,c:'#c89a70',kind:'pulse',dmg:50, rate:.6,  range:75, knock:14,                 desc:'重い一撃で押し戻す'},
   shinshoku:{name:'侵食',   t:3,c:'#9ab8c8',kind:'pulse',dmg:12, rate:1,   range:110,curse:1.4,               desc:'周りの敵を大きくもろくする'},
-  senkou:  {name:'線香花火',t:3,c:'#ffb070',kind:'pulse',dmg:20, rate:1,   range:95, dot:14,dotT:4,            desc:'周りで弾け、長く焼く'},
   tokeitou:{name:'時計塔',  t:3,c:'#d8c8a8',kind:'support',                range:140,buffD:.05,buffR:.22,      desc:'範囲内の塔の攻撃速度を大きく上げる'},
   kaichu:  {name:'懐中時計',t:3,c:'#e8d890',kind:'bolt', dmg:70, rate:.6,  range:160,fast:1,stop:.4,stopP:.3,  desc:'正確に撃ち抜き、少し止める'},
   zanzou:  {name:'残像',    t:3,c:'#d0e0ff',kind:'pierce',dmg:30,rate:1,   range:150,rew:.4,                   desc:'一直線に貫き、敵を少し前の場所へ戻す'},
@@ -803,16 +801,12 @@ const ITEMS={
   // 夢（王の間をクリアすると届く基本元素）と、夢から作る元素。conf：惑わし（その秒数、来た道を逆に歩く）。眠りは停止（stop）を長めに使う
   dream:   {name:'夢',      t:1,c:'#e0a8ff',kind:'bolt', dmg:5,  rate:1,   range:110,conf:.8,confP:.2,         desc:'当てた敵をときどき惑わせる'},
   gentou:  {name:'幻灯',    t:2,c:'#ffc890',kind:'pulse',dmg:8,  rate:1,   range:85, dot:4,dotT:2,conf:1,confP:.15,desc:'周りの敵を惑わせ、少し焼く'},
-  nemurigusuri:{name:'眠り薬',t:2,c:'#a8c8ff',kind:'bolt',dmg:8, rate:.8,  range:110,splash:35,stop:.8,stopP:.25,desc:'当たると周りに広がり、敵を短く眠らせる'},
-  toumin:  {name:'冬眠',    t:2,c:'#b8a080',kind:'pulse',dmg:8,  rate:.5,  range:90, stop:1.4,stopP:.3,        desc:'ゆっくり鳴り、周りの敵を長めに眠らせる'},
-  chou:    {name:'蝶',      t:2,c:'#ffb8f0',kind:'chain',dmg:7,  rate:1.1, range:125,chain:3,conf:.8,confP:.2, desc:'敵から敵へひらひら飛び、惑わせる'},
   nemurigusa:{name:'眠り草',t:2,c:'#a8e0a0',kind:'pulse',dmg:5,  rate:1,   range:95, slow:.25,slowT:1,stop:.8,stopP:.15,desc:'周りの敵を遅くし、ときどき眠らせる'},
   hakuchumu:{name:'白昼夢', t:2,c:'#fff0d0',kind:'beam', dmg:14,           range:120,beams:1,conf:.8,confP:.1, desc:'光線で敵を惑わせる'},
   muma:    {name:'夢魔',    t:2,c:'#b880e0',kind:'chain',dmg:9,  rate:1,   range:120,chain:3,curse:1.25,       desc:'当てた敵をもろくしながら跳ねる'},
   yochimu: {name:'予知夢',  t:2,c:'#c8e0ff',kind:'bolt', dmg:30, rate:.6,  range:170,fast:1,                   desc:'遠くまで届く、外れない一撃'},
   maboroshi:{name:'幻',     t:2,c:'#e8c0ff',kind:'pulse',dmg:5,  rate:.9,  range:95, conf:1,confP:.2,          desc:'周りの敵をまとめて惑わせる'},
   poppy:   {name:'ポピー',  t:3,c:'#ff7a8a',kind:'pulse',dmg:12, rate:.8,  range:110,stop:1.2,stopP:.3,        desc:'周りの敵を眠らせる'},
-  gencho:  {name:'幻蝶',    t:3,c:'#f0a8ff',kind:'chain',dmg:18, rate:1.3, range:135,chain:4,conf:1,confP:.2,  desc:'跳ねるたびに惑わせる'},
   kanashibari:{name:'金縛り',t:3,c:'#9a70d0',kind:'chain',dmg:20,rate:1,   range:125,chain:3,stop:.8,stopP:.3,curse:1.3,desc:'当てた敵を止めて、もろくする'},
   kagee:   {name:'影絵',    t:3,c:'#c8a0e0',kind:'pulse',dmg:14, rate:.9,  range:110,conf:1.5,confP:.25,       desc:'周りの敵を長く惑わせる'},
   genshi:  {name:'幻視',    t:3,c:'#fff0b0',kind:'pierce',dmg:30,rate:1,   range:150,conf:1,confP:.2,          desc:'一直線に貫き、惑わせる'},
@@ -898,14 +892,14 @@ const RECIPES=[
   ['mountain','holylight','kaname'],
   ['kaname','purgatory','flameward'],['kaname','tsunami','waterward'],['kaname','peak','earthward'],['kaname','storm','windward'],['kaname','raijin','voltward'],['kaname','permafrost','iceward'],['kaname','mire','poisonward'],['kaname','wraith','darkward'],['kaname','tenkou','lightward'],
   // 時
-  ['time','fire','candle'],['time','water','mizudokei'],['time','earth','fossil'],['time','wind','fuka'],['time','wood','nenrin'],['time','light','hidokei'],['time','dark','boukyaku'],['time','sound','metronome'],['time','time','setsuna'],
-  ['mizudokei','sand','sunadokei'],['fossil','leaves','kohaku'],['fossil','rock','chisou'],['fuka','pond','shinshoku'],['candle','hanabi','senkou'],['metronome','rock','tokeitou'],['metronome','gem','kaichu'],['setsuna','flash','zanzou'],['boukyaku','setsuna','gyakkou'],
+  ['time','water','mizudokei'],['time','earth','fossil'],['time','wind','fuka'],['time','wood','nenrin'],['time','light','hidokei'],['time','dark','boukyaku'],['time','sound','metronome'],['time','time','setsuna'],
+  ['mizudokei','sand','sunadokei'],['fossil','leaves','kohaku'],['fossil','rock','chisou'],['fuka','pond','shinshoku'],['metronome','rock','tokeitou'],['metronome','gem','kaichu'],['setsuna','flash','zanzou'],['boukyaku','setsuna','gyakkou'],
   ['tokeitou','kaichu','oodokei'],['chisou','mountain','ancient'],['gyakkou','zanzou','jikuu'],['sunadokei','kohaku','kasekimori'],['shinshoku','haikyo','iseki'],
   ['oodokei','jikuu','chronos'],['kasekimori','jikuu','stasis'],['chronos','stasis','doomsday'],
   // 夢
-  ['dream','fire','gentou'],['dream','water','nemurigusuri'],['dream','earth','toumin'],['dream','wind','chou'],['dream','wood','nemurigusa'],['dream','light','hakuchumu'],['dream','dark','muma'],['dream','time','yochimu'],['dream','dream','maboroshi'],
-  ['nemurigusa','flower','poppy'],['chou','maboroshi','gencho'],['muma','shadow','kanashibari'],['gentou','shadow','kagee'],['hakuchumu','flash','genshi'],['maboroshi','nemurigusuri','muyuu'],['yochimu','ray','senrigan'],
-  ['gencho','kagee','mugenyume'],['poppy','jungle','nemurinomori'],['genshi','senrigan','shintaku'],
+  ['dream','fire','gentou'],['dream','wood','nemurigusa'],['dream','light','hakuchumu'],['dream','dark','muma'],['dream','time','yochimu'],['dream','dream','maboroshi'],
+  ['nemurigusa','flower','poppy'],['muma','shadow','kanashibari'],['gentou','shadow','kagee'],['hakuchumu','flash','genshi'],['maboroshi','nemurigusa','muyuu'],['yochimu','ray','senrigan'],
+  ['kagee','muyuu','mugenyume'],['poppy','jungle','nemurinomori'],['genshi','senrigan','shintaku'],
   ['mugenyume','nemurinomori','hypnos'],['mugenyume','shintaku','morpheus'],['hypnos','morpheus','slumber'],
 ];
 const rkey=(a,b)=>a<b?a+'+'+b:b+'+'+a;
@@ -1368,8 +1362,8 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
 Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light',sekken:'water',cement:'earth',awa:'water',concrete:'earth',shabondama:'water'});
 Object.assign(FAMOF,{sound:'sound',hanabi:'sound',hamon:'sound',jibiki:'sound',fue:'sound',koto:'sound',suzu:'sound',juka:'sound',wakon:'sound',shakudama:'sound',furin:'sound',kusabue:'sound',taiko:'sound',seseragi:'sound',komoriuta:'sound',choonpa:'sound',chinkonka:'sound',sanbika:'sound',orgel:'sound',raimei:'sound',yamabiko:'sound',matsuribayashi:'sound',siren:'sound',kyoumei:'sound',soukyoku:'sound',shukufuku:'sound',shirabe:'sound',tengaku:'sound',goon:'sound',mateki:'sound',tenchi:'sound'}); // 音の系統：鎧の影が防ぐ系統にはない（鎧で弱められない）
 Object.assign(FAMOF,{flameward:'flame',waterward:'water',earthward:'earth',windward:'wind',voltward:'volt',iceward:'ice',poisonward:'poison',darkward:'dark',lightward:'light'});
-Object.assign(FAMOF,{time:'time',candle:'time',mizudokei:'time',fossil:'time',fuka:'time',nenrin:'time',hidokei:'time',boukyaku:'time',metronome:'time',setsuna:'time',sunadokei:'time',kohaku:'time',chisou:'time',shinshoku:'time',senkou:'time',tokeitou:'time',kaichu:'time',zanzou:'time',gyakkou:'time',oodokei:'time',ancient:'time',jikuu:'time',kasekimori:'time',iseki:'time',chronos:'time',doomsday:'time'});
-Object.assign(FAMOF,{dream:'dream',gentou:'dream',nemurigusuri:'dream',toumin:'dream',chou:'dream',nemurigusa:'dream',hakuchumu:'dream',muma:'dream',yochimu:'dream',maboroshi:'dream',poppy:'dream',gencho:'dream',kanashibari:'dream',kagee:'dream',genshi:'dream',muyuu:'dream',senrigan:'dream',mugenyume:'dream',nemurinomori:'dream',shintaku:'dream',hypnos:'dream',morpheus:'dream',slumber:'dream'});
+Object.assign(FAMOF,{time:'time',mizudokei:'time',fossil:'time',fuka:'time',nenrin:'time',hidokei:'time',boukyaku:'time',metronome:'time',setsuna:'time',sunadokei:'time',kohaku:'time',chisou:'time',shinshoku:'time',tokeitou:'time',kaichu:'time',zanzou:'time',gyakkou:'time',oodokei:'time',ancient:'time',jikuu:'time',kasekimori:'time',iseki:'time',chronos:'time',doomsday:'time'});
+Object.assign(FAMOF,{dream:'dream',gentou:'dream',nemurigusa:'dream',hakuchumu:'dream',muma:'dream',yochimu:'dream',maboroshi:'dream',poppy:'dream',kanashibari:'dream',kagee:'dream',genshi:'dream',muyuu:'dream',senrigan:'dream',mugenyume:'dream',nemurinomori:'dream',shintaku:'dream',hypnos:'dream',morpheus:'dream',slumber:'dream'});
 // 鋼・竜の系統はなくした（無系統）。発射音の音色だけは元のまま残す
 const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){TONE[k]=FAMOF[k];delete FAMOF[k]}
 // 2 つの系統を持つ元素（先に書いたほうが音色の系統）。鎧・結界・属性シナジーは、どれか 1 つが当てはまれば働く
@@ -1868,17 +1862,15 @@ const ICON={
 /* ---------------- 元素のスプライト ---------------- */
 let orbCache=new Map();
 // 系統の結界の絵：点線の輪の中に、その系統の元素の絵を小さく
-// 時・夢の元素のアイコンで使う部品（時計・砂時計・三日月・眠りの Z・渦）
+// 時・夢の元素のアイコンで使う部品（時計・砂時計・三日月・眠りの Z・渦・目）
 const clk=(g,x,y,r,a=-1.2,b=.5)=>{g.lineWidth=2;g.beginPath();g.arc(x,y,r,0,TAU);g.stroke();g.lineWidth=1.8;line(g,x,y,x+Math.cos(a)*r*.55,y+Math.sin(a)*r*.55);line(g,x,y,x+Math.cos(b)*r*.8,y+Math.sin(b)*r*.8);dot(g,x,y,1.6)};
 const hglass=(g,x,y,s)=>{g.lineWidth=1.8;line(g,x-7*s,y-12*s,x+7*s,y-12*s);line(g,x-7*s,y+12*s,x+7*s,y+12*s);poly(g,[x-5.5*s,y-12*s,x+5.5*s,y-12*s,x+1.2*s,y,x+5.5*s,y+12*s,x-5.5*s,y+12*s,x-1.2*s,y]);g.stroke();poly(g,[x-4.5*s,y+11*s,x+4.5*s,y+11*s,x,y+5*s]);g.fill();poly(g,[x-3*s,y-9*s,x+3*s,y-9*s,x,y-4.5*s]);g.fill()};
 const moon=(g,x,y,r)=>{const f=g.fillStyle;dot(g,x,y,r);g.fillStyle=DARK;dot(g,x+r*.48,y-r*.32,r*.82);g.fillStyle=f};
 const zz=(g,x,y,s)=>{g.lineWidth=1.5;line(g,x,y,x+4*s,y,x,y+4*s,x+4*s,y+4*s)};
 const swirl=(g,n,k,r0,w)=>{g.lineWidth=w;g.beginPath();for(let i=0;i<n;i++){const a=i*k,r=r0+i*(13-r0)/n;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.stroke()};
-const wings=(g,s)=>{g.beginPath();g.ellipse(-6*s,-4*s,6*s,7.5*s,-.5,0,TAU);g.fill();g.beginPath();g.ellipse(6*s,-4*s,6*s,7.5*s,.5,0,TAU);g.fill();g.beginPath();g.ellipse(-5*s,6*s,4*s,5*s,.4,0,TAU);g.fill();g.beginPath();g.ellipse(5*s,6*s,4*s,5*s,-.4,0,TAU);g.fill()};
 const eye=(g,w,h)=>{g.lineWidth=2;g.beginPath();g.moveTo(-w,0);g.quadraticCurveTo(0,-h,w,0);g.quadraticCurveTo(0,h,-w,0);g.stroke();dot(g,0,0,h*.38);g.fillStyle='#fff';dot(g,1.4,-1.4,1.3)};
 Object.assign(ICON,{
   time(g,c){clk(g,0,0,11.5,-1.9,-.3);g.lineWidth=1.4;for(let i=0;i<4;i++){const a=i/4*TAU;line(g,Math.cos(a)*9,Math.sin(a)*9,Math.cos(a)*11.5,Math.sin(a)*11.5)}},
-  candle(g,c){g.fillRect(-4.5,-1,9,14);g.fillStyle='#ffd27a';g.beginPath();g.ellipse(0,-7,3.2,5.5,0,0,TAU);g.fill();g.fillStyle='#fff';dot(g,0,-5.5,1.4);g.fillStyle='#00000045';g.fillRect(-4.5,4,9,1.6);g.fillStyle=c;dot(g,3.5,-1,1.8)},
   mizudokei(g,c){rr(g,-9,-13,18,10,2.5);g.stroke();g.fillStyle=rgba(c,.6);g.fillRect(-7,-7,14,3);g.fillStyle=c;dot(g,0,0,1.5);dot(g,0,3.6,1.2);rr(g,-10,6,20,7.5,2.5);g.fill();g.fillStyle='#ffffff80';g.fillRect(-7,7.5,14,1.4)},
   fossil(g,c){g.fillStyle=rgba(c,.35);dot(g,0,0,13);g.strokeStyle=c;swirl(g,42,.36,1,2.4)},
   fuka(g,c){poly(g,[-12,12,-11,-1,-5,-6,1,-2,7,-8,12,0,12,12]);g.fill();g.fillStyle=DARK;dot(g,-3,4,2);dot(g,5,6,1.5);dot(g,-7,8,1.1);g.strokeStyle='#ffffffb0';g.lineWidth=1.4;line(g,-14,-11,-5,-13);line(g,-11,-7,-1,-10)},
@@ -1891,7 +1883,6 @@ Object.assign(ICON,{
   kohaku(g,c){poly(g,[0,-13,10,-6,9,8,-5,12,-11,1,-7,-9]);g.fill();g.fillStyle='#ffffff60';poly(g,[-6,-8,-1,-11,-4,-3]);g.fill();g.fillStyle=DARK;g.beginPath();g.ellipse(0,2,2.2,3.6,.4,0,TAU);g.fill();g.strokeStyle=DARK;g.lineWidth=1;line(g,-4,-2,4,6);line(g,4,-1,-4,5)},
   chisou(g,c){for(let i=0;i<4;i++){g.fillStyle=rgba(c,1-i*.18);rr(g,-13,-12+i*6.4,26,5.6,1.2);g.fill()}g.strokeStyle='#fff3cf';g.lineWidth=1.2;g.beginPath();g.arc(4,-3,2.4,0,TAU*.8);g.stroke()},
   shinshoku(g,c){poly(g,[-13,-12,-1,-12,-4,-5,1,1,-3,7,0,12,-13,12]);g.fill();g.strokeStyle='#8ad0ff';g.lineWidth=2.4;g.beginPath();g.moveTo(13,-13);g.quadraticCurveTo(3,-2,6,4);g.quadraticCurveTo(9,9,5,13);g.stroke();g.fillStyle=DARK;dot(g,-6,-2,1.6)},
-  senkou(g,c){g.lineWidth=1.4;line(g,0,-14,0,1);g.fillStyle='#ffb040';dot(g,0,4,3.2);g.strokeStyle='#ffd27a';g.lineWidth=1.2;for(let i=0;i<10;i++){const a=i/10*TAU;line(g,Math.cos(a)*5.5,4+Math.sin(a)*5.5,Math.cos(a)*(i%2?9:11),4+Math.sin(a)*(i%2?9:11))}},
   tokeitou(g,c){poly(g,[-7,14,7,14,7,-4,0,-14,-7,-4]);g.fill();g.fillStyle=DARK;dot(g,0,0,4.6);g.fillRect(-2,8,4,6);g.strokeStyle=c;g.lineWidth=1.3;line(g,0,0,0,-3.2);line(g,0,0,2.6,1.2)},
   kaichu(g,c){clk(g,0,3,9.5,-1.3,.3);g.lineWidth=2;g.beginPath();g.arc(0,-9.5,2.7,0,TAU);g.stroke();g.lineWidth=1.2;line(g,2,-12,7,-14);g.fillStyle='#7af0e8';dot(g,0,3,1.6)},
   zanzou(g,c){for(const[x,a]of[[-8,.25],[-3,.55],[3,1]]){g.globalAlpha=a;dot(g,x,0,6.5)}g.globalAlpha=1;g.fillStyle='#ffffff';dot(g,4.5,-2,1.6)},
@@ -1905,16 +1896,12 @@ Object.assign(ICON,{
   doomsday(g,c){g.fillStyle=rgba('#ff4a5a',.85);g.beginPath();g.moveTo(0,1);g.arc(0,1,12,-1.57,-1.02);g.closePath();g.fill();g.fillStyle=c;clk(g,0,1,12,-1.62,-1.72);for(let i=0;i<12;i++){const a=i/12*TAU;dot(g,Math.cos(a)*9.4,1+Math.sin(a)*9.4,.8)}},
   dream(g,c){moon(g,-1,1,10);g.strokeStyle=c;zz(g,6,-13,1)},
   gentou(g,c){rr(g,-8,-8,16,19,3);g.stroke();g.fillStyle=rgba(c,.45);rr(g,-6,-6,12,15,2);g.fill();g.fillStyle='#fff';spark(g,0,1.5,5);g.lineWidth=1.6;line(g,0,-8,0,-13);line(g,-4,-13,4,-13)},
-  nemurigusuri(g,c){dot(g,0,4,8.5);g.fillRect(-3,-10,6,8);g.fillStyle='#fff';g.fillRect(-4.5,-13,9,3);g.fillStyle='#ffffff55';dot(g,-3,2,2.4);g.strokeStyle=DARK;zz(g,-2,3,1)},
-  toumin(g,c){g.beginPath();g.arc(0,13,13,Math.PI,0);g.fill();g.fillStyle=DARK;g.beginPath();g.ellipse(0,8.5,6,3.5,0,0,TAU);g.fill();g.fillStyle=c;dot(g,-2,8,1.6);g.strokeStyle=c;zz(g,3,-12,1);zz(g,9,-6,.7)},
-  chou(g,c){wings(g,1);g.fillStyle=DARK;g.fillRect(-1,-10,2,19);g.strokeStyle=c;g.lineWidth=1.2;line(g,0,-10,-3,-14);line(g,0,-10,3,-14)},
   nemurigusa(g,c){g.lineWidth=1.6;line(g,0,13,0,-11);for(const y of[-8,-2,4])for(const sx of[-1,1]){g.beginPath();g.ellipse(sx*4.5,y+2,4.2,1.8,sx*.5,0,TAU);g.fill()}g.strokeStyle='#ffffffb0';zz(g,6,-14,.7)},
   hakuchumu(g,c){g.fillStyle='#fff6c0';dot(g,-3,-3,6);g.strokeStyle='#fff6c0';g.lineWidth=1.4;for(let i=0;i<8;i++){const a=i/8*TAU;line(g,-3+Math.cos(a)*8,-3+Math.sin(a)*8,-3+Math.cos(a)*11,-3+Math.sin(a)*11)}g.fillStyle=c;cloud(g,7)},
   muma(g,c){poly(g,[-14,-7,-7,-2,-3,-11,0,-6,3,-11,7,-2,14,-7,11,7,0,3,-11,7]);g.fill();g.fillStyle='#ff6a9a';dot(g,-3,-2,1.6);dot(g,3,-2,1.6);g.strokeStyle=c;zz(g,-2,8,.8)},
   yochimu(g,c){eye(g,13,11);g.fillStyle='#fff6c0';spark(g,9,-10,3.4)},
   maboroshi(g,c){g.strokeStyle=c;swirl(g,48,.3,1.5,2);g.fillStyle='#ffffff';dot(g,8,-8,1.4);dot(g,-9,7,1.2);dot(g,-7,-9,1)},
   poppy(g,c){g.lineWidth=1.6;g.strokeStyle='#8ad86a';line(g,0,13,1,3);for(let i=0;i<5;i++){const a=i/5*TAU-TAU/4;dot(g,Math.cos(a)*5.5,-3+Math.sin(a)*5.5,5)}g.fillStyle=DARK;dot(g,0,-3,3);g.fillStyle='#ffffff90';dot(g,0,-3,1)},
-  gencho(g,c){g.globalAlpha=.4;g.save();g.translate(-3,2);wings(g,.9);g.restore();g.globalAlpha=1;wings(g,.9);g.fillStyle=DARK;g.fillRect(-1,-9,2,17);g.fillStyle='#ffffff';spark(g,10,-11,3);spark(g,-11,10,2.4)},
   kanashibari(g,c){dot(g,-8,5,3.8);rr(g,-4,2,17,6,2.5);g.fill();g.strokeStyle='#e6f9ff';g.lineWidth=1.5;for(const x of[-9,-2,5,11])line(g,x,-12,x,12);g.fillStyle=c;zz(g,-6,-11,.7)},
   kagee(g,c){g.fillStyle=rgba('#fff6c0',.35);dot(g,0,0,13);g.fillStyle=c;poly(g,[-12,11,-6,-3,-8,-13,-2,-6,4,-13,4,-3,12,2,4,6,0,11]);g.fill();g.fillStyle='#fff6c0';dot(g,1,-2,1.3)},
   genshi(g,c){eye(g,12,9);g.strokeStyle=c;g.lineWidth=1.3;for(const a of[-2.2,-1.57,-.94])line(g,Math.cos(a)*9,Math.sin(a)*9,Math.cos(a)*14,Math.sin(a)*14)},
@@ -2141,7 +2128,7 @@ const VIS={
   flower:'ripple',rainbow:'rays',aurora:'rays',holylight:'rays',
   hai:'puff',awa:'ripple',concrete:'rock',
   sound:'sonic',hanabi:'sonic',hamon:'sonic',jibiki:'sonic',suzu:'sonic',shakudama:'sonic',furin:'sonic',taiko:'sonic',seseragi:'sonic',komoriuta:'sonic',chinkonka:'sonic',yamabiko:'sonic',siren:'sonic',soukyoku:'sonic',goon:'sonic',mateki:'sonic',tenchi:'sonic',choonpa:'blade2',
-  candle:'flames',chisou:'slam',senkou:'flames',ancient:'slam',gentou:'fog',toumin:'fog',nemurigusa:'fog',maboroshi:'fog',poppy:'fog',kagee:'fog',muyuu:'fog',mugenyume:'fog',nemurinomori:'fog',hypnos:'fog',morpheus:'fog',slumber:'fog',
+  chisou:'slam',ancient:'slam',gentou:'fog',nemurigusa:'fog',maboroshi:'fog',poppy:'fog',kagee:'fog',muyuu:'fog',mugenyume:'fog',nemurinomori:'fog',hypnos:'fog',morpheus:'fog',slumber:'fog',
 };
 const POISON=new Set(['fushoku','ekibyo','barbwire','miasma','abyss','bog','spore','reaper','mire','forest','yggdrasil','flower','venom','toxin','jungle','jukai','thorn','thornwall']); // 継続ダメージが「毒」のもの（ほかは「燃焼」）
 const LOB={rock:1,glob:1,puff:1,shell:1};                        // 山なりに飛ぶ弾
