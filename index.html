@@ -1299,7 +1299,8 @@ const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){T
 const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','flame'],blueflame:['flame','ice'],hotspring:['water','flame'],
   cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],
   forest:['poison','earth'],abyss:['poison','dark'],yggdrasil:['earth','light'],kagerou:['light','flame'],
-  photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice']};
+  photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice'],
+  sandstorm:['earth','wind'],heat:['flame','wind'],thunderbird:['volt','wind'],kamikaze:['volt','wind']};
 for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const famL=f=>Array.isArray(f)?f:f&&f!=='none'?[f]:[]; // 系統を配列にそろえる（万華鏡の 1 発などは文字列）
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
