@@ -171,6 +171,13 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 .sbt em{font-style:normal;color:var(--gold)}
 #menu .mrow{display:flex;width:calc(var(--u)*284);justify-content:center}
 #flt{justify-content:flex-end;padding:0;background:#05040999}
+#flt.cx{z-index:5} /* 図鑑から開いたときは図鑑の上に重ね、後ろの図鑑で結果が見えるようにする */
+#flt .fp{max-height:calc(100% - var(--u)*16);overflow-y:auto;overscroll-behavior:contain}
+#cfb{position:relative;font-family:inherit;font-weight:700;font-size:calc(var(--u)*var(--f2));color:#cfc8e6;background:#100d1c;border:1px solid #5a4f86;border-radius:calc(var(--u)*18);
+  min-height:calc(var(--u)*36);padding:0 calc(var(--u)*14);margin-bottom:calc(var(--u)*4);cursor:pointer}
+#cfb.on{background:#3a2f15;border-color:var(--gold);color:#ffe9a0}
+#cfb.on:after{content:"";position:absolute;right:calc(var(--u)*-3);top:calc(var(--u)*-3);width:calc(var(--u)*10);height:calc(var(--u)*10);border-radius:50%;background:var(--gold)}
+.cnone{grid-column:1/-1;color:var(--dim);padding:calc(var(--u)*20) 0}
 #flt .fp{position:absolute;left:calc(var(--u)*8);right:calc(var(--u)*8);bottom:0;text-align:left;line-height:1.4;background:#1a1530f7;border:1px solid var(--gold);border-radius:calc(var(--u)*14);
   padding:calc(var(--u)*10) calc(var(--u)*12) calc(var(--u)*8);box-shadow:0 calc(var(--u)*-6) calc(var(--u)*20) #000a}
 #flt h4{margin:calc(var(--u)*6) 0 calc(var(--u)*4);font-size:calc(var(--u)*var(--f1));font-weight:400;color:#a9a2c0;letter-spacing:.1em}
@@ -275,6 +282,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
   <div class="ov" id="flt"><div class="fp" id="fltP">
     <div class="fps" id="fltPs"></div>
     <h4 id="fhRank"></h4><div class="chips" id="fRank"></div>
+    <h4 id="fhFam"></h4><div class="chips" id="fFam"></div>
     <h4 id="fhPlace"></h4><div class="chips" id="fPlace"></div>
     <h4 id="fhRole"></h4><div class="chips" id="fRole"></div>
     <h4 id="fhSort"></h4><div class="chips" id="fSort"></div>
@@ -292,6 +300,7 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
   <div class="ov" id="codex">
     <h2 id="hCodex">錬金図鑑</h2>
     <div id="cnt"></div>
+    <button id="cfb"></button>
     <div id="grid"></div>
     <div><button class="b s" id="bShare3">図鑑を共有</button><button class="b s" id="bClose">とじる</button></div>
   </div>
@@ -394,7 +403,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   findFirst:['錬成して見つけると呼び出せる','Discover it by merging first'],trashHint:['ここへ運ぶと魔力に還る','Drag here to refund mana'],
   left:['のこり {0}','{0} left'],fighting:['⏸ 迎撃中…','⏸ Fighting…'],pauseT:['一時停止','Paused'],pResume:['▶ 再開','▶ Resume'],nextWave:['▶ 第 {0} 波','▶ Wave {0}'],
   bMenu:['図鑑・設定','Codex・Menu'],fRank:['★（ランク）','★ Rank'],
-  fPlace:['置き場所','Placement'],fRole:['はたらき','Effect'],fSort:['並べ替え','Sort'],fOnly:['呼べるものだけ出す','Only what I can summon'],fReset:['リセット','Reset'],fPaused:['⏸ 一時停止中','⏸ Paused'],
+  fPlace:['置き場所','Placement'],fFam:['系統','Type'],fNoFam:['系統なし','No type'],cOnly:['見つけたものだけ出す','Only what I\'ve found'],cFlt:['⇅ しぼりこみ・並べ替え','⇅ Filter & sort'],cNone:['当てはまる元素がない','Nothing matches'],fRole:['はたらき','Effect'],fSort:['並べ替え','Sort'],fOnly:['呼べるものだけ出す','Only what I can summon'],fReset:['リセット','Reset'],fPaused:['⏸ 一時停止中','⏸ Paused'],
   fTower:['塔','Tower'],fTrap:['罠','Trap'],fBurn:['燃やす・毒','Burn/Poison'],fSlow:['遅くする','Slow'],fArea:['巻きこむ','Area'],fChain:['連鎖','Chain'],fPierce:['貫通','Pierce'],fBuff:['強くする','Buff'],
   sRank:['★順','By ★'],sCost:['安い順','Cheapest'],sPow:['威力順','Strongest'],sNew:['最近作った順','Recently made'],bTrashHot:['ここで還す','Sell here'],menuTitle:['設定','Settings'],mSound:['音：オン','Sound: On'],mMute:['音：オフ（すべて）','Sound: Off (all)'],mMusicOn:['音楽：オン','Music: On'],mMusicOff:['音楽：オフ','Music: Off'],mLang:['English に切りかえ','日本語に切りかえ'],
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
@@ -949,18 +958,22 @@ const rankLv=t=>t-1,rankOpen=t=>S.ws>=rankLv(t);
 const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
 // しぼりこみと並べ替え（⇅の窓で選ぶ）。rank・place・role は複数選べ、何も選んでいなければ全部を出す
 // rank：1〜6、place：tower/trap、role：burn/slow/area/chain/pierce/buff
-const FLT={rank:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
-const fltOn=()=>FLT.place.size>0||FLT.role.size>0||FLT.only; // ★以外で札をしぼっているか（並べ替えだけなら札は減らない）
+// fam：系統（none は系統なし）。図鑑は CFLT に別に持つ（only は「見つけたものだけ」）
+const FLT={rank:new Set(),fam:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
+const CFLT={rank:new Set(),fam:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
+const FAMS=['flame','water','earth','wind','volt','ice','poison','dark','light','sound'];
+const fltOn=(F=FLT)=>F.fam.size>0||F.place.size>0||F.role.size>0||F.only; // ★以外で札をしぼっているか（並べ替えだけなら札は減らない）
 const rankKey=()=>FLT.rank.size===1?[...FLT.rank][0]:0; // ★が 1 つだけなら、その★のタブとして扱う（横に流した位置を★ごとに覚える）
 function setRank(a){FLT.rank=new Set(a);SHOP.tab=rankKey();SHOP.scroll[SHOP.tab]=0}
 const ROLE={burn:d=>!!d.dot,slow:d=>!!(d.slow||d.stop||d.stun),area:d=>!!d.splash||d.kind==='pulse',chain:d=>d.kind==='chain',pierce:d=>d.kind==='pierce',buff:d=>d.kind==='support'};
 const PLACE={tower:d=>d.kind!=='trap'&&d.kind!=='relic',trap:d=>d.kind==='trap'};
-const fltOk=d=>(!FLT.place.size||[...FLT.place].some(k=>PLACE[k](d)))&&(!FLT.role.size||[...FLT.role].some(k=>ROLE[k](d)));
+const famOk=(d,k)=>k==='none'?!d.fam.length:d.fam.includes(k); // 2 系統の元素は、どちらの系統でも当てはまる
+const fltOk=(d,F=FLT)=>(!F.fam.size||[...F.fam].some(k=>famOk(d,k)))&&(!F.place.size||[...F.place].some(k=>PLACE[k](d)))&&(!F.role.size||[...F.role].some(k=>ROLE[k](d)));
 const power=d=>(d.dmg||0)*(d.rate||1)*(d.beams||1)+(d.dot||0);
-function fltSort(a){
-  if(FLT.sort==='cost')return a.sort((x,y)=>itemValue(x)-itemValue(y));
-  if(FLT.sort==='pow')return a.sort((x,y)=>power(y)-power(x));
-  if(FLT.sort==='new'){const m=[...S.made],r=id=>{const i=m.indexOf(id);return i<0?-1:i};return a.sort((x,y)=>r(y.id)-r(x.id))}
+function fltSort(a,F=FLT){
+  if(F.sort==='cost')return a.sort((x,y)=>itemValue(x)-itemValue(y));
+  if(F.sort==='pow')return a.sort((x,y)=>power(y)-power(x));
+  if(F.sort==='new'){const m=[...S.made],r=id=>{const i=m.indexOf(id);return i<0?-1:i};return a.sort((x,y)=>r(y.id)-r(x.id))}
   return a.sort((x,y)=>x.t-y.t);
 }
 function shopList(t){
@@ -2681,7 +2694,16 @@ const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKM
 function dpsOf(d){return d.kind==='trap'||noAtk(d)||d.kind==='mirror'?0:d.kind==='beam'&&!d.rate?d.dmg:d.dmg*d.rate} // 1 体に対する毎秒の威力（状態異常は別）
 let detailFrom=null,detailId=null;
 // 図鑑から開いたときは、図鑑の並び（★順）で見つけた元素だけを前後に送れる
-const codexOrder=()=>{const a=Object.values(ITEMS),o=[];for(let tr=1;tr<=6;tr++)for(const d of a)if(d.t===tr&&disc.has(d.id))o.push(d.id);return o};
+// 図鑑に出す並び：しぼりこみ（CFLT）を通した元素。★順なら★ごとの見出しつき、それ以外は見つけた元素を並べ替えたあとに、まだ見つけていない元素
+// ★以外でしぼっている間は、まだ見つけていない元素は出さない（ゲーム画面の一覧と同じ決まり）
+function codexList(){
+  const F=CFLT,a=Object.values(ITEMS).filter(d=>(!F.rank.size||F.rank.has(d.t))&&fltOk(d,F)),hideQ=fltOn(F);
+  const found=a.filter(d=>disc.has(d.id)),q=hideQ?[]:a.filter(d=>!disc.has(d.id));
+  if(F.sort==='rank'){const o=[];for(let tr=1;tr<=6;tr++){const r=found.concat(q).filter(d=>d.t===tr);if(r.length)o.push({tier:tr},...r)}return o}
+  return fltSort(found,F).concat(q);
+}
+// 図鑑から開いたときは、図鑑に出ている並び（しぼりこみ・並べ替えのあと）で見つけた元素だけを前後に送れる
+const codexOrder=()=>codexList().filter(d=>d.id&&disc.has(d.id)).map(d=>d.id);
 function detailStep(dir){
   if(detailFrom!=='codex'||!detailId)return;
   const o=codexOrder(),i=o.indexOf(detailId),j=i+dir;
@@ -2771,11 +2793,13 @@ function buyBtn(d){
 function openCodex(){
   const all=Object.values(ITEMS);
   $('#cnt').innerHTML=TT('found',disc.size,all.length)+'<br><small>'+TT('codexRule')+'</small>';
+  $('#cfb').textContent=TT('cFlt');$('#cfb').classList.toggle('on',fltOn(CFLT)||CFLT.rank.size>0||CFLT.sort!=='rank');
   let h='';
-  for(let tr=1;tr<=6;tr++){
-    h+=`<div class="tier">${'★'.repeat(tr)}</div>`;
-    for(const d of all.filter(d=>d.t===tr)){
-      const mk=MADE_BY[d.id];
+  const list=codexList();
+  if(!list.length)h=`<div class="cnone">${TT('cNone')}</div>`;
+  for(const d of list){
+      if(d.tier){h+=`<div class="tier">${'★'.repeat(d.tier)}</div>`;continue}
+      const tr=d.t,mk=MADE_BY[d.id];
       if(disc.has(d.id)){
         // 作り方は、実際にその組み合わせで錬成したことがあるものだけ、最大 3 通り（材料を持っているだけでは出さない。詳細画面と同じ決まり）
         const rs=mk?mk.filter(m=>madeR.has(rkey(m[0],m[1]))).slice(0,3):[];
@@ -2785,7 +2809,6 @@ function openCodex(){
         const hint=UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):kn?`${nm(ITEMS[kn[0]])} ＋ ？`:'？ ＋ ？';
         h+=`<div class="card q"><div class="o">？</div><b>？？？</b><em>${hint}</em>${TT(tr<6?'notYet':'theEnd')}</div>`;
       }
-    }
   }
   const g=$('#grid'),keep=$('#codex').classList.contains('on')?g.scrollTop:0;
   g.innerHTML=h;g.scrollTop=keep;show('codex');
@@ -2893,29 +2916,35 @@ function openAch(from){
   $('#aBody').scrollTop=0;show('ach');shownAt=performance.now();
 }
 $('#aClose').onclick=()=>{sfx.ui();subBack()};
-function openFilter(){
+let fltCx=false; // しぼりこみの窓を図鑑から開いているか（図鑑は CFLT、ゲーム画面の一覧は FLT）
+function fltChanged(){if(fltCx){openCodex();$('#grid').scrollTop=0}else SHOP.scroll[SHOP.tab]=0}
+function fltClose(){if(fltCx){$('#flt').classList.remove('on','cx');fltCx=false}else show(null)}
+function openFilter(cx=fltCx){
+  fltCx=cx;const F=cx?CFLT:FLT;
   // 複数選べる項目（Set）は押すたびに入れたり外したり、並べ替えは 1 つだけ
-  const grp=(el,key,opts)=>{const multi=FLT[key] instanceof Set,has=v=>multi?FLT[key].has(v):FLT[key]===v;
+  const grp=(el,key,opts)=>{const multi=F[key] instanceof Set,has=v=>multi?F[key].has(v):F[key]===v;
     $(el).innerHTML=opts.map(([v,l])=>`<button data-v="${v}" class="${has(v)?'on':''}">${l.startsWith('★')?l:TT(l)}</button>`).join('');
     $(el).onclick=e=>{const b=e.target.closest('button');if(!b)return;let v=b.dataset.v;sfx.ui();
-      if(key==='rank'){v=+v;const r=new Set(FLT.rank);r.has(v)?r.delete(v):r.add(v);setRank(r)}
-      else{if(multi)FLT[key].has(v)?FLT[key].delete(v):FLT[key].add(v);else FLT[key]=v;SHOP.scroll[SHOP.tab]=0}
-      openFilter()}};
+      if(key==='rank'){v=+v;const r=new Set(F.rank);r.has(v)?r.delete(v):r.add(v);if(cx)F.rank=r;else setRank(r)}
+      else if(multi)F[key].has(v)?F[key].delete(v):F[key].add(v);else F[key]=v;
+      fltChanged();openFilter()}};
   $('#fhRank').textContent=TT('fRank');grp('#fRank','rank',[1,2,3,4,5,6].map(n=>[n,'★'+n]));
+  $('#fhFam').textContent=TT('fFam');grp('#fFam','fam',FAMS.map(f=>[f,'f_'+f]).concat([['none','fNoFam']]));
   $('#fhPlace').textContent=TT('fPlace');$('#fhRole').textContent=TT('fRole');$('#fhSort').textContent=TT('fSort');
   grp('#fPlace','place',[['tower','fTower'],['trap','fTrap']]);
   grp('#fRole','role',[['burn','fBurn'],['slow','fSlow'],['area','fArea'],['chain','fChain'],['pierce','fPierce'],['buff','fBuff']]);
-  grp('#fSort','sort',[['rank','sRank'],['cost','sCost'],['pow','sPow'],['new','sNew']]);
-  $('#fOnlyL').textContent=TT('fOnly');$('#fOnly').classList.toggle('on',FLT.only);
+  grp('#fSort','sort',[['rank','sRank'],['cost','sCost'],['pow','sPow']].concat(cx?[]:[['new','sNew']])); // 最近作った順はその戦いの記録なので、図鑑には出さない
+  $('#fOnlyL').textContent=TT(cx?'cOnly':'fOnly');$('#fOnly').classList.toggle('on',F.only);
   $('#fReset').textContent=TT('fReset');$('#fClose').textContent=TT('close');
-  $('#fltPs').textContent=TT('fPaused');$('#fltPs').hidden=!S.active; // 波の最中は止めていることを知らせる
-  $('#fltP').style.bottom=`calc(var(--u)*${(H-TABS[0].y+6).toFixed(1)})`; // ★の行のすぐ上に開き、下の札で結果が見えるようにする
-  show('flt');
+  $('#fltPs').textContent=TT('fPaused');$('#fltPs').hidden=cx||!S.active; // 波の最中は止めていることを知らせる
+  $('#fltP').style.bottom=cx?`calc(var(--u)*8)`:`calc(var(--u)*${(H-TABS[0].y+6).toFixed(1)})`; // ★の行のすぐ上に開き、下の札で結果が見えるようにする（図鑑では画面の下に）
+  if(cx){$('#flt').classList.add('on','cx')}else{$('#flt').classList.remove('cx');show('flt')}
 }
-$('#fOnly').onclick=()=>{FLT.only=!FLT.only;sfx.ui();SHOP.scroll[SHOP.tab]=0;openFilter()};
-$('#fReset').onclick=()=>{Object.assign(FLT,{place:new Set(),role:new Set(),sort:'rank',only:false});setRank([]);sfx.ui();openFilter()};
-$('#fClose').onclick=()=>{sfx.ui();show(null)};
-$('#flt').onclick=e=>{if(e.target.id==='flt'){sfx.ui();show(null)}}; // 窓の外を押しても閉じる
+$('#fOnly').onclick=()=>{const F=fltCx?CFLT:FLT;F.only=!F.only;sfx.ui();fltChanged();openFilter()};
+$('#fReset').onclick=()=>{const F=fltCx?CFLT:FLT;Object.assign(F,{fam:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false});if(fltCx)F.rank=new Set();else setRank([]);sfx.ui();fltChanged();openFilter()};
+$('#fClose').onclick=()=>{sfx.ui();fltClose()};
+$('#flt').onclick=e=>{if(e.target.id==='flt'){sfx.ui();fltClose()}}; // 窓の外を押しても閉じる
+$('#cfb').onclick=()=>{sfx.ui();openFilter(true)};
 $('#mCodex').onclick=()=>{sfx.ui();openCodex();shownAt=performance.now()};
 $('#mAch').onclick=()=>{sfx.ui();openAch('menu')};
 $('#sAch').onclick=()=>{audio();sfx.ui();openAch('stages')};
