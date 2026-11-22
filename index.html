@@ -2357,11 +2357,14 @@ function bossPhase(e){
   fx.push({ty:'text',x:W/2,y:96,txt:TT('rageNote',nm2),color:'#ffb070',size:13,t:0,dur:3.2});
 }
 /* 属性シナジー：ある系統の直撃で影に状態をかけ、その状態の影は別の系統から SYN_MUL 倍の傷を受ける。ボスは持続が半分。状態は戦闘中のみ（セーブには入れない）
-   from：かける系統　to：よく効く系統　k：影の残り秒数　st：状態名　c：色。組は 2 系統の元素で自分にかからないように選ぶ（MULTI を見る） */
+   from：かける系統（表示用）　by：かける元素　to：よく効く系統　k：影の残り秒数　st：状態名　c：色。組は 2 系統の元素で自分にかからないように選ぶ（MULTI を見る） */
 const SYN_MUL=1.5,SYN_T=2.5;
-const SYN=[{from:'water',to:'volt',k:'wetT',st:'stWet',c:'#6ab8ff'},{from:'ice',to:'earth',k:'britT',st:'stBrit',c:'#e8f6ff'},
-  {from:'wind',to:'ice',k:'chillT',st:'stChill',c:'#a8f0e0'},{from:'poison',to:'wind',k:'corrT',st:'stCorr',c:'#9be05a'},
-  {from:'dark',to:'light',k:'fearT',st:'stFear',c:'#b08aff'},{from:'light',to:'dark',k:'dazzT',st:'stDazz',c:'#fff2a0'}];
+const SYN=[{from:'water',to:'volt',k:'wetT',st:'stWet',c:'#6ab8ff',by:['sea','raincloud','geyser','tsunami','storm','typhoon','poseidon']},
+  {from:'ice',to:'earth',k:'britT',st:'stBrit',c:'#e8f6ff',by:['blizzard','frost','iceage','absolutezero']},
+  {from:'wind',to:'ice',k:'chillT',st:'stChill',c:'#a8f0e0',by:['gust','tornado','storm','typhoon','fujin']},
+  {from:'poison',to:'wind',k:'corrT',st:'stCorr',c:'#9be05a',by:['miasma','fushoku','ekibyo','abyss']},
+  {from:'dark',to:'light',k:'fearT',st:'stFear',c:'#b08aff',by:['tomb','nightfall','wraith','reaper','hyakki']},
+  {from:'light',to:'dark',k:'dazzT',st:'stDazz',c:'#fff2a0',by:['flash','rainbow','holylight','sun']}]; // by：その状態をかける元素（系統の全部ではなく、名前や効果に合うものだけ）
 const AMP_MUL=2; // 系統の結界：輪の中の影が、その系統から受ける傷の倍率
 function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ系統の結界は重ならない）
   if(!S.amps||!S.amps.length)return 1;
@@ -2385,8 +2388,8 @@ const STOP_RES=6,STOP_BOSS=.6;
 const REW_CD=3,CONF_RES=4,CONF_SPD=.6; // 巻き戻し：同じ敵には REW_CD 秒に 1 回／惑わし：解けたあとの耐性秒数・逆に歩く速さ（ふだんの速さに対する割合） // 停止が解けたあとの耐性秒数／ボスに停止の代わりにかかる減速
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
-  {const fs=famL(d.fam||FAMOF[d.id]); // 属性シナジーの状態：直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
-    for(const y of SYN)if(fs.includes(y.from)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=bs?SYN_T/2:SYN_T;if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
+  {const id=d.id; // 属性シナジーの状態：決まった元素の直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
+    for(const y of SYN)if(y.by.includes(id)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=bs?SYN_T/2:SYN_T;if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
   if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
   if(d.rust&&e.armor){e.armor=null;tag(e,'stRust',d.c)} // 錆：鎧の影の鎧がなくなる（この戦いの間ずっと）
   const isBoss=e.type==='boss'||/[主王]$/.test(e.name||'');
@@ -2903,7 +2906,7 @@ function openDetail(id,from){
   if(d.sil)fx2.push([TT('stSil'),TT('dSil',num(d.sil))]);
   if(d.ward==='sil')fx2.push([TT('stSil'),TT('dWardSil')]);
   if(d.dps)fx2.push([TT('dWardDpsK'),TT('dWardDps',d.dps)]);
-  if(!noAtk(d))for(const y of SYN)if(d.fam.includes(y.from))fx2.push([TT(y.st),TT('dSynV',TT('f_'+y.to),SYN_MUL,num(SYN_T))]); // 属性シナジー：当てた影に状態をかける
+  if(!noAtk(d))for(const y of SYN)if(y.by.includes(id))fx2.push([TT(y.st),TT('dSynV',TT('f_'+y.to),SYN_MUL,num(SYN_T))]); // 属性シナジー：当てた影に状態をかける
   if(d.amp)fx2.push([TT('dAmpK'),TT('dAmpV',TT('f_'+d.amp),AMP_MUL)]);
   if(d.gold)fx2.push([TT('dGoldK'),TT('dGoldV',d.gold)]);
   if(d.heal)fx2.push([TT('dHealK'),TT('dHealV',d.heal)]);
