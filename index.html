@@ -539,10 +539,10 @@ const EN={ // 英語の名前と説明
   hypnos:['Hypnos','Puts foes over a wide area into a long sleep'],morpheus:['Morpheus','Confuses foes over a wide area and weakens them'],slumber:['Eternal Slumber','Long sleep over a wide area; foes wake up confused'],
   soul:['Soul','Grows a little stronger with each kill (soul harvest)'],hitodama:['Hitodama','A burning soul that keeps burning foes'],reikon:['Spirit','Gathered souls: harvests souls faster'],
   yuurei:['Ghost','Slips through everything and hits in a straight line'],kinosei:['Dryad','A soul living in a tree: entangles and slows nearby foes'],shugorei:['Guardian Spirit','Protects nearby towers and raises their damage'],
-  akuryo:['Evil Spirit','Bounces between foes, weakening them'],yousei:['Fairy','Darts about, shooting fast and slightly confusing foes'],tenshi:['Angel','Shoots light while strengthening nearby towers'],
+  akuryo:['Evil Spirit','Bounces between foes, cursing them'],yousei:['Fairy','Darts about, shooting fast and slightly confusing foes'],tenshi:['Angel','Shoots light while strengthening nearby towers'],
   shinrei:['Divine Spirit','Fires strong shots; higher soul harvest cap'],zombie:['Zombie','A corpse risen from the grave: rots and slows foes'],daitenshi:['Archangel','Strong light that strengthens towers over a wide area'],
-  youseinowa:['Fairy Ring','Trap: makes foes dance in the ring and stop'],akuma:['Demon','Burns with hellfire, bouncing between foes and weakening them'],succubus:['Succubus','Tempts foes to turn back and stand still'],
-  seraphim:['Seraphim','Burning light that scorches widely and strengthens towers'],maou:['Demon King','King of demons ruling the underworld: burns and weakens foes widely'],
+  youseinowa:['Fairy Ring','Trap: makes foes dance in the ring and stop'],akuma:['Demon','Burns with hellfire, bouncing between foes and cursing them'],succubus:['Succubus','Tempts foes to turn back and stand still'],
+  seraphim:['Seraphim','Burning light that scorches widely and strengthens towers'],maou:['Demon King','King of demons ruling the underworld: burns and curses foes widely'],
   datenshi:['Fallen Angel','An angel fallen to evil: dark light that weakens foes'],lilith:['Lilith','Mother of succubi: tempts foes over a wide area to turn back'],lucifer:['Lucifer','A fallen angel turned king of demons: scorches widely with light and dark'],
   void:['Void','A shot that erases weakened foes'],shinkuu:['Vacuum','A space without air: dulls the movement of nearby foes'],seijaku:['Silence','Sound vanishes: silences nearby foes, sealing armor and healing'],
   kanbatsu:['Drought','No water: slowly weakens nearby foes'],ana:['Pit','Trap: foes that fall in stop for a moment'],nukegara:['Husk','An empty vessel: weakens foes it hits'],
@@ -842,17 +842,17 @@ const ITEMS={
   yuurei:  {name:'幽霊',    t:2,c:'#e0e8ff',kind:'pierce',dmg:14,rate:1,   range:140,                          desc:'壁も敵もすり抜けて、一直線に当たる'},
   kinosei: {name:'木の精',  t:2,c:'#9ae08a',kind:'pulse',dmg:6,  rate:1,   range:95, slow:.3,slowT:1.2,         desc:'木に宿る魂。周りの敵を絡めて遅くする'},
   shugorei:{name:'守護霊',  t:2,c:'#fff0c0',kind:'support',                range:120,buffD:.15,buffR:0,        desc:'近くの塔を守り、ダメージを上げる'},
-  akuryo:  {name:'悪霊',    t:3,c:'#9a7ad8',kind:'chain',dmg:20, rate:1,   range:125,chain:3,curse:1.35,       desc:'当てた敵を弱らせながら跳ねる'},
+  akuryo:  {name:'悪霊',    t:3,c:'#9a7ad8',kind:'chain',dmg:20, rate:1,   range:125,chain:3,curse:1.35,       desc:'当てた敵を呪いながら跳ねる'},
   yousei:  {name:'妖精',    t:3,c:'#b8ffd8',kind:'bolt', dmg:14, rate:2.2, range:130,conf:.8,confP:.15,        desc:'すばやく飛び回って撃ち、少し惑わせる'},
   tenshi:  {name:'天使',    t:3,c:'#fff6d0',kind:'beam', dmg:24,           range:130,beams:1,buffD:.12,buffR:0, desc:'光で撃ちながら、周りの塔を強める'},
   shinrei: {name:'神霊',    t:3,c:'#e8f8ff',kind:'bolt', dmg:40, rate:.8,  range:140,soul:.04,soulMax:1,       desc:'神々しい霊。強い弾で撃ち、魂集めの上限が高い'},
   zombie:  {name:'ゾンビ',  t:3,c:'#9ac878',kind:'bolt', dmg:24, rate:.8,  range:110,dot:12,dotT:3,slow:.3,slowT:1.5,desc:'墓からよみがえった死体。当てた敵を蝕み、遅くする'},
   daitenshi:{name:'大天使', t:4,c:'#fff0b0',kind:'beam', dmg:70,           range:150,beams:2,buffD:.2,buffR:0,  desc:'強い光で撃ち、広く塔を強める'},
   youseinowa:{name:'妖精の輪',t:4,c:'#c8f0a0',kind:'trap',                 range:38, slow:.5,slowT:.3,stop:1.2, desc:'罠：輪に入った敵を踊らせて止める'},
-  akuma:   {name:'悪魔',    t:4,c:'#ff5a7a',kind:'chain',dmg:60, rate:1,   range:135,chain:4,dot:30,dotT:3,curse:1.45,desc:'地獄の炎で焼きながら、敵から敵へ跳ねて弱らせる'},
+  akuma:   {name:'悪魔',    t:4,c:'#ff5a7a',kind:'chain',dmg:60, rate:1,   range:135,chain:4,dot:30,dotT:3,curse:1.45,desc:'地獄の炎で焼きながら、敵から敵へ跳ねて呪う'},
   succubus:{name:'サキュバス',t:4,c:'#ff8ad0',kind:'bolt',dmg:50, rate:.8,  range:140,lure:2.2,lureP:.35,       desc:'当てた敵を誘惑して引き戻し、立ち止まらせる'},
   seraphim:{name:'セラフィム',t:5,c:'#ffe8a0',kind:'beam',dmg:150,         range:165,beams:3,dot:40,dotT:2,buffD:.3,buffR:0,desc:'燃える光で広く焼き、塔をすべて強める'},
-  maou:    {name:'魔王',    t:5,c:'#e04a6a',kind:'pulse',dmg:130,rate:.85, range:160,dot:50,dotT:3,curse:1.5,  desc:'冥府を治める悪魔の王。広い範囲の敵を焼き、弱らせる'},
+  maou:    {name:'魔王',    t:5,c:'#e04a6a',kind:'pulse',dmg:130,rate:.85, range:160,dot:50,dotT:3,curse:1.5,  desc:'冥府を治める悪魔の王。広い範囲の敵を焼き、呪う'},
   datenshi:{name:'堕天使',  t:5,c:'#a090c0',kind:'beam', dmg:150,          range:170,beams:2,curse:1.5,        desc:'悪に堕ちた天使。黒い光で貫き、弱らせる'},
   lilith:  {name:'リリス',  t:5,c:'#ff70b0',kind:'pulse',dmg:110,rate:.8,  range:160,lure:2.5,lureP:.3,curse:1.3,desc:'サキュバスたちの母。広い範囲の敵を誘惑して引き戻す'},
   lucifer: {name:'ルシファー',t:6,c:'#fff0f8',kind:'pulse',dmg:480,rate:.8, range:185,dot:80,dotT:3,curse:1.5,  desc:'悪魔の王になった堕天使。光と闇で広く焼き払う'},
@@ -875,7 +875,7 @@ const ITEMS={
 for(const k in ITEMS)ITEMS[k].id=k;
 /* 呪い：命を削る（毎秒、最大体力の一定割合）。curse の値（1.2〜1.6）から割合を決める。ほかの元素の curse は「弱り」（受ける傷が増える） */
 const DRAIN_K=.05,DRAIN_BOSS=.3,DRAIN_T=4;
-for(const k of['tomb','curse','vampire','wraith','shinso','reaper','abyss','hyakki','naraku','hellmouth','eternity','mugen','kosenjo','ninetails','juka','muma']){const d=ITEMS[k];d.drain=+((d.curse-1)*DRAIN_K).toFixed(4);delete d.curse}
+for(const k of['tomb','curse','vampire','wraith','shinso','reaper','abyss','hyakki','naraku','hellmouth','eternity','mugen','kosenjo','ninetails','juka','muma','akuryo','akuma','maou']){const d=ITEMS[k];d.drain=+((d.curse-1)*DRAIN_K).toFixed(4);delete d.curse}
 const RECIPES=[
   // おなじもの同士
   ['fire','fire','flame'],['water','water','pond'],['earth','earth','rock'],['wind','wind','gust'],
