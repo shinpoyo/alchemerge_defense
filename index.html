@@ -825,11 +825,11 @@ const RECIPES=[
   ['mountain','holylight','kaname'],
   ['kaname','eruption','flameward'],['kaname','foxfire','flameward'],['kaname','purgatory','flameward'],['kaname','sun','flameward'],['kaname','bonfire','flameward'],
   ['kaname','ryugu','waterward'],['kaname','seaserpent','waterward'],['kaname','tsunami','waterward'],['kaname','awa','waterward'],
-  ['kaname','bottomless','earthward'],['kaname','antlion','earthward'],['kaname','colossus','earthward'],['kaname','peak','earthward'],['kaname','desert','earthward'],['kaname','concrete','earthward'],
+  ['kaname','bottomless','earthward'],['kaname','antlion','earthward'],['kaname','colossus','earthward'],['kaname','peak','earthward'],['kaname','desert','earthward'],['kaname','concrete','earthward'],['kaname','jukai','earthward'],
   ['kaname','typhoon','windward'],['kaname','storm','windward'],
   ['kaname','raijin','voltward'],['kaname','thunderstorm','voltward'],['kaname','railgun','voltward'],['kaname','cataclysm','voltward'],
   ['kaname','iceage','iceward'],['kaname','icespear','iceward'],['kaname','permafrost','iceward'],
-  ['kaname','forest','poisonward'],['kaname','jukai','poisonward'],['kaname','mire','poisonward'],['kaname','abyss','poisonward'],['kaname','ekibyo','poisonward'],
+  ['kaname','forest','poisonward'],['kaname','mire','poisonward'],['kaname','abyss','poisonward'],['kaname','ekibyo','poisonward'],
   ['kaname','wraith','darkward'],['kaname','shinso','darkward'],['kaname','reaper','darkward'],
   ['kaname','particle','lightward'],['kaname','tenkou','lightward'],['kaname','star','lightward'],['kaname','mirror','lightward'],['kaname','kagerou','lightward'],
 ];
@@ -1231,9 +1231,9 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   earth:'earth',rock:'earth',mountain:'earth',peak:'earth',sand:'earth',quicksand:'earth',sandstorm:'earth',golem:'earth',colossus:'earth',swamp:'earth',
   wind:'wind',gust:'wind',tornado:'wind',typhoon:'wind',storm:'wind',fujin:'wind',
   bolt:'volt',inazuma:'volt',cataclysm:'volt',magnet:'volt',railgun:'volt',
-  ice:'ice',blizzard:'ice',frost:'ice',crystal:'ice',glass:'ice',
+  ice:'ice',blizzard:'ice',frost:'ice',crystal:'light',glass:'light',
   miasma:'poison',spore:'poison',bog:'poison',abyss:'poison',
-  curse:'dark',reaper:'dark',obsidian:'dark',
+  curse:'dark',reaper:'dark',obsidian:'earth',
   iron:'metal',titan:'metal',engine:'metal',
   star:'light',stone:'light',genesis:'light',dragon:'dragon',
   hotspring:'water',raincloud:'water',geyser:'water',plasma:'volt',thunderbird:'volt',eel:'volt',raijin:'volt',thunderlord:'volt',eternity:'dark',
@@ -1243,7 +1243,7 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',
   seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',fushoku:'poison',seiiki:'light',kayaku:'flame',ekibyo:'poison',barbwire:'metal',kosenjo:'dark',haikyo:'earth',
   wood:'earth',thicket:'earth',root:'earth',thorn:'earth',thornwall:'earth',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
-  flower:'poison',venom:'poison',toxin:'poison',jungle:'poison',jukai:'poison',diamond:'ice',
+  flower:'poison',venom:'poison',toxin:'poison',jungle:'earth',jukai:'earth',diamond:'light',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
 Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light',sekken:'water',cement:'earth',awa:'water',concrete:'earth',shabondama:'water'});
@@ -1254,6 +1254,7 @@ const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){T
 // 2 つの系統を持つ元素（先に書いたほうが音色の系統）。鎧・結界・属性シナジーは、どれか 1 つが当てはまれば働く
 const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','flame'],blueflame:['flame','ice'],hotspring:['water','flame'],
   cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],kaname:['earth','light'],
+  forest:['poison','earth'],abyss:['poison','dark'],yggdrasil:['earth','light'],kagerou:['light','flame'],
   photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice']};
 for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const famL=f=>Array.isArray(f)?f:f&&f!=='none'?[f]:[]; // 系統を配列にそろえる（万華鏡の 1 発などは文字列）
