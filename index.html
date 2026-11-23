@@ -427,7 +427,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_wood:['木','Wood'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],f_time:['時','Time'],f_dream:['夢','Dream'],f_soul:['魂','Soul'],f_void:['無','Void'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
-  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],affWet:['雷','Lightning'],dSynV:['{0}の攻撃を ×{1} で受ける、{2} 秒','Takes ×{1} from {0}, {2}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
+  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],gateLine:['{0}の敵　弱い：{1}　効きにくい：{2}','{0} foes · Weak: {1} · Resists: {2}'],affWet:['雷','Lightning'],dSynV:['{0}の攻撃を ×{1} で受ける、{2} 秒','Takes ×{1} from {0}, {2}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsHud:['工房 Lv{0}・★{1}まで','Workshop Lv{0} · ★{1}'],wsHudS:['工房 Lv{0}','Workshop Lv{0}'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
@@ -787,7 +787,7 @@ const ITEMS={
   goon:    {name:'轟音',    t:5,c:'#ff9060',kind:'pulse',dmg:130,rate:.8,  range:150,stop:.8,stopP:.35,        desc:'広い範囲の敵をまとめてひるませる'},
   mateki:  {name:'魔笛',    t:5,c:'#c070ff',kind:'pulse',dmg:110,rate:.9,  range:150,stop:1.5,stopP:.3,desc:'魔性の音色で敵を止める'},
   tenchi:  {name:'天地鳴動',t:6,c:'#ffd0f0',kind:'pulse',dmg:480,rate:.8,  range:185,stop:1,stopP:.3,buffD:.30,buffR:.20,desc:'天と地が鳴り響く。広い範囲への攻撃と支援を兼ねる'},
-  // 時（迷いの森をクリアすると届く基本元素）と、時から作る元素。rew：巻き戻し（その秒数ぶん前にいた場所へ戻す）
+  // 時（砂時計の峠をクリアすると届く基本元素）と、時から作る元素。rew：巻き戻し（その秒数ぶん前にいた場所へ戻す）
   time:    {name:'時',      t:1,c:'#c8d4ff',kind:'pulse',dmg:3,  rate:.8,  range:90, rew:.6,                   desc:'周りの敵を少し前の場所へ戻す'},
   shio:    {name:'潮',      t:2,c:'#8ab8ff',kind:'pulse',dmg:5,  rate:1,   range:95, slow:.35,slowT:1.5,       desc:'満ち引きで周りの敵を遅くする'},
   fossil:  {name:'化石',    t:2,c:'#c8b090',kind:'bolt', dmg:16, rate:.7,  range:110,stop:.6,stopP:.25,        desc:'当てた敵をときどき石のように止める'},
@@ -974,7 +974,8 @@ const RECIPE={},MADE_BY={};
 for(const[a,b,r]of RECIPES){RECIPE[rkey(a,b)]=r;(MADE_BY[r]=MADE_BY[r]||[]).push([a,b])} // 1 つの元素に作り方が複数あってよい
 const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
-const UNLOCK={wood:0,light:1,dark:2,sound:3,time:4,dream:5,soul:6,void:7}; // 基本元素の木・光・闇・音・時・夢・魂・無は、このステージ（の通常）をクリアすると届く。図鑑の数では開かない
+const UNLOCK={wood:0,light:1,dark:14,sound:2,time:6,dream:11,soul:3,void:15}; // 基本元素は、このステージ（STAGES の番号。通常の難易度）をクリアすると届く。図鑑の数では開かない
+// 並び順では 宵の回廊→木、螺旋の庭→光、十字の辻→闇、双つの門→音、砂時計の峠→時、光の届かぬ森→夢、三叉の谷→魂、星降りの道→無。王の間と最果ての祭壇は空き
 const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
 // 最高ランク（いまは★6）：これより上の錬成がない★。エンドレスでは盤面で選ぶと魔力で「+1」ずつ強化できる（上限なし）
 // +n の威力は (1+ENH_POW×n) 倍。+n から +n+1 への値段は ENH_COST+ENH_STEP×n（段ごとに少しずつ上がる）
@@ -999,11 +1000,11 @@ const STAGES=[
    paths:[[[-30,100],[390,100],[390,460],[60,460],[60,220],[270,220],[270,345]]],
    field:[[130,160],[200,160],[270,160],[330,160],[330,228],[330,296],[330,370],[130,290],[200,290],[130,372],[200,372],[270,405]],
    traps:[[200,100],[390,280],[225,460],[60,340],[165,220]]},
-  {name:'双つの門',note:'上下ふたつの入口',en:'Twin Gates',noteEn:'Two entrances, top and bottom',hp:.85,
+  {name:'双つの門',note:'上下ふたつの入口',en:'Twin Gates',noteEn:'Two entrances, top and bottom',hp:.85,gates:['flame','ice'],
    paths:[[[-30,95],[300,95],[300,190],[110,190],[110,290],[425,290]],[[-30,485],[300,485],[300,390],[110,390],[110,290],[425,290]]],
    field:[[130,142],[200,142],[130,438],[200,438],[190,240],[260,240],[190,340],[260,340],[370,150],[370,225],[370,355],[370,430]],
    traps:[[200,95],[200,485],[110,240],[110,340],[300,290]]},
-  {name:'三叉の谷',note:'三つの入口が真ん中で合流',en:'Three Forks',noteEn:'Three entrances merge',hp:.55,
+  {name:'三叉の谷',note:'三つの入口が真ん中で合流',en:'Three Forks',noteEn:'Three entrances merge',hp:.55,gates:['volt','ice','poison'],
    paths:[[[-30,95],[170,95],[170,290],[425,290]],[[-30,290],[425,290]],[[-30,485],[170,485],[170,290],[425,290]]],
    field:[[60,190],[120,190],[60,390],[120,390],[240,190],[320,190],[400,190],[240,390],[320,390],[400,390],[285,110],[285,470]],
    traps:[[95,95],[95,485],[95,290],[170,240],[300,290]]},
@@ -1016,7 +1017,7 @@ const STAGES=[
    field:[[100,170],[180,170],[260,170],[340,170],[150,235],[300,235],[150,345],[300,345],[120,410],[200,410],[280,410],[360,410]],
    traps:[[200,90],[400,190],[250,490],[50,390],[100,290]]},
   // 左右の門から入った道が、まん中の細い首で 1 本になり、まっすぐ下の灯へ落ちる。道は短いが、首から下は両側から挟み撃ちにできる
-  {name:'砂時計の峠',note:'左右の門が細い首でひとつに',en:'Hourglass Pass',noteEn:'Two gates pinch into one neck',hp:.8,spice:1.1,
+  {name:'砂時計の峠',note:'左右の門が細い首でひとつに',en:'Hourglass Pass',noteEn:'Two gates pinch into one neck',hp:.8,spice:1.1,gates:['earth','wind'],
    paths:[[[-30,90],[130,90],[130,230],[225,230],[225,480]],[[480,90],[320,90],[320,230],[225,230],[225,480]]],
    field:[[225,150],[55,175],[395,175],[75,310],[150,310],[300,310],[375,310],[75,390],[150,390],[300,390],[375,390],[150,465]],
    traps:[[60,90],[390,90],[225,230],[225,320],[225,420]]},
@@ -1062,8 +1063,25 @@ const STAGES=[
    paths:[[[-30,440],[120,440],[120,300],[225,300],[225,110]],[[480,440],[330,440],[330,300],[225,300],[225,110]]],
    field:[[150,150],[300,150],[150,230],[300,230],[70,180],[380,180],[175,380],[275,380],[60,300],[390,300],[60,380],[390,380]],
    traps:[[60,440],[390,440],[120,370],[330,370],[225,200]]},
+  // ここから下は、あとから足したステージ（進み具合はステージの番号で保存しているので、途中に挟まず末尾に足す。並ぶ順は ORDER で決める）
+  // 十字の辻：左上と右の入口から来た 2 本の道が十字に交わり、合流して下の灯へ。交わる所の罠は両方の道の敵にかかる
+  {name:'十字の辻',note:'ふたつの道が交わって下の灯へ',en:'Crossroads',noteEn:'Two roads cross on the way down',hp:.6,spice:1.1,
+   paths:[[[-30,90],[330,90],[330,380],[225,380],[225,480]],[[480,220],[120,220],[120,380],[225,380],[225,480]]],
+   field:[[55,155],[130,155],[270,155],[190,300],[260,300],[400,150],[400,300],[400,440],[55,300],[150,450],[300,450]],
+   traps:[[90,90],[330,220],[420,220],[120,310],[225,440]]},
+  // 星降りの道：上からまっすぐ下の灯へ。曲がり角のない、いちばん短い道
+  {name:'星降りの道',note:'上からまっすぐ下の灯へ',en:'Starfall Road',noteEn:'Straight down to the light',hp:.8,spice:1.2,
+   paths:[[[225,-30],[225,480]]],
+   field:[[150,110],[300,110],[150,200],[300,200],[150,290],[300,290],[150,380],[300,380],[70,155],[380,155],[70,335],[380,335]],
+   traps:[[225,110],[225,200],[225,290],[225,380],[225,440]]},
 ];
+// ステージの並ぶ順（STAGES の番号）。前のステージをクリアすると次が開く。迷いの森（4）は外した（並ばない）
+const ORDER=[0,8,1,10,14,9,2,12,6,11,13,3,15,5,7];
 const AFF_WEAK=1.5,AFF_RES=.5; // 属性の地：弱い系統・効きにくい系統の倍率
+const KING2_M=.6; // 夜の王が 2 体出るときの、1 体あたりの体力の倍率（2 体あわせて 1.2 倍）
+// 門ごとの系統の敵（双つの門・砂時計の峠・三叉の谷）：gates[i] は道 i から出る系統の敵。弱い系統 ×AFF_WEAK、その系統は効きにくい ×AFF_RES
+const GATE_FAM={flame:'water',ice:'flame',earth:'wind',wind:'earth',volt:'earth',poison:'wind'}; // 系統 → 弱い系統
+const gateText=f=>TT('gateLine',TT('f_'+f),TT('f_'+GATE_FAM[f]),TT('f_'+f));
 const affText=st=>TT('affLine',st.aff.wet?TT('affWet'):TT('f_'+st.aff.weak),TT('f_'+st.aff.resist));
 const NIGHT_HP=1.5,NIGHT_LIVES=12; // 「悪夢」：敵の体力 1.5 倍・灯 12
 const ABYSS_HP=2.2,ABYSS_LIVES=8,ABYSS_SPICE=1.5; // 「深淵」：悪夢のさらに上。敵の体力 2.2 倍・灯 8・くせのある敵 1.5 倍
@@ -1201,6 +1219,8 @@ function buildWave(w){
   if(w>=8)add('flyer',Math.ceil((2+Math.floor((w-8)*.5))*sp),gap);
   if(w>=11)add('splitter',Math.ceil((1+Math.floor((w-11)/2))*sp),gap*1.7);
   if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」
+  {const g=STAGES[STAGE].gates,k=q[q.length-1]; // 門が 2 つで系統の敵が出るステージ（双つの門・砂時計の峠）：夜の王は門ごとに 1 体ずつ、その門の系統で出る
+    if(g&&g.length===2&&k.final){k.path=0;k.m*=KING2_M;q.push({...k,path:1})}}
   return q;
 }
 
@@ -1232,12 +1252,12 @@ function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前�
   // 日付を 7 日ごとの組に分ける。組の 1 日目は組の番号だけで決め、2 日目からは「前の日のステージから 1〜L-1 だけ進める」ので、前の日と同じにならない。
   // 組の最後の日は、前の日とも、次の組の 1 日目ともちがうステージから選ぶ（組の境目でも続かない）。
   // 前の日を「ずらす前の値」で見ていたころは、前の日もずれていたときに同じステージが続くことがあった
-  const L=STAGES.length,B=7,h=x=>mixH(hsh('alchemerge:'+x)),[y,mo,d]=key.split('-'),n=Math.round(Date.UTC(+y,mo-1,+d)/864e5),b=Math.floor(n/B),first=g=>h('w'+g)%L;
+  const L=ORDER.length,B=7,h=x=>mixH(hsh('alchemerge:'+x)),[y,mo,d]=key.split('-'),n=Math.round(Date.UTC(+y,mo-1,+d)/864e5),b=Math.floor(n/B),first=g=>h('w'+g)%L;
   let s=first(b);
   for(let j=1;j<=n-b*B;j++){const r=h('d'+(b*B+j));
     if(j<B-1)s=(s+1+r%(L-1))%L;
-    else{const nx=first(b+1),c=STAGES.map((_,i)=>i).filter(i=>i!==s&&i!==nx);s=c[r%c.length]}}
-  return{stage:s,night:(h(key)>>>8)%3===0}; // 悪夢になる日は、これまでと同じ
+    else{const nx=first(b+1),c=ORDER.map((_,i)=>i).filter(i=>i!==s&&i!==nx);s=c[r%c.length]}}
+  return{stage:ORDER[s],night:(h(key)>>>8)%3===0}; // 悪夢になる日は、これまでと同じ
 }
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.daily&&typeof d.daily==='object')for(const k in d.daily){const v=d.daily[k];
   if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0)daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
@@ -1285,7 +1305,8 @@ function resumeRun(){
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[],chg:0,chgT:0,chgB:0}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n===2?'a':n?'n':'');
 const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
-const stageOpen=i=>i===0||rec(i-1,false).clear;      // 前のステージをクリアすると開く
+const prevStage=i=>{const k=ORDER.indexOf(i);return k>0?ORDER[k-1]:-1};
+const stageOpen=i=>{const p=prevStage(i),r=rec(i,false);return p<0||rec(p,false).clear||r.clear||r.best>0}; // 並び順で前のステージをクリアすると開く。並びを変える前に遊んだステージは開いたまま
 const nightOpen=i=>stageOpen(i)&&rec(i,false).clear; // そのステージをクリアすると「悪夢」が開く
 const abyssOpen=i=>nightOpen(i)&&rec(i,1).clear;     // 悪夢でクリアすると「深淵」が開く
 const diffOpen=(i,n)=>n===2?abyssOpen(i):n?nightOpen(i):stageOpen(i);
@@ -2444,7 +2465,11 @@ function startWave(){
 }
 function spawnEnemy(q){
   const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m,final=!!q.final;
-  let P=PATHS[S.spawned++%PATHS.length];
+  const pi=q.path??S.spawned++%PATHS.length;let P=PATHS[pi];
+  // 門ごとの系統の敵：その門から出る敵のおよそ半分（交互）が門の系統になる。夜の主と、門が 3 つのステージの夜の王は系統なし
+  const gs=STAGES[STAGE].gates;let gate=null;
+  if(gs&&gs[pi]&&!q.free){if(q.type==='boss'){if(final&&gs.length===2)gate=gs[pi]}else{S.gateN=S.gateN||{};const n=S.gateN[pi]=(S.gateN[pi]||0)+1;if(n%2)gate=gs[pi]}}
+  if(gate&&!S.seen['gate_'+gate]){S.seen['gate_'+gate]=1;if(FX)fx.push({ty:'text',x:W/2,y:116+pi*22,txt:gateText(gate),color:ELEM[gate].c,size:13,t:0,dur:4.5})} // 初めて出た系統の敵は弱点を知らせる
   if(d.fly){ // 飛ぶ敵は、その道の入口から灯までの直線を進む
     if(!P.air){const a=P.pts[0],b=P.pts[P.pts.length-1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);P.air={pts:[a,b],seg:[{ax:a[0],ay:a[1],bx:b[0],by:b[1],l,s:0}],len:l}}
     P=P.air;
@@ -2452,7 +2477,7 @@ function spawnEnemy(q){
   const armor=d.armor?armorFam(S.wave):null,sk=armor?'armored'+S.wave:q.type; // 鎧の影は、防ぐ系統が波ごとに変わるので、波ごとに紹介する
   if(!S.seen[sk]&&TX['e_'+q.type]){S.seen[sk]=1;if(FX)fx.push({ty:'text',x:W/2,y:96,txt:armor?TT('e_armored',TT('f_'+armor)):TT('e_'+q.type),color:armor?ELEM[armor].c:d.rim,size:13,t:0,dur:armor?4:3.2})} // 初めて出た種類は一言で紹介
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
-    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,healT:rnd(.5,HEAL_EVERY)});
+    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
     const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;S.bossLag=1;S.bossA=0;
     if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
@@ -2498,7 +2523,8 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれ
   if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
   const syn=SYN.some(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)))?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
-  const sa=STAGES[STAGE].aff,af=sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1; // 属性の地
+  const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
+    *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
   dmg*=(e.vul||1)*syn*amp*af;e.hp-=dmg;e.flash=.08;
   if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1||af>1)e.dnS=1;else if(af<1)e.dnW=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
@@ -2577,7 +2603,7 @@ function kill(e){
   if(e.def.split&&!e.dead){ // 分かれる影：倒れた場所から小さい影が出る（魔力は親のぶんだけ）
     for(let i=0;i<e.def.split;i++){const hp=e.max*.3;
       S.enemies.push({type:'mite',def:ENEMY.mite,P:e.P,hp,max:hp,d:Math.max(0,e.d-i*9),x:e.x,y:e.y,r:ENEMY.mite.r*1.15,
-        slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false})}
+        slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false,gate:e.gate})}
     if(FX){ring(e.x,e.y,e.def.rim,34,.35,3);burst(e.x,e.y,e.def.rim,12,150)}
   }
   if(e.plague&&e.dotT>0&&!e.dead){const r=e.plague,pd={id:'ekibyo',dot:e.dot,dotT:4,fam:e.dotF,plague:r}; // 疫病：毒で倒れた影から、まわりの影へ同じ毒がうつる
@@ -3137,10 +3163,10 @@ $('#grid').addEventListener('click',ev=>{
 function openStages(){
   if(nightSel!==null){NIGHT=nightSel;nightSel=null} // 今日の挑戦から戻ったら、難易度の選択を挑戦の前に戻す
   NIGHT=toDiff(NIGHT);
-  while(NIGHT&&!STAGES.some((_,i)=>diffOpen(i,NIGHT)))NIGHT--; // 開いていない難易度が選ばれていたら、1 段ずつ下げる
+  while(NIGHT&&!ORDER.some(i=>diffOpen(i,NIGHT)))NIGHT--; // 開いていない難易度が選ばれていたら、1 段ずつ下げる
   $('#dNorm').classList.toggle('on',!NIGHT);$('#dNight').classList.toggle('on',NIGHT===1);$('#dAbyss').classList.toggle('on',NIGHT===2);
-  $('#dNight').disabled=!STAGES.some((_,i)=>nightOpen(i));
-  $('#dAbyss').disabled=!STAGES.some((_,i)=>abyssOpen(i));
+  $('#dNight').disabled=!ORDER.some(i=>nightOpen(i));
+  $('#dAbyss').disabled=!ORDER.some(i=>abyssOpen(i));
   $('#dNote').textContent=NIGHT===2?TT('abyssNote',ABYSS_HP,ABYSS_LIVES,ABYSS_SPICE):NIGHT?TT('nightNote',NIGHT_HP,NIGHT_LIVES)+($('#dAbyss').disabled?TT('abyssHint'):''):$('#dNight').disabled?TT('nightLocked'):TT('carry');
   const box=$('#slist');box.innerHTML='';
   if(RUN){ // 途中保存があれば、先頭に「つづきから」
@@ -3162,12 +3188,12 @@ function openStages(){
     box.appendChild(b);
   };
   if(dayOpen)dayBtn();
-  STAGES.forEach((st,i)=>{
+  ORDER.forEach(i=>{const st=STAGES[i];
     const open=diffOpen(i,NIGHT),r=rec(i,NIGHT),b=document.createElement('button');
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}</div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -3181,7 +3207,7 @@ function openStages(){
    ok のないもの（flawless）は、その場面で grantAch を呼ぶ。
    今日の挑戦の扱い：ステージの進行にかかわる実績（主・王・クリア・悪夢・エンドレス・消えない灯）は、今日の挑戦では解除しない。
    通算の数（撃破・錬成）と図鑑は、挑戦のぶんも統計・図鑑に入るので、そのまま数える。daily10 は挑戦だけの実績 */
-const anyClear=n=>STAGES.some((_,i)=>rec(i,n).clear),clearN=n=>STAGES.filter((_,i)=>rec(i,n).clear).length;
+const anyClear=n=>STAGES.some((_,i)=>rec(i,n).clear),clearN=n=>ORDER.filter(i=>rec(i,n).clear).length;
 const bestWaveAll=()=>Object.values(prog).reduce((m,r)=>Math.max(m,r&&r.best||0),0); // ふつうのステージ（通常・悪夢）での最高到達波。今日の挑戦の記録は入れない
 const dailyTop=()=>Object.values(daily).reduce((m,r)=>Math.max(m,r.best),0);
 const T6=Object.values(ITEMS).filter(d=>d.t>=6).map(d=>d.id),ENDLESS_GOAL=30;
@@ -3191,10 +3217,10 @@ const ACH=[
   {id:'firstBoss',ok:()=>anyClear(false)||anyClear(true)}, // クリアしていれば、主も王も倒している。倒したその場での解除は、敵を倒す処理の中（stats.bosses・kings は挑戦のぶんも入るので、ここでは見ない）
   {id:'king',ok:()=>anyClear(false)||anyClear(true)},
   {id:'clear1',ok:()=>anyClear(false)||anyClear(true)},
-  {id:'clearAll',arg:()=>[STAGES.length],ok:()=>clearN(false)>=STAGES.length,pg:()=>[clearN(false),STAGES.length]},
+  {id:'clearAll',arg:()=>[ORDER.length],ok:()=>clearN(false)>=ORDER.length,pg:()=>[clearN(false),ORDER.length]},
   {id:'night1',ok:()=>anyClear(true)},
   {id:'abyss1',ok:()=>anyClear(2)},
-  {id:'nightAll',arg:()=>[STAGES.length],ok:()=>clearN(true)>=STAGES.length,pg:()=>[clearN(true),STAGES.length]},
+  {id:'nightAll',arg:()=>[ORDER.length],ok:()=>clearN(true)>=ORDER.length,pg:()=>[clearN(true),ORDER.length]},
   achCodex('codex25',.25),achCodex('codex50',.5),achCodex('codex100',1),
   {id:'star6',ok:()=>T6.some(i=>disc.has(i))},
   {id:'endless30',arg:()=>[ENDLESS_GOAL],ok:()=>bestWaveAll()>=ENDLESS_GOAL,pg:()=>[bestWaveAll(),ENDLESS_GOAL]},
@@ -3273,7 +3299,7 @@ function openStats(from){
     +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
     +row(TT('stFound'),`${disc.size} / ${TOTAL}`)+'</div>';
   h+=`<div class="dsec">${TT('stStage')}</div><div class="sbt"><span></span><i>${TT('normal')}</i><i>${TT('night')}</i><i>${TT('abyss')}</i>`
-    +STAGES.map((st,i)=>`<b>${sn(st)}</b><span>${best(i,0)}</span><span>${best(i,1)}</span><span>${best(i,2)}</span>`).join('')+'</div>';
+    +ORDER.map(i=>{const st=STAGES[i];return`<b>${sn(st)}</b><span>${best(i,0)}</span><span>${best(i,1)}</span><span>${best(i,2)}</span>`}).join('')+'</div>';
   const dk=Object.keys(daily).sort().reverse(),dl=k=>{const[y,m,d]=k.split('-');return new Date(+y,m-1,+d).toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'})};
   h+=`<div class="dsec">${TT('stDaily')}</div><div class="dst">`+row(TT('stDays'),fmtN(dk.length))
     +dk.slice(0,7).map(k=>row(`${dl(k)}　${sn(STAGES[daily[k].stage])}${dParen(+daily[k].night)}`,TT(daily[k].clear?'stDayClear':'stDayWave',daily[k].best))).join('')+'</div>';
@@ -3579,6 +3605,7 @@ function drawEnemy(e){
     ctx.strokeStyle=rgba(y.c,.85);ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,r+5+i*2,-t*2-i*1.6,-t*2-i*1.6+2.2);ctx.stroke();
     const qx=14+i*8,qy=-r-17-(boss?12:0);ctx.fillStyle='#07060d';ctx.beginPath();ctx.arc(qx,qy,3.6,0,TAU);ctx.fill();ctx.fillStyle=y.c;ctx.beginPath();ctx.arc(qx,qy,2.5,0,TAU);ctx.fill();i++}}
   {const sa=STAGES[STAGE].aff;if(sa&&sa.c){ctx.strokeStyle=rgba(sa.c,.5);ctx.lineWidth=1.2;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(0,0,r+2,0,TAU);ctx.stroke();ctx.setLineDash([])}} // 属性の地：影のまわりに属性の色の点線
+  if(e.gate){const c=ELEM[e.gate].c;ctx.strokeStyle=rgba(c,.9);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r+2,0,TAU);ctx.stroke();ctx.fillStyle=rgba(c,.22);ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill()} // 門ごとの系統の敵：系統の色の輪と、うっすら色づいた体
   if(e.silT>0){ // 沈黙：暗い渦と頭上の「×」印
     ctx.strokeStyle='#7a60b8';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r+6,-t*4,-t*4+3.6);ctx.stroke();
     const sx=e.drainT>0?8:0,sy=-r-17-(boss?12:0);ctx.lineCap='round';
