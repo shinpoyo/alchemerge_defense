@@ -36,6 +36,22 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ov.clear>div:last-child{padding:calc(var(--u)*6) calc(var(--u)*10);border-radius:calc(var(--u)*30);background:#07060dcc;box-shadow:0 0 calc(var(--u)*24) calc(var(--u)*10) #07060dcc} /* 下の作業台の元素と重ならないよう、ボタンの後ろを暗くする */
 .ov.clear>div:last-child button.b.s{background:linear-gradient(180deg,#2a1f55,#120c2a)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
+/* 基本元素の取得演出：.on ではなく .go で開く（show() の切りかえに巻きこまれず、クリア画面へ重ねられる） */
+#baseGet{display:none;z-index:6;background:none;cursor:pointer;overflow:hidden}
+#baseGet.go{display:flex}
+#baseGet .bgDim{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,#0c0918f2 0%,#050409f7 70%);animation:fade .45s ease both}
+#baseGet .bgIco{position:relative;z-index:1;width:calc(var(--u)*150);height:calc(var(--u)*150);margin-bottom:calc(var(--u)*18)}
+#baseGet .bgIco canvas{position:static;width:100%;height:100%;animation:bgPop .35s cubic-bezier(.2,1,.4,1) .25s both;filter:drop-shadow(0 0 calc(var(--u)*18) var(--c))}
+#baseGet .bgTxt{position:relative;z-index:1;max-width:calc(var(--u)*380)}
+#baseGet .bgSub{color:var(--gold);letter-spacing:.3em;font-size:calc(var(--u)*var(--f2));animation:bgUp .5s ease .6s both}
+#baseGet .bgName{margin-top:calc(var(--u)*6);color:#fff3cf;font-weight:800;font-size:calc(var(--u)*var(--f5));line-height:1.4;letter-spacing:.06em;text-shadow:0 0 calc(var(--u)*16) var(--c),0 0 calc(var(--u)*4) #05040a;animation:bgUp .5s ease .8s both}
+#baseGet .bgHint{position:absolute;z-index:1;left:0;right:0;bottom:calc(var(--u)*70);color:var(--dim);letter-spacing:.3em;font-size:calc(var(--u)*var(--f2));animation:bgUp .5s ease 1.5s both,bgPulse 1.8s ease-in-out 2s infinite}
+#baseGet.skip .bgIco canvas,#baseGet.skip .bgSub,#baseGet.skip .bgName{animation-delay:0s!important;animation-duration:.01s!important}
+#baseGet.skip .bgHint{animation:bgUp .2s ease both,bgPulse 1.8s ease-in-out .2s infinite}
+#baseGet.out .bgDim,#baseGet.out #bgFx,#baseGet.out .bgTxt,#baseGet.out .bgHint{opacity:0;transition:opacity .5s ease;animation:none}
+@keyframes bgPop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes bgUp{from{opacity:0;transform:translateY(calc(var(--u)*10))}to{opacity:1;transform:none}}
+@keyframes bgPulse{50%{opacity:.45}}
 h1{font-size:calc(var(--u)*54);margin:0;letter-spacing:.14em;font-weight:800;line-height:1.25;
   background:linear-gradient(180deg,#fff6d8,#e8c36a 55%,#8a6a2a);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 calc(var(--u)*18) #8b5cf699)}
@@ -319,6 +335,13 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
     <div><button class="b s" id="bShare1">結果を共有</button><button class="b s" id="bAgain">ステージ選択</button></div>
   </div>
 
+  <div class="ov" id="baseGet">
+    <div class="bgDim"></div><canvas id="bgFx"></canvas>
+    <div class="bgIco" id="bgIco"><canvas id="bgOrb" width="240" height="240"></canvas></div>
+    <div class="bgTxt"><div class="bgSub" id="bgSub"></div><div class="bgName" id="bgName"></div></div>
+    <div class="bgHint" id="bgHint"></div>
+  </div>
+
   <div id="toast"><i>✦</i><div><small id="toH"></small><b id="toB"></b></div></div>
 </div></div>
 
@@ -421,7 +444,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   tut0:['元素を、べつの元素に重ねてみよう','Drag one element onto another'],tut1:['できた元素を魔法陣へ運ぶと、塔になる','Drag it onto a circle to make a tower'],
   tut2:['準備ができたら、夜波を迎え撃とう','When ready, call the night wave'],tut3:['一覧の元素を作業台へ運ぶと呼び出せる（魔力◆）','Drag one from the list onto the bench to summon it (mana ◆)'],
   lockN:['{0}\nクリアで解放','Clear\n{0}'],
-  newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['{0}をクリアすると届く','Clear {0} to unlock'],baseArrive:['新しい基本元素「{0}」が届いた','New base element: {0}'],stageReward:['クリアで基本元素「{0}」が届く','Clear to unlock the base element {0}'],
+  newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],tapClose:['タップで閉じる','Tap to close'],unlockAt:['{0}をクリアすると届く','Clear {0} to unlock'],baseArrive:['新しい基本元素「{0}」が届いた','New base element: {0}'],stageReward:['クリアで基本元素「{0}」が届く','Clear to unlock the base element {0}'],
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_wood:['木','Wood'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],f_time:['時','Time'],f_dream:['夢','Dream'],f_soul:['魂','Soul'],f_void:['無','Void'],
@@ -1521,6 +1544,12 @@ const sfx={
     [-19,-12,-7,-3].forEach(n=>tone(N(n),3,'sawtooth',.03,null,1.25,{det:9,a:.3,lp:900,lpTo:2600,rev:.8,hold:1.4}));
     [5,9,12,17,21,24,29].forEach((n,i)=>bell(N(n),1.6,.05,1.3+i*.09,.85));
     drum(.2,0);drum(.2,.6);drum(.24,1.25,80);noise(1.6,.03,8000,1.25,{type:'highpass',to:5000,a:.2,rev:.9});
+  },
+  base(){ // 新しい基本元素：短い金管のファンファーレと、駆け上がる鐘（クリアの和音＝ニ長調に合わせる）
+    [[5,0,.16],[9,.14,.16],[12,.28,.16],[17,.42,.8]].forEach(([n,t,d])=>{brass(N(n),d,.07,t,.5);brass(N(n-12),d,.04,t,.5)});
+    [-7,-3,0,5].forEach(n=>tone(N(n),2,'sawtooth',.025,null,.4,{det:9,a:.2,lp:800,lpTo:2200,rev:.8,hold:.8}));
+    [17,21,24,29,33,36].forEach((n,i)=>bell(N(n),1.4,.05,.45+i*.08,.8));
+    noise(1,.02,9000,.5,{type:'highpass',to:6000,a:.3,rev:.9});drum(.18,.4,85);
   },
   over(){[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
   warn(){for(let i=0;i<3;i++){tone(N(-17),.34,'sawtooth',.07,N(-12),i*.44,{det:6,lp:900,rev:.3});tone(N(-29),.34,'sine',.12,null,i*.44,{rev:.3});drum(.13,i*.44,70)}}, // 主が近づく警告
@@ -2886,7 +2915,61 @@ function victory(){
   setTimeout(()=>{if(!S.cleared)return;
     $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
     if(S.newBase){shopShow(S.newBase);SHOP.dotT[1]=6}
-    show('clear')},1500);
+    show('clear');
+    if(S.newBase)baseGetOpen(S.newBase)},1500);
+}
+/* 基本元素の取得演出：暗転 → 放射光とパーティクル → 元素がポップイン → 小見出しと名前 → 1.5 秒後に「タップで閉じる」。
+   タップで元素が素材パレットの位置へ飛び、クリア画面（すでに下に出ている）が見える。イントロ中のタップは、タップ待ちまで飛ばす */
+let BG=null;
+function baseGetOpen(id){
+  const d=ITEMS[id],o=$('#baseGet'),fx=$('#bgFx');
+  o.style.setProperty('--c',d.c);o.classList.remove('out','skip');o.classList.add('go');
+  const g=$('#bgOrb').getContext('2d');g.clearRect(0,0,240,240);g.drawImage(orb(id),0,0,240,240);
+  $('#bgSub').textContent=TT('newBase');$('#bgName').textContent=TT('baseArrive',nm(d));$('#bgHint').textContent=TT('tapClose');
+  const r=o.getBoundingClientRect(),k=Math.min(window.devicePixelRatio||1,2),ir=$('#bgIco').getBoundingClientRect();
+  fx.width=Math.round(r.width*k);fx.height=Math.round(r.height*k);
+  BG={id,c:d.c,t:0,ready:false,closing:false,burst:false,parts:[],at:performance.now(),last:performance.now(),k,w:r.width,h:r.height,cx:ir.left+ir.width/2-r.left,cy:ir.top+ir.height/2-r.top,u:r.width/W};
+  sfx.base();buzz([30,50,60]);requestAnimationFrame(bgLoop);
+}
+function bgBurst(){
+  BG.burst=true;
+  for(let i=0;i<80;i++){const a=rnd(TAU),v=rnd(80,320)*BG.u;BG.parts.push({x:BG.cx,y:BG.cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:rnd(.8,1.7),m:1.7,s:rnd(2,5)*BG.u,c:i%3?'#ffe9a0':BG.c})}
+}
+function bgLoop(now){
+  if(!BG)return;
+  const dt=Math.min(.05,(now-BG.last)/1000);BG.last=now;BG.t+=dt;
+  if(BG.t>=1.5)BG.ready=true;
+  if(!BG.burst&&BG.t>=.3)bgBurst();
+  if(BG.burst&&!BG.closing&&Math.random()<dt*28){const a=rnd(TAU),r=rnd(30,90)*BG.u;BG.parts.push({x:BG.cx+Math.cos(a)*r,y:BG.cy+Math.sin(a)*r,vx:rnd(-12,12)*BG.u,vy:rnd(-70,-25)*BG.u,l:rnd(.9,1.6),m:1.6,s:rnd(1.5,3.5)*BG.u,c:Math.random()<.5?'#fff3cf':BG.c})}
+  const c=$('#bgFx').getContext('2d'),{w,h,cx,cy,u}=BG,a=Math.min(1,BG.t/.5);
+  c.setTransform(BG.k,0,0,BG.k,0,0);c.clearRect(0,0,w,h);c.globalCompositeOperation='lighter';
+  const R=Math.hypot(w,h)*.6,gr=c.createRadialGradient(cx,cy,0,cx,cy,R*.8);
+  gr.addColorStop(0,rgba('#ffe9a0',.55*a));gr.addColorStop(.45,rgba(BG.c,.2*a));gr.addColorStop(1,rgba(BG.c,0));
+  c.save();c.translate(cx,cy);c.rotate(BG.t*.2);c.fillStyle=gr;c.translate(-cx,-cy);
+  for(let i=0;i<14;i++){c.save();c.translate(cx,cy);c.rotate(i/14*TAU);c.beginPath();c.moveTo(0,0);c.lineTo(R,-R*.075);c.lineTo(R,R*.075);c.closePath();c.restore();c.fill()}
+  c.restore();
+  const gl=c.createRadialGradient(cx,cy,0,cx,cy,120*u);gl.addColorStop(0,rgba('#fff3cf',.5*a));gl.addColorStop(.4,rgba(BG.c,.3*a));gl.addColorStop(1,rgba(BG.c,0));c.fillStyle=gl;c.fillRect(cx-120*u,cy-120*u,240*u,240*u);
+  for(let i=BG.parts.length-1;i>=0;i--){const p=BG.parts[i];p.l-=dt;if(p.l<=0){BG.parts.splice(i,1);continue}
+    p.vx*=Math.exp(-dt*1.6);p.vy*=Math.exp(-dt*1.6);p.x+=p.vx*dt;p.y+=p.vy*dt;
+    c.fillStyle=rgba(p.c,Math.min(1,p.l/p.m*1.6));c.beginPath();c.arc(p.x,p.y,p.s,0,TAU);c.fill()}
+  c.globalCompositeOperation='source-over';
+  requestAnimationFrame(bgLoop);
+}
+function baseGetTap(){
+  if(!BG||BG.closing||performance.now()-BG.at<250)return;
+  const o=$('#baseGet');
+  if(!BG.ready){BG.ready=true;BG.t=Math.max(BG.t,1.5);if(!BG.burst)bgBurst();o.classList.add('skip');return} // イントロ中：タップ待ちまで飛ばす
+  BG.closing=true;sfx.ui();
+  const id=BG.id;shopShow(id);SHOP.dotT[1]=6; // 素材欄の強調はここで改めてつける（演出のあいだに薄れないように）
+  const i=shopList(SHOP.tab).findIndex(d=>d.id===id),tx=(i<0?W/2:shopBtnX(i)+SHOP.bw/2),ty=SHOP.y+SHOP.h/2-4;
+  const r=o.getBoundingClientRect(),ir=$('#bgIco').getBoundingClientRect();
+  const dx=tx/W*r.width-(ir.left+ir.width/2-r.left),dy=ty/H*r.height-(ir.top+ir.height/2-r.top);
+  o.classList.add('out');
+  $('#bgIco').animate([{transform:'none'},{transform:`translate(${dx}px,${dy}px) scale(${52*r.width/W/ir.width})`}],{duration:650,easing:'cubic-bezier(.55,0,.7,.4)',fill:'forwards'});
+  setTimeout(()=>{
+    if(FX){ring(tx,ty,'#ffe9a0',46,.4,3);burst(tx,ty,ITEMS[id].c,18,140)}
+    o.classList.remove('go','out','skip');$('#bgIco').getAnimations().forEach(a=>a.cancel());BG=null;
+  },650);
 }
 function confetti(x,y){
   P(x,y,rnd(-40,40),rnd(40,150),rnd(2.5,4.5),rnd(4,8),pick(FW),{ty:'c',g:60,drag:.8,rot:rnd(TAU),vr:rnd(-9,9)});
@@ -3020,6 +3103,8 @@ function show(id){document.querySelectorAll('.ov').forEach(o=>o.classList.toggle
 // その遅れてきたクリックで即座に閉じられないよう、開いた直後のクリックは捨てる
 document.addEventListener('click',e=>{if(performance.now()-shownAt<400&&e.target.closest&&e.target.closest('.ov')){e.stopPropagation();e.preventDefault()}},true);
 cv.addEventListener('touchend',e=>e.preventDefault(),{passive:false});
+$('#baseGet').onclick=baseGetTap;
+addEventListener('keydown',e=>{if(BG&&(e.code==='Space'||e.code==='Enter'||e.code==='Escape')){e.preventDefault();e.stopImmediatePropagation();baseGetTap()}},true);
 // 元素の詳細（盤面や一覧で長押し、または図鑑のカードをタップ）
 const USES={};for(const[a,b,r]of RECIPES){(USES[a]=USES[a]||[]).push([b,r]);if(a!==b)(USES[b]=USES[b]||[]).push([a,r])}
 const RANKMAX={};for(const d of Object.values(ITEMS)){const m=RANKMAX[d.t]=RANKMAX[d.t]||{dps:1,range:1};m.dps=Math.max(m.dps,dpsOf(d));m.range=Math.max(m.range,d.range)}
