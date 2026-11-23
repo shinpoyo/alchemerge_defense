@@ -112,7 +112,7 @@ function drawEnemy(e){
   ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.5;ctx.drawImage(glow(e.def.rim),-r*2.2,-r*2.2,r*4.4,r*4.4);
   if(rage){const pu=.5+.5*Math.sin(t*(e.phase>2?11:7)+e.ph),z=r*(5+pu*.8);ctx.globalAlpha=.4+.25*pu;ctx.drawImage(glow(e.phase>2?'#ffb040':'#ff5a2a'),-z/2,-z/2,z,z)} // 怒り：炎の色の光が脈打つ
   ctx.globalCompositeOperation='source-over';ctx.globalAlpha=e.born>0?Math.min(1,(1-e.born/BOSS_BORN)*2.5):1;
-  if(e.slowT>0){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
+  if(e.slowT>0&&!SPR[e.type]){ // 減速：足もとが凍りつく（強い減速ほど氷が大きい）
     const z=.7+e.slow;ctx.fillStyle=rgba('#8fe6ff',.3);ctx.beginPath();ctx.ellipse(0,r*.8,r*1.3*z,r*.45*z,0,0,TAU);ctx.fill();
     ctx.fillStyle='#e6f9ff';for(const sx of[-1,0,1]){const bx=sx*r*.75*z,h=(4+r*.35)*z*(sx?1:1.4);ctx.beginPath();ctx.moveTo(bx-3,r*.9);ctx.lineTo(bx,r*.9-h);ctx.lineTo(bx+3,r*.9);ctx.fill()}
   }
@@ -126,7 +126,8 @@ function drawEnemy(e){
     ctx.strokeStyle=rgba('#ffffff',e.kb/.3);ctx.lineWidth=2;ctx.lineCap='round';
     for(const oy of[-r*.5,0,r*.5]){ctx.beginPath();ctx.moveTo(r+4,oy);ctx.lineTo(r+14,oy);ctx.stroke();ctx.beginPath();ctx.moveTo(-r-4,oy);ctx.lineTo(-r-14,oy);ctx.stroke()}
   }
-  ePath(e,t,r);
+  const spr=drawSprite(e,t,r,rage); // 絵で描く（sprites.js）。絵がまだ読みこめていなければ、これまでの形で描く
+  if(!spr){  ePath(e,t,r);
   if(e.flash>0)ctx.fillStyle='#ffffff';
   else{const bg2=ctx.createLinearGradient(0,-r*1.2,0,r),fc=rage?(e.phase>2?['#8a3a10','#1c0a04']:['#7a1c1c','#190505']):{shade:['#2a1e5c','#070512'],wisp:['#6b1e63','#14061e'],golem:['#6e4a26','#150d05'],mite:['#14523f','#03110c'],boss:['#57152c','#0d0307'],runner:['#5c4a12','#121003'],flyer:['#174a63','#04121a'],splitter:['#1d5226','#04140a'],healer:['#8a84a6','#1c1a2a'],armored:['#3e4c63','#0a0d15']}[e.type];bg2.addColorStop(0,fc[0]);bg2.addColorStop(1,fc[1]);ctx.fillStyle=bg2}
   ctx.fill();
@@ -191,28 +192,29 @@ function drawEnemy(e){
   else if(e.type==='healer'){ctx.fillRect(-r*.36,-r*.16,r*.72,r*.22);ctx.fillRect(-r*.11,-r*.41,r*.22,r*.72)} // 十字の目
   else if(e.type==='armored'){ctx.fillRect(-r*.6,-r*.62,r*1.2,Math.max(2,r*.17))}                               // 兜の細い覗き穴
   else if(boss){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.36,-r*.12,Math.max(1.4,r*.1),Math.max(2.4,r*.26),0,0,TAU);ctx.fill()}ctx.beginPath();ctx.ellipse(0,-r*.5,Math.max(1.6,r*.13),Math.max(2.6,r*.3),0,0,TAU);ctx.fill()}
-  else{for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.34,-r*.18,Math.max(1.2,r*.09),Math.max(2,r*.24),0,0,TAU);ctx.fill()}}
+  else{for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.34,-r*.18,Math.max(1.2,r*.09),Math.max(2,r*.24),0,0,TAU);ctx.fill()}}}
+  const rv=spr?sprR(e,r):r; // 状態の輪・印・体力の帯は、絵の大きさに合わせる
   if(e.drainT>0){ // 呪い：回る輪と、頭上の印
-    ctx.strokeStyle='#d05aff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,r+4,t*3,t*3+4);ctx.stroke();
-    const my=-r-17-(boss?12:0);ctx.fillStyle='#d98aff';ctx.beginPath();ctx.moveTo(-5,my-4);ctx.lineTo(5,my-4);ctx.lineTo(0,my+4);ctx.fill();ctx.fillStyle='#1c0a2c';ctx.beginPath();ctx.ellipse(0,my-1.5,.9,2,0,0,TAU);ctx.fill()}
+    ctx.strokeStyle='#d05aff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,rv+4,t*3,t*3+4);ctx.stroke();
+    const my=-rv-17-(boss?12:0);ctx.fillStyle='#d98aff';ctx.beginPath();ctx.moveTo(-5,my-4);ctx.lineTo(5,my-4);ctx.lineTo(0,my+4);ctx.fill();ctx.fillStyle='#1c0a2c';ctx.beginPath();ctx.ellipse(0,my-1.5,.9,2,0,0,TAU);ctx.fill()}
   if(e.wetT>0){ // 濡れ：青い輪と、頭上の雫
-    ctx.strokeStyle='rgba(90,170,255,.8)';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,r+3,t*2.4,t*2.4+3);ctx.stroke();
-    const wx=-11,wy=-r-17-(boss?12:0);ctx.fillStyle='#6ab8ff';ctx.beginPath();ctx.moveTo(wx,wy-5);ctx.quadraticCurveTo(wx+5,wy+1,wx,wy+4.5);ctx.quadraticCurveTo(wx-5,wy+1,wx,wy-5);ctx.fill()}
+    ctx.strokeStyle='rgba(90,170,255,.8)';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,rv+3,t*2.4,t*2.4+3);ctx.stroke();
+    const wx=-11,wy=-rv-17-(boss?12:0);ctx.fillStyle='#6ab8ff';ctx.beginPath();ctx.moveTo(wx,wy-5);ctx.quadraticCurveTo(wx+5,wy+1,wx,wy+4.5);ctx.quadraticCurveTo(wx-5,wy+1,wx,wy-5);ctx.fill()}
   if(e.britT>0){ // ひび割れ：白いヒビと、頭上の印
-    ctx.strokeStyle='rgba(235,246,255,.85)';ctx.lineWidth=1.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-r*.1,-r*.9);ctx.lineTo(r*.12,-r*.5);ctx.lineTo(-r*.08,-r*.2);ctx.lineTo(r*.15,r*.2);ctx.moveTo(r*.12,-r*.5);ctx.lineTo(r*.45,-r*.4);ctx.stroke();
-    const bx=e.wetT>0?-23:-11,by=-r-17-(boss?12:0);ctx.strokeStyle='#e8f6ff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(bx-4,by);ctx.lineTo(bx+4,by);ctx.moveTo(bx,by-4);ctx.lineTo(bx,by+4);ctx.moveTo(bx-3,by-3);ctx.lineTo(bx+3,by+3);ctx.moveTo(bx+3,by-3);ctx.lineTo(bx-3,by+3);ctx.stroke()}
+    ctx.strokeStyle='rgba(235,246,255,.85)';ctx.lineWidth=1.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-rv*.1,-rv*.9);ctx.lineTo(rv*.12,-rv*.5);ctx.lineTo(-rv*.08,-rv*.2);ctx.lineTo(rv*.15,rv*.2);ctx.moveTo(rv*.12,-rv*.5);ctx.lineTo(rv*.45,-rv*.4);ctx.stroke();
+    const bx=e.wetT>0?-23:-11,by=-rv-17-(boss?12:0);ctx.strokeStyle='#e8f6ff';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(bx-4,by);ctx.lineTo(bx+4,by);ctx.moveTo(bx,by-4);ctx.lineTo(bx,by+4);ctx.moveTo(bx-3,by-3);ctx.lineTo(bx+3,by+3);ctx.moveTo(bx+3,by-3);ctx.lineTo(bx-3,by+3);ctx.stroke()}
   {let i=0;for(const y of SYN){if(y.k==='wetT'||y.k==='britT'||!(e[y.k]>0))continue; // 乾き・火種・よろめき：その色の回る短い輪と、頭上右の丸印
-    ctx.strokeStyle=rgba(y.c,.85);ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,r+5+i*2,-t*2-i*1.6,-t*2-i*1.6+2.2);ctx.stroke();
-    const qx=14+i*8,qy=-r-17-(boss?12:0);ctx.fillStyle='#07060d';ctx.beginPath();ctx.arc(qx,qy,3.6,0,TAU);ctx.fill();ctx.fillStyle=y.c;ctx.beginPath();ctx.arc(qx,qy,2.5,0,TAU);ctx.fill();i++}}
-  {const sa=STAGES[STAGE].aff;if(sa&&sa.c){ctx.strokeStyle=rgba(sa.c,.5);ctx.lineWidth=1.2;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(0,0,r+2,0,TAU);ctx.stroke();ctx.setLineDash([])}} // 属性の地：影のまわりに属性の色の点線
-  if(e.gate){const c=ELEM[e.gate].c;ctx.strokeStyle=rgba(c,.9);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r+2,0,TAU);ctx.stroke();ctx.fillStyle=rgba(c,.22);ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill()} // 門ごとの系統の敵：系統の色の輪と、うっすら色づいた体
+    ctx.strokeStyle=rgba(y.c,.85);ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,rv+5+i*2,-t*2-i*1.6,-t*2-i*1.6+2.2);ctx.stroke();
+    const qx=14+i*8,qy=-rv-17-(boss?12:0);ctx.fillStyle='#07060d';ctx.beginPath();ctx.arc(qx,qy,3.6,0,TAU);ctx.fill();ctx.fillStyle=y.c;ctx.beginPath();ctx.arc(qx,qy,2.5,0,TAU);ctx.fill();i++}}
+  {const sa=STAGES[STAGE].aff;if(sa&&sa.c){ctx.strokeStyle=rgba(sa.c,.5);ctx.lineWidth=1.2;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(0,0,rv+2,0,TAU);ctx.stroke();ctx.setLineDash([])}} // 属性の地：影のまわりに属性の色の点線
+  if(e.gate&&!spr){const c=ELEM[e.gate].c;ctx.strokeStyle=rgba(c,.9);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,rv+2,0,TAU);ctx.stroke();ctx.fillStyle=rgba(c,.22);ctx.beginPath();ctx.arc(0,0,rv,0,TAU);ctx.fill()} // 門ごとの系統の敵：系統の色の輪と、うっすら色づいた体
   if(e.silT>0){ // 沈黙：暗い渦と頭上の「×」印
-    ctx.strokeStyle='#7a60b8';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r+6,-t*4,-t*4+3.6);ctx.stroke();
-    const sx=e.drainT>0?8:0,sy=-r-17-(boss?12:0);ctx.lineCap='round';
+    ctx.strokeStyle='#7a60b8';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,rv+6,-t*4,-t*4+3.6);ctx.stroke();
+    const sx=e.drainT>0?8:0,sy=-rv-17-(boss?12:0);ctx.lineCap='round';
     for(const[w,col]of[[3.6,'#07060d'],[1.8,'#c4b0ff']]){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(sx-3.5,sy-3.5);ctx.lineTo(sx+3.5,sy+3.5);ctx.moveTo(sx+3.5,sy-3.5);ctx.lineTo(sx-3.5,sy+3.5);ctx.stroke()}}
-  if(e.healed>0){const k=e.healed/.6,py=-r*.9-(1-k)*10;ctx.fillStyle=rgba('#9affc8',Math.min(1,k*1.6));ctx.fillRect(r*.7-4,py-1.2,8,2.4);ctx.fillRect(r*.7-1.2,py-4,2.4,8)} // 治してもらった印
-  if(e.hp<e.max){const w=Math.max(18,r*2.2),k=clamp(e.hp/e.max,0,1);
-    ctx.fillStyle='#000a';ctx.fillRect(-w/2,-r-9-(boss?12:0),w,3.5);ctx.fillStyle=k>.5?'#b98cff':k>.25?'#ffb070':'#ff3b6b';ctx.fillRect(-w/2,-r-9-(boss?12:0),w*k,3.5)}
+  if(e.healed>0){const k=e.healed/.6,py=-rv*.9-(1-k)*10;ctx.fillStyle=rgba('#9affc8',Math.min(1,k*1.6));ctx.fillRect(rv*.7-4,py-1.2,8,2.4);ctx.fillRect(rv*.7-1.2,py-4,2.4,8)} // 治してもらった印
+  if(e.hp<e.max){const w=Math.max(18,rv*2.2),k=clamp(e.hp/e.max,0,1);
+    ctx.fillStyle='#000a';ctx.fillRect(-w/2,-rv-9-(boss?12:0),w,3.5);ctx.fillStyle=k>.5?'#b98cff':k>.25?'#ffb070':'#ff3b6b';ctx.fillRect(-w/2,-rv-9-(boss?12:0),w*k,3.5)}
   ctx.restore();
 }
 function drawBtn(b,dt){
