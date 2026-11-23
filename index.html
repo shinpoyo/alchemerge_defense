@@ -424,7 +424,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   newBase:['―  新しい基本元素  ―','—  NEW BASE ELEMENT  —'],unlockAt:['{0}をクリアすると届く','Clear {0} to unlock'],baseArrive:['新しい基本元素「{0}」が届いた','New base element: {0}'],stageReward:['クリアで基本元素「{0}」が届く','Clear to unlock the base element {0}'],
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
-  f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],f_time:['時','Time'],f_dream:['夢','Dream'],f_soul:['魂','Soul'],f_void:['無','Void'],
+  f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_wood:['木','Wood'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],f_time:['時','Time'],f_dream:['夢','Dream'],f_soul:['魂','Soul'],f_void:['無','Void'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
   dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],affWet:['雷','Lightning'],dSynV:['{0}の攻撃を ×{1} で受ける、{2} 秒','Takes ×{1} from {0}, {2}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
@@ -492,7 +492,7 @@ const EN={ // 英語の名前と説明
   seihai:['Holy Ash','Carry it to the fort to restore 3 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],barbwire:['Barbed Wire','Trap: snags, stabs, and rusts armor'],kosenjo:['Old Battlefield','Curses nearby foes and rusts their armor'],haikyo:['Ruins','Keeps nearby foes slowed'],kayaku:['Gunpowder','Trap: blows up when stepped on, then is gone'],ekibyo:['Plague','Poison spreads from foes that die of it'],
   fushoku:['Corrosion','Rusts armor and pours in poison'],seiiki:['Sanctuary','Silences foes inside and sears them clean'],
   kiyome:['Purifying Mist','Keeps nearby foes silenced'],hougyoku:['Dragon Orb','Foes slain nearby drop double mana'],
-  kaname:['Keystone','Drops a heavy sealing stone'],flameward:['Fire Ward','Foes inside take double damage from Fire attacks'],waterward:['Water Ward','Foes inside take double damage from Water attacks'],earthward:['Earth Ward','Foes inside take double damage from Earth attacks'],windward:['Wind Ward','Foes inside take double damage from Wind attacks'],voltward:['Lightning Ward','Foes inside take double damage from Lightning attacks'],iceward:['Ice Ward','Foes inside take double damage from Ice attacks'],poisonward:['Poison Ward','Foes inside take double damage from Poison attacks'],darkward:['Dark Ward','Foes inside take double damage from Dark attacks'],lightward:['Light Ward','Foes inside take double damage from Light attacks'],
+  kaname:['Keystone','Drops a heavy sealing stone'],flameward:['Fire Ward','Foes inside take double damage from Fire attacks'],waterward:['Water Ward','Foes inside take double damage from Water attacks'],earthward:['Earth Ward','Foes inside take double damage from Earth attacks'],windward:['Wind Ward','Foes inside take double damage from Wind attacks'],voltward:['Lightning Ward','Foes inside take double damage from Lightning attacks'],iceward:['Ice Ward','Foes inside take double damage from Ice attacks'],poisonward:['Poison Ward','Foes inside take double damage from Poison attacks'],darkward:['Dark Ward','Foes inside take double damage from Dark attacks'],lightward:['Light Ward','Foes inside take double damage from Light attacks'],woodward:['Wood Ward','Foes inside take double damage from Wood attacks'],
   hotspring:['Hot Spring','Boils and slows nearby foes'],raincloud:['Rain Cloud','Wide rain that slows'],plasma:['Plasma','Burning bolt jumps to 4; charges when idle'],
   glacier:['Glacier','Drops ice that chills'],volcano:['Volcano','Rains burning rocks'],mud:['Mud','Trap: slows foes in the mire'],
   thunderbird:['Thunderbird','Strikes 4 from the sky'],blueflame:['Blue Flame','Cold fire burns and chills'],geyser:['Geyser','Blasts foes back; charges when idle'],
@@ -753,6 +753,7 @@ const ITEMS={
   poisonward:{name:'毒の結界',t:5,c:'#8be04a',kind:'ward',range:170,amp:'poison',desc:'輪の中の影は、毒の系統の攻撃を 2 倍受ける'},
   darkward:{name:'闇の結界',t:5,c:'#9a7ad8',kind:'ward',range:170,amp:'dark',desc:'輪の中の影は、闇の系統の攻撃を 2 倍受ける'},
   lightward:{name:'光の結界',t:5,c:'#fff2a0',kind:'ward',range:170,amp:'light',desc:'輪の中の影は、光の系統の攻撃を 2 倍受ける'},
+  woodward:{name:'木の結界',t:5,c:'#7ac85a',kind:'ward',range:170,amp:'wood',desc:'輪の中の影は、木の系統の攻撃を 2 倍受ける'},
   genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
   // 音（三叉の谷をクリアすると届く基本元素）と、音から作る元素
   sound:   {name:'音',      t:1,c:'#ff8ec8',kind:'pulse',dmg:3,  rate:1,   range:90, stop:.3,stopP:.25,         desc:'範囲の敵全員に当たる波。少しひるませる'},
@@ -946,7 +947,7 @@ const RECIPES=[
   ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
   // 要石と系統の結界：要石 ＋ 系統ごとに決まった★4
   ['mountain','holylight','kaname'],
-  ['kaname','purgatory','flameward'],['kaname','tsunami','waterward'],['kaname','peak','earthward'],['kaname','storm','windward'],['kaname','raijin','voltward'],['kaname','permafrost','iceward'],['kaname','mire','poisonward'],['kaname','wraith','darkward'],['kaname','tenkou','lightward'],
+  ['kaname','purgatory','flameward'],['kaname','tsunami','waterward'],['kaname','peak','earthward'],['kaname','storm','windward'],['kaname','raijin','voltward'],['kaname','permafrost','iceward'],['kaname','mire','poisonward'],['kaname','wraith','darkward'],['kaname','tenkou','lightward'],['kaname','jukai','woodward'],
   // 時
   ['time','water','shio'],['time','earth','fossil'],['time','wind','fuka'],['time','wood','nenrin'],['time','light','hidokei'],['time','dark','boukyaku'],['time','sound','tokei'],['time','time','setsuna'],
   ['sand','tokei','sunadokei'],['fossil','leaves','kohaku'],['fossil','rock','chisou'],['fuka','shio','shinshoku'],['tokei','rock','tokeitou'],['tokei','gem','kaichu'],['flash','setsuna','zanzou'],['setsuna','setsuna','yuukyuu'],['fuka','rock','nendo'],['tokei','boukyaku','gyakkou'],
@@ -1119,7 +1120,7 @@ const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id
 // fam：系統（none は系統なし）。図鑑は CFLT に別に持つ（only は「見つけたものだけ」）
 const FLT={rank:new Set(),fam:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
 const CFLT={rank:new Set(),fam:new Set(),place:new Set(),role:new Set(),sort:'rank',only:false};
-const FAMS=['flame','water','earth','wind','volt','ice','poison','dark','light','sound','time','dream','soul','void'];
+const FAMS=['flame','water','earth','wind','wood','volt','ice','poison','dark','light','sound','time','dream','soul','void'];
 const fltOn=(F=FLT)=>F.fam.size>0||F.place.size>0||F.role.size>0||F.only; // ★以外で札をしぼっているか（並べ替えだけなら札は減らない）
 const rankKey=()=>FLT.rank.size===1?[...FLT.rank][0]:0; // ★が 1 つだけなら、その★のタブとして扱う（横に流した位置を★ごとに覚える）
 function setRank(a){FLT.rank=new Set(a);SHOP.tab=rankKey();SHOP.scroll[SHOP.tab]=0}
@@ -1176,9 +1177,9 @@ const ENEMY={
   armored: {hp:2.6,spd:33,r:13,w:2.3,life:2,rim:'#8fa6c4',armor:.25,big:true}, // 鎧の影：ある 1 つの系統の攻撃を 4 分の 1 にする。どの系統かは波ごとに決まり、鎧の色と紋で分かる
 };
 const HEAL_R=64,HEAL_EVERY=1.2; // 癒す影：この広さの影を、この秒数ごとに最大体力の 5% 治す
-// 鎧の影が防ぐ系統（元素の系統 FAMOF のうち、数の多い 9 つ）。色と、紋に使う元素の絵
+// 鎧の影が防ぐ系統（元素の系統 FAMOF のうち、基本の 10 系統）。色と、紋に使う元素の絵
 const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},earth:{c:'#c08a4a',icon:'earth'},wind:{c:'#7df0c0',icon:'wind'},volt:{c:'#ffe45c',icon:'bolt'},
-  ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'}};
+  ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'},wood:{c:'#7ac85a',icon:'wood'}};
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
@@ -1403,7 +1404,7 @@ const FAM={
   poison:{w:'sawtooth',f:200,nf:700},dark: {w:'triangle',f:180,nf:600},
   metal:{w:'square',  f:240,nf:2600},light:{w:'sine',f:760,nf:3600},
   dragon:{w:'sawtooth',f:130,nf:1100},sound:{w:'sine',f:520,nf:2200},
-  time:{w:'triangle',f:600,nf:2800},dream:{w:'sine',f:340,nf:1400},soul:{w:'sine',f:440,nf:1800},void:{w:'triangle',f:260,nf:900},
+  wood:{w:'triangle',f:330,nf:1200},time:{w:'triangle',f:600,nf:2800},dream:{w:'sine',f:340,nf:1400},soul:{w:'sine',f:440,nf:1800},void:{w:'triangle',f:260,nf:900},
 };
 const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame',ragnarok:'flame',phoenix:'flame',crater:'flame',heat:'flame',wisp:'flame',
   water:'water',pond:'water',sea:'water',steam:'water',tsunami:'water',mist:'water',
@@ -1421,13 +1422,13 @@ const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame'
   ryugu:'water',seaserpent:'water',poseidon:'water',paradise:'water',thunderstorm:'volt',fujinraijin:'volt',kamikaze:'volt',particle:'light',photon:'light',galaxy:'light',cosmos:'light',
   icespear:'ice',absolutezero:'ice',foxfire:'flame',solarflare:'flame',ninetails:'flame',rinne:'flame',
   seihai:'light',kiyome:'light',sabi:'metal',hougyoku:'dragon',fushoku:'poison',seiiki:'light',kayaku:'flame',ekibyo:'poison',barbwire:'metal',kosenjo:'dark',haikyo:'earth',
-  wood:'earth',thicket:'earth',root:'earth',thorn:'earth',thornwall:'earth',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
-  flower:'poison',venom:'poison',toxin:'poison',jungle:'earth',jukai:'earth',diamond:'light',
+  wood:'wood',thicket:'wood',root:'wood',thorn:'wood',thornwall:'wood',leaves:'wind',charcoal:'flame',blackflame:'flame',gokuen:'flame',
+  flower:'poison',venom:'poison',toxin:'poison',jungle:'wood',jukai:'wood',diamond:'light',
   light:'light',flash:'light',ray:'light',rainbow:'light',gem:'light',aurora:'light',firefly:'light',hotaru:'light',holylight:'light',laser:'light',tenkou:'light',
   dark:'dark',shadow:'dark',tomb:'dark',bat:'dark',twilight:'dark',nightfall:'dark',vampire:'dark',shinso:'dark',bottomless:'earth',kyoshin:'earth',gaia:'earth',naraku:'dark',chaos:'dark',mugen:'dark'};
 Object.assign(FAMOF,{lantern:'light',bonfire:'flame',moonlamp:'light',mire:'poison',antlion:'earth',purgatory:'flame',permafrost:'ice',hellmouth:'flame',stasis:'ice',mirror:'light',mirage:'light',kaleidoscope:'light',desert:'earth',kagerou:'light',sekken:'water',cement:'earth',awa:'water',concrete:'earth',shabondama:'water'});
 Object.assign(FAMOF,{sound:'sound',hanabi:'sound',hamon:'sound',jibiki:'sound',fue:'sound',koto:'sound',suzu:'sound',juka:'sound',wakon:'sound',shakudama:'sound',furin:'sound',kusabue:'sound',taiko:'sound',seseragi:'sound',komoriuta:'sound',choonpa:'sound',chinkonka:'sound',sanbika:'sound',orgel:'sound',raimei:'sound',yamabiko:'sound',matsuribayashi:'sound',siren:'sound',kyoumei:'sound',soukyoku:'sound',shukufuku:'sound',shirabe:'sound',tengaku:'sound',goon:'sound',mateki:'sound',tenchi:'sound'}); // 音の系統：鎧の影が防ぐ系統にはない（鎧で弱められない）
-Object.assign(FAMOF,{flameward:'flame',waterward:'water',earthward:'earth',windward:'wind',voltward:'volt',iceward:'ice',poisonward:'poison',darkward:'dark',lightward:'light'});
+Object.assign(FAMOF,{flameward:'flame',waterward:'water',earthward:'earth',windward:'wind',voltward:'volt',iceward:'ice',poisonward:'poison',darkward:'dark',lightward:'light',woodward:'wood'});
 Object.assign(FAMOF,{time:'time',shio:'time',fossil:'time',fuka:'time',nenrin:'time',hidokei:'time',boukyaku:'time',tokei:'time',sunadokei:'time',kohaku:'time',chisou:'time',shinshoku:'time',setsuna:'time',yuukyuu:'time',nendo:'time',tokeitou:'time',kaichu:'time',zanzou:'time',gyakkou:'time',oodokei:'time',ancient:'time',jikuu:'time',sekka:'time',iseki:'time',chronos:'time',doomsday:'time'});
 Object.assign(FAMOF,{dream:'dream',gentou:'dream',nemurigusa:'dream',hakuchumu:'dream',muma:'dream',yochimu:'dream',maboroshi:'dream',poppy:'dream',kanashibari:'dream',kagee:'dream',genshi:'dream',muyuu:'dream',senrigan:'dream',mugenyume:'dream',yumenokuni:'dream',nemurinomori:'dream',shintaku:'dream',hypnos:'dream',morpheus:'dream',slumber:'dream'});
 Object.assign(FAMOF,{soul:'soul',hitodama:'soul',reikon:'soul',yuurei:'soul',kinosei:'soul',shugorei:'soul',akuryo:'soul',yousei:'soul',tenshi:'soul',shinrei:'soul',zombie:'soul',daitenshi:'soul',youseinowa:'soul',akuma:'soul',succubus:'soul',seraphim:'soul',maou:'soul',datenshi:'soul',lilith:'soul',lucifer:'soul'});
@@ -1437,9 +1438,10 @@ const TONE={};for(const k in FAMOF)if(FAMOF[k]==='metal'||FAMOF[k]==='dragon'){T
 // 2 つの系統を持つ元素（先に書いたほうが音色の系統）。鎧・結界・属性シナジーは、どれか 1 つが当てはまれば働く
 const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','flame'],blueflame:['flame','ice'],hotspring:['water','flame'],
   cataclysm:['volt','ice'],typhoon:['wind','water'],storm:['wind','water'],sun:['flame','light'],
-  forest:['poison','earth'],abyss:['poison','dark'],yggdrasil:['earth','light'],kagerou:['light','flame'],
+  forest:['wood','poison'],abyss:['poison','dark'],yggdrasil:['wood','light'],kagerou:['light','flame'],
   photon:['light','volt'],hellmouth:['flame','poison'],chaos:['flame','ice'],fujinraijin:['volt','wind'],eternity:['dark','volt'],mugen:['dark','ice'],
-  sandstorm:['earth','wind'],heat:['flame','wind'],thunderbird:['volt','wind'],kamikaze:['volt','wind'],stasis:['ice','time']}; // 時の檻は、時から作る別ルートもあるので時の系統も持つ
+  sandstorm:['earth','wind'],heat:['flame','wind'],thunderbird:['volt','wind'],kamikaze:['volt','wind'],stasis:['ice','time'],
+  leaves:['wood','wind'],flower:['wood','poison'],nemurigusa:['wood','dream'],poppy:['wood','dream'],nemurinomori:['wood','dream']}; // 木の系統（2026-11-23）：植物そのもので、攻め方が別の系統のものは 2 系統 // 時の檻は、時から作る別ルートもあるので時の系統も持つ
 for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const famL=f=>Array.isArray(f)?f:f&&f!=='none'?[f]:[]; // 系統を配列にそろえる（万華鏡の 1 発などは文字列）
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
