@@ -450,7 +450,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   f_flame:['炎','Fire'],f_water:['水','Water'],f_earth:['土','Earth'],f_wind:['風','Wind'],f_volt:['雷','Lightning'],f_ice:['氷','Ice'],f_poison:['毒','Poison'],f_dark:['闇','Dark'],f_light:['光','Light'],f_wood:['木','Wood'],f_metal:['鋼','Metal'],f_dragon:['竜','Dragon'],f_sound:['音','Sound'],f_time:['時','Time'],f_dream:['夢','Dream'],f_soul:['魂','Soul'],f_void:['無','Void'],
   warnLord:['夜の主 接近','NIGHT LORD APPROACHING'],warnKing:['夜の王 降臨','THE NIGHT KING COMES'],bossLord:['夜の主','Night Lord'],bossKing:['夜の王','Night King'],
   bossRage:['怒り','Enraged'],bossFury:['激昂','Furious'],rageNote:['{0}が怒り狂う ― 足が速まり手下を呼ぶが、守りは甘くなる','{0} enraged — faster, calls minions, but its guard drops'],
-  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],gateLine:['{0}の敵　弱い：{1}　効きにくい：{2}','{0} foes · Weak: {1} · Resists: {2}'],affWet:['雷','Lightning'],dSynV:['{0}の攻撃を ×{1} で受ける、{2} 秒','Takes ×{1} from {0}, {2}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
+  dFam:['{0}の系統','{0} type'],dAmpK:['系統の結界','Type ward'],affLine:['弱い：{0}　効きにくい：{1}','Weak: {0} · Resists: {1}'],gateLine:['{0}の敵　弱い：{1}　効きにくい：{2}','{0} foes · Weak: {1} · Resists: {2}'],affWet:['雷・氷','Lightning, Ice'],dSynV:['{0}の攻撃を ×{1} で受ける、{2} 秒','Takes ×{1} from {0}, {2}s'],dAmpV:['輪の中の影は{0}の系統の攻撃を {1} 倍受ける','Foes inside take ×{1} from {0} attacks'],stResist:['はじいた','Resisted'],
   waveN:['第 {0} 波','Wave {0}'],bossTag:[' ― 夜の主',' — Night Lord'],finalTag:[' ― 夜の王',' — Night King'],siege:['灯が攻撃されている！','The light is under attack!'],newFound:['―  新 発 見  ―','—  NEW DISCOVERY  —'],
   buyNext:['この戦いの間は、下の一覧から呼び出せる（◆{0}）','You can summon it from the list for this battle (◆{0})'],
   wsName:['工房','Workshop'],wsHud:['工房 Lv{0}・★{1}まで','Workshop Lv{0} · ★{1}'],wsHudS:['工房 Lv{0}','Workshop Lv{0}'],wsUp:['工房レベル{0}：図鑑の★{0}を呼び出せる','Workshop Lv{0}: summon any found ★{0}'],wsUp2:['工房レベル{0}：★{1}を錬成でき、図鑑の★{0}を呼び出せる','Workshop Lv{0}: merge ★{1}, summon any found ★{0}'],wsFirst:['先に工房レベル{0}にする','Reach Workshop Lv{0} first'],wsFirstShort:['Lv{0}の次','after Lv{0}'],wsInfo:['工房を上げると、図鑑で見つけた★{0}も呼び出せる','Upgrade the Workshop to summon any ★{0} in your codex'],
@@ -2508,7 +2508,7 @@ function spawnEnemy(q){
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
-    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;S.bossLag=1;S.bossA=0;
+    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
     if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
@@ -2645,7 +2645,8 @@ function kill(e){
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
-  stats.kills++;if(boss){stats.bosses++;if(e.final)stats.kings++;
+  stats.kills++;if(boss){const pair=e.final&&S.enemies.some(q=>q!==e&&q.final&&!q.dead); // 夜の王が2体のときは、2体目を倒したときに1回と数える
+    if(!pair){stats.bosses++;if(e.final)stats.kings++}
     if(!DAILY){grantAch('firstBoss');if(e.final)grantAch('king')}} // 主・王の実績は、ふつうのステージで倒したときだけ（今日の挑戦は進行に数えない）。合計の数（stats）には挑戦のぶんも入る
   checkAch();
   burst(e.x,e.y,e.def.rim,boss?50:10,boss?260:110);burst(e.x,e.y,'#1a1230',6,60,{ty:'d'});
@@ -3875,23 +3876,28 @@ function drawHud(dt){
   ctx.restore();
 }
 // 主・王の体力：画面の上に専用の帯で出す（段階の境目に目盛り、減ったぶんは白く遅れて追いかける）
-function drawBossBar(dt){
-  const e=S.enemies.find(q=>q.type==='boss'&&!q.dead);
-  if(!e){S.bossA=0;return false}
-  S.bossA=Math.min(1,S.bossA+dt*3);const k=clamp(e.hp/e.max,0,1);S.bossLag=Math.max(k,S.bossLag-dt*.35);
+function drawBossBar(dt){ // 夜の王が2体いるときは帯を2本重ねて出す。戻り値は帯の本数
+  const bs=S.enemies.filter(q=>q.type==='boss'&&!q.dead).slice(0,2);
+  if(!bs.length){S.bossA=0;return 0}
+  S.bossA=Math.min(1,S.bossA+dt*3);
+  bs.forEach((e,i)=>drawBossBar1(e,dt,55+i*BOSS_BAR_GAP));return bs.length;
+}
+const BOSS_BAR_GAP=16;
+function drawBossBar1(e,dt,y){
+  const k=clamp(e.hp/e.max,0,1);e.lag=Math.max(k,(e.lag??1)-dt*.35);
   const T=performance.now()/1000,ph=e.phase||1,name=TT(e.final?'bossKing':'bossLord')+(ph>1?(LANG==='ja'?'・':' · ')+TT(ph>2?'bossFury':'bossRage'):'');
   ctx.save();ctx.globalAlpha=S.bossA;ctx.translate(0,(1-S.bossA)*-8);
-  ctx.font=FONT(FS.f1,800);ctx.textAlign='left';ctx.textBaseline='middle';const nw=ctx.measureText(name).width,x=20+nw+8,y=55,w=W-16-x,h=9;
+  ctx.font=FONT(FS.f1,800);ctx.textAlign='left';ctx.textBaseline='middle';const nw=ctx.measureText(name).width,x=20+nw+8,w=W-16-x,h=9;
   ctx.fillStyle=ph>2?'#ffd98a':ph>1?'#ffb070':'#ffd0d8';ctx.fillText(name,16,y+h/2+.5);
   ctx.fillStyle='#05040acc';rr(ctx,x-2,y-2,w+4,h+4,5);ctx.fill();ctx.strokeStyle=rgba('#ff3b6b',.55);ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#ffffffb0';ctx.fillRect(x,y,w*S.bossLag,h);
+  ctx.fillStyle='#ffffffb0';ctx.fillRect(x,y,w*e.lag,h);
   const pu=ph>1?.5+.5*Math.sin(T*(ph>2?12:7)):0,g=ctx.createLinearGradient(x,0,x+w,0);
   if(ph>2){g.addColorStop(0,'#ff5a2a');g.addColorStop(1,'#ffd23c')}else if(ph>1){g.addColorStop(0,'#d0375a');g.addColorStop(1,'#ff7a3a')}else{g.addColorStop(0,'#8a1f3c');g.addColorStop(1,'#ff3b6b')}
   ctx.fillStyle=g;ctx.fillRect(x,y,w*k,h);
   if(pu){ctx.globalCompositeOperation='lighter';ctx.fillStyle=rgba('#ffe9a0',.18*pu);ctx.fillRect(x,y,w*k,h);ctx.globalCompositeOperation='source-over'}
   ctx.fillStyle='#ffffff30';ctx.fillRect(x,y,w*k,2);
   for(const q of(e.final?[BOSS_PH[1].at,BOSS_PH[2].at]:[BOSS_PH[1].at])){ctx.fillStyle=k>q?'#05040a':'#05040a66';ctx.fillRect(x+w*q-1,y-2,2,h+4);ctx.fillStyle='#ffe9a0';ctx.beginPath();ctx.moveTo(x+w*q-3,y-4);ctx.lineTo(x+w*q+3,y-4);ctx.lineTo(x+w*q,y);ctx.fill()}
-  ctx.restore();return true;
+  ctx.restore();
 }
 // 主が近づく警告：戦場のふちが赤く脈打ち、縞の帯が流れる
 function drawWarn(dt){
@@ -4040,7 +4046,7 @@ function render(dt){
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   // 画面下の操作部
   drawHud(dt);
-  const bossBar=drawBossBar(dt),iy=bossBar?21:0; // 主の体力の帯が出ている間は、説明の帯を少し下げる
+  const bossBar=drawBossBar(dt),iy=bossBar?21+(bossBar-1)*BOSS_BAR_GAP:0; // 主の体力の帯が出ている間は、説明の帯を少し下げる
   drawShop(dt);
   for(const b of buttons)drawBtn(b,dt);
   // 説明の帯（選んでいる・運んでいる元素）
