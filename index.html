@@ -1251,11 +1251,12 @@ function buildWave(w){
 let S,UNDO=null,disc,madeR=new Set(),prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
 // 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
-const runOK=r=>!!r&&typeof r==='object'&&!!STAGES[r.stage]&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
+const runOK=r=>!!r&&typeof r==='object'&&ORDER.includes(r.stage)&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i])); // 前の仕組み（図鑑の数）ですでに開いた木・光・闇はそのまま残す
   if(Array.isArray(d.madeR))madeR=new Set(d.madeR.filter(k=>typeof k==='string'&&RECIPE[k])); // 実際に作った組み合わせ（rkey 形式）
   else if(Array.isArray(d.disc)){madeR=new Set();for(const k in RECIPE){const[a,b]=k.split('+');if(disc.has(a)&&disc.has(b))madeR.add(k)}} // madeR が無い古いセーブ（disc の記録があるもの）：材料が両方そろっているレシピを、作ったものとして引き継ぐ。初回・初期化直後は disc が無いので種まきしない
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
+  for(const k in prog)if(!ORDER.includes(parseInt(k)))delete prog[k]; // ボツにしたステージ（迷いの森）の記録は消す（ユーザー決定 2026-11-23）
   TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};
   for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
@@ -1273,8 +1274,7 @@ const dayKey=(t=new Date())=>`${t.getFullYear()}-${String(t.getMonth()+1).padSta
 const mixH=h=>{h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;return h>>>0}; // 日付の並びが続いても散らばるよう混ぜる
 // 今日の挑戦に出るステージの組。ステージを足したり外したりするときは、組を書きかえず、明日以降の日付（from）で新しい組を足す。
 // こうすると、もう始まっている日の挑戦のステージが更新で入れかわらない（ステージの並び替え PR #42 で今日の分が変わってしまったため）
-const DAILY_POOLS=[{from:'',ids:[...Array(14).keys()]}, // 〜11/22：はじめの 14 ステージ（迷いの森をふくむ）
-  {from:'2026-11-23',ids:ORDER}]; // 11/23〜：並び替え後の 15 ステージ
+const DAILY_POOLS=[{from:'',ids:ORDER}]; // 並び替え後の 15 ステージ（ボツの迷いの森は出さない）
 function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前の日と同じものが続かないように決める
   // 日付を 7 日ごとの組に分ける。組の 1 日目は組の番号だけで決め、2 日目からは「前の日のステージから 1〜L-1 だけ進める」ので、前の日と同じにならない。
   // 組の最後の日は、前の日とも、次の組の 1 日目ともちがうステージから選ぶ（組の境目でも続かない）。
@@ -1287,7 +1287,7 @@ function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前�
   return{stage:pool[s],night:(h(key)>>>8)%3===0}; // 悪夢になる日は、これまでと同じ
 }
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.daily&&typeof d.daily==='object')for(const k in d.daily){const v=d.daily[k];
-  if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0)daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
+  if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0&&ORDER.includes(v.stage))daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
 const curBest=()=>DAILY?(daily[DAILY]||{best:0}).best:rec().best; // いまの戦いの、これまでの最高到達波
 function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
   const r=daily[DAILY]||(daily[DAILY]={best:0,clear:false,stage:STAGE,night:NIGHT});
@@ -3303,7 +3303,7 @@ function openStages(){
    ok のないもの（flawless）は、その場面で grantAch を呼ぶ。
    今日の挑戦の扱い：ステージの進行にかかわる実績（主・王・クリア・悪夢・エンドレス・消えない灯）は、今日の挑戦では解除しない。
    通算の数（撃破・錬成）と図鑑は、挑戦のぶんも統計・図鑑に入るので、そのまま数える。daily10 は挑戦だけの実績 */
-const anyClear=n=>STAGES.some((_,i)=>rec(i,n).clear),clearN=n=>ORDER.filter(i=>rec(i,n).clear).length;
+const anyClear=n=>ORDER.some(i=>rec(i,n).clear),clearN=n=>ORDER.filter(i=>rec(i,n).clear).length;
 const bestWaveAll=()=>Object.values(prog).reduce((m,r)=>Math.max(m,r&&r.best||0),0); // ふつうのステージ（通常・悪夢）での最高到達波。今日の挑戦の記録は入れない
 const dailyTop=()=>Object.values(daily).reduce((m,r)=>Math.max(m,r.best),0);
 const T6=Object.values(ITEMS).filter(d=>d.t>=6).map(d=>d.id),ENDLESS_GOAL=30;
@@ -3395,7 +3395,7 @@ function openStats(from){
     +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
     +row(TT('stFound'),`${disc.size} / ${TOTAL}`)+'</div>';
   h+=`<div class="dsec">${TT('stStage')}</div><div class="sbt"><span></span><i>${TT('normal')}</i><i>${TT('night')}</i><i>${TT('abyss')}</i>`
-    +ORDER.concat(STAGES.map((_,i)=>i).filter(i=>!ORDER.includes(i)&&[0,1,2].some(n=>rec(i,n).best>0))).map(i=>{const st=STAGES[i];return`<b>${sn(st)}</b><span>${best(i,0)}</span><span>${best(i,1)}</span><span>${best(i,2)}</span>`}).join('')+'</div>';
+    +ORDER.map(i=>{const st=STAGES[i];return`<b>${sn(st)}</b><span>${best(i,0)}</span><span>${best(i,1)}</span><span>${best(i,2)}</span>`}).join('')+'</div>';
   const dk=Object.keys(daily).sort().reverse(),dl=k=>{const[y,m,d]=k.split('-');return new Date(+y,m-1,+d).toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'})};
   h+=`<div class="dsec">${TT('stDaily')}</div><div class="dst">`+row(TT('stDays'),fmtN(dk.length))
     +dk.slice(0,7).map(k=>row(`${dl(k)}　${sn(STAGES[daily[k].stage])}${dParen(+daily[k].night)}`,TT(daily[k].clear?'stDayClear':'stDayWave',daily[k].best))).join('')+'</div>';
