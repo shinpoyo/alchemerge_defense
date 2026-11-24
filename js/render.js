@@ -2,10 +2,19 @@
 // 描画（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- 描画 ---------------- */
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const ART={}; // ステージの絵（img/stages/）。読みこめるまではこれまでの背景で描き、読みこめたら描き直す
+function stageArt(){
+  const src=STAGES[STAGE].bg;if(!src)return null;
+  if(!ART[src]){const img=new Image();img.onload=()=>{bgCanvas=null};img.src=src;ART[src]=img}
+  const img=ART[src];return img.complete&&img.naturalWidth?img:null;
+}
 function makeBg(){
   const c=document.createElement('canvas'),k=2;c.width=W*k;c.height=H*k;const g=c.getContext('2d');g.scale(k,k);
   let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0c0a18');gr.addColorStop(.6,'#07060e');gr.addColorStop(1,'#040308');
   g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const art=stageArt(); // ステージの絵（あれば、星・月・星雲・道の帯のかわりに敷く）
+  if(art){g.save();g.beginPath();g.rect(0,0,W,518);g.clip();g.drawImage(art,0,0,W,art.height*W/art.width);g.restore()}
+  else{
   for(let i=0;i<120;i++){g.fillStyle=rgba('#b9a8ff',rnd(.03,.2));g.fillRect(rnd(W),rnd(48,515),rnd(.5,1.6),rnd(.5,1.6))}
   for(let i=0;i<22;i++){const x=rnd(W),y=rnd(48,470),r=rnd(2,4.2),a=rnd(.25,.6);g.strokeStyle=rgba('#e6dcff',a);g.lineWidth=1;
     g.beginPath();g.moveTo(x-r,y);g.lineTo(x+r,y);g.moveTo(x,y-r);g.lineTo(x,y+r);g.stroke();g.fillStyle=rgba('#ffffff',a);g.fillRect(x-.7,y-.7,1.4,1.4)}
@@ -21,13 +30,15 @@ function makeBg(){
    else if(sa&&sa.resist==='poison'){g.strokeStyle='rgba(140,224,74,.10)';g.lineWidth=1;for(let i=0;i<26;i++){g.beginPath();g.arc(rnd(W),rnd(60,500),rnd(2,7),0,TAU);g.stroke()}} // 瘴気の沼：泡
    else if(sa&&sa.resist==='light'){for(let i=0;i<5;i++){const x=rnd(40,410);gr=g.createLinearGradient(x,48,x+60,500);gr.addColorStop(0,'rgba(255,242,160,.09)');gr.addColorStop(1,'rgba(255,242,160,0)');g.fillStyle=gr;g.beginPath();g.moveTo(x,48);g.lineTo(x+22,48);g.lineTo(x+90,500);g.lineTo(x+50,500);g.fill()}} // 白夜の聖堂：差しこむ光
    else if(sa&&sa.wet){g.strokeStyle='rgba(120,190,255,.08)';g.lineWidth=1;for(let i=0;i<18;i++){const x=rnd(W),y=rnd(60,500),r=rnd(8,26);for(const k of[1,.6]){g.beginPath();g.ellipse(x,y,r*k,r*k*.4,0,0,TAU);g.stroke()}}}}
+  }
   // 道
   const tr=()=>{g.beginPath();for(const P of PATHS)P.pts.forEach((p,i)=>g[i?'lineTo':'moveTo'](p[0],p[1]))};
   g.lineJoin='round';g.lineCap='round';
+  if(!art){ // 絵があるときは、絵に描かれた道をそのまま使う
   g.strokeStyle=rgba('#8b5cf6',.16);g.lineWidth=50;tr();g.stroke();
   g.strokeStyle=rgba('#8b5cf6',.5);g.lineWidth=42;tr();g.stroke();
   g.strokeStyle='#0b0915';g.lineWidth=39;tr();g.stroke();
-  g.strokeStyle='#131022';g.lineWidth=30;tr();g.stroke();
+  g.strokeStyle='#131022';g.lineWidth=30;tr();g.stroke();}
   g.setLineDash([2,13]);g.strokeStyle=rgba('#c9b8ff',.3);g.lineWidth=2;tr();g.stroke();g.setLineDash([]);
   // 入口の裂け目
   for(const P of PATHS){const y=P.pts[0][1],x0=clamp(P.pts[0][0],0,W);gr=g.createRadialGradient(x0,y,0,x0,y,60);gr.addColorStop(0,rgba('#b03cff',.55));gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x0-70,y-65,140,130)}
@@ -37,7 +48,7 @@ function makeBg(){
   g.fillStyle='rgba(232,195,106,.07)';g.fillRect(17,521,W-34,1);
   for(const s of slots){
     if(s.field){
-      g.fillStyle='rgba(139,92,246,.06)';g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.fill();
+      g.fillStyle=art?'rgba(12,9,22,.55)':'rgba(139,92,246,.06)';g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.fill(); // 絵の上では、柱や壁と重なっても読めるよう下を暗く
       g.strokeStyle=rgba('#8b5cf6',.4);g.lineWidth=1.2;g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.stroke();
       g.strokeStyle=rgba('#8b5cf6',.2);g.beginPath();g.arc(s.x,s.y,22,0,TAU);g.stroke();
       g.beginPath();for(let i=0;i<3;i++){const a=i/3*TAU-TAU/4;g[i?'lineTo':'moveTo'](s.x+Math.cos(a)*22,s.y+Math.sin(a)*22)}g.closePath();g.stroke();
