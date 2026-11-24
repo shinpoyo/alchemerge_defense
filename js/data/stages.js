@@ -40,7 +40,7 @@ const STAGES=[
   // 属性の地：aff の系統で、影の受ける傷が変わる（weak ×AFF_WEAK、resist ×AFF_RES）。鎧の影は resist の系統をいつも防ぐ
   // 凍った湖のまわりを一周してから、湖の真ん中の灯へ。氷の影は炎に弱く、氷が効きにくい
   {name:'凍てつく湖',note:'凍った湖をめぐって中央の灯へ',en:'Frozen Lake',noteEn:'Circle the frozen lake to its heart',hp:1.25,spice:1.1,
-   aff:{weak:'flame',resist:'ice',c:'#8fe6ff'},neb:['#1d4a6e','#2a3a7e'],
+   aff:{weak:'flame',resist:'ice',c:'#8fe6ff'},neb:['#1d4a6e','#2a3a7e'],bg:'img/stages/ice.webp',
    paths:[[[-30,300],[60,300],[60,90],[390,90],[390,460],[140,460],[140,300],[225,300]]],
    field:[[280,330],[200,380],[340,300],[200,230],[280,240],[270,400],[340,390],[110,240],[190,160],[270,160],[340,160],[110,170]],
    traps:[[60,200],[225,90],[390,280],[265,460],[140,380]]},

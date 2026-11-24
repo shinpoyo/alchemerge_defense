@@ -13,7 +13,8 @@ function makeBg(){
   let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0c0a18');gr.addColorStop(.6,'#07060e');gr.addColorStop(1,'#040308');
   g.fillStyle=gr;g.fillRect(0,0,W,H);
   const art=stageArt(); // ステージの絵（あれば、星・月・星雲・道の帯のかわりに敷く）
-  if(art){g.save();g.beginPath();g.rect(0,0,W,518);g.clip();g.drawImage(art,0,0,W,art.height*W/art.width);g.restore()}
+  if(art){g.save();g.beginPath();g.rect(0,0,W,518);g.clip();g.drawImage(art,0,0,W,art.height*W/art.width);g.restore();
+   gr=g.createLinearGradient(0,0,0,76);gr.addColorStop(0,'rgba(5,4,9,.8)');gr.addColorStop(1,'rgba(5,4,9,0)');g.fillStyle=gr;g.fillRect(0,0,W,76)} // 上の表示（灯・夜波）が明るい絵の上でも読めるように
   else{
   for(let i=0;i<120;i++){g.fillStyle=rgba('#b9a8ff',rnd(.03,.2));g.fillRect(rnd(W),rnd(48,515),rnd(.5,1.6),rnd(.5,1.6))}
   for(let i=0;i<22;i++){const x=rnd(W),y=rnd(48,470),r=rnd(2,4.2),a=rnd(.25,.6);g.strokeStyle=rgba('#e6dcff',a);g.lineWidth=1;
