@@ -263,7 +263,7 @@ const SYN=[{to:['volt','ice'],k:'wetT',st:'stWet',c:'#6ab8ff',by:['sea','rainclo
   {to:['flame'],k:'tinderT',st:'stTinder',c:'#ff9a4a',by:['leaves','kinosei','spore','swamp','bog']}, // 火種：木の葉・胞子・沼のガスなど燃えるものをまとわせる
   {to:['wind'],k:'stagT',st:'stStag',c:'#a8f0c8',by:['mud','frost','quicksand','nendo']}]; // よろめき：足を取られた影は風に倒される
 // by：その状態をかける元素（系統にこだわらず、名前や効果に合うものだけ。よく効く系統を持つ元素は入れない）。毒・光・闇によく効く状態はない（ユーザー決定 2026-11-23）
-const AMP_MUL=2; // 系統の結界：輪の中の影が、その系統から受ける傷の倍率
+const AMP_MUL=1.2; // 系統の結界：輪の中の影が、その系統から受ける傷の倍率
 function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ系統の結界は重ならない）
   if(!S.amps||!S.amps.length)return 1;
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
