@@ -7,9 +7,15 @@
 const SPR_DEF={ // face：絵の向き（-1 左向き、1 右向き、0 正面。進む向きに合わせて左右を返す）、k：絵の大きさ（半径の何倍）
   shade:{face:0,k:2.7},wisp:{face:-1,k:2.9},golem:{face:0,k:2.5},mite:{face:-1,k:3.1},runner:{face:1,k:2.8},
   flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9},
-  king_ice:{face:0,k:4.8,rim:'#8fe6ff',foot:1},king_fire:{face:-1,k:5.2,rim:'#ff7a2a',foot:1}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色、foot：足もとを道に合わせる（大きい絵）
+  king_ice:{face:0,k:4.8,rim:'#8fe6ff',foot:1},king_fire:{face:-1,k:5.2,rim:'#ff7a2a',foot:1},
+  king_corridor:{face:0,k:4.3,rim:'#b48cff',foot:1},king_garden:{face:0,k:5.6,rim:'#7ac85a',foot:1},king_valley:{face:0,k:5,rim:'#c0a0ff',foot:1},
+  king_gates_flame:{face:-1,k:5.5,rim:'#ff7a2a',foot:1},king_gates_ice:{face:1,k:5.6,rim:'#8fe6ff',foot:1},king_throne:{face:0,k:5.4,rim:'#ff3b6b',foot:1},
+  king_hg_earth:{face:0,k:4,rim:'#e0a050',foot:1},king_hg_wind:{face:0,k:5.6,rim:'#7df0c0',foot:1},king_altar:{face:0,k:4.4,rim:'#ff9a5a',foot:1},
+  king_sunken:{face:0,k:5.5,rim:'#4aa8ff',foot:1},king_forest:{face:0,k:5.6,rim:'#6affc0',foot:1},king_swamp:{face:0,k:5.6,rim:'#b070ff',foot:1},
+  king_cathedral:{face:0,k:4.9,rim:'#fff2a0',foot:1},king_crossroads:{face:0,k:4.2,rim:'#ff6a4a',foot:1},king_starfall:{face:0,k:4,rim:'#a0c0ff',foot:1}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色、foot：足もとを道に合わせる（大きい絵）
 const SPR={};
-const sprKey=e=>e.final&&STAGES[STAGE].king&&SPR[STAGES[STAGE].king]?STAGES[STAGE].king:e.type; // 第20波の夜の王は、ステージ専用の絵があればそれ
+const sprKey=e=>{ // 第20波の夜の王は、ステージ専用の絵があればそれ。門が 2 つのステージは king が {門の系統:絵} で、門ごとの王に別の絵
+  if(!e.final)return e.type;const k=STAGES[STAGE].king,q=k&&(typeof k==='string'?k:k[e.gate]);return q&&SPR[q]?q:e.type};
 function sprBox(e,r){ // 絵を描く大きさと位置（敵の位置が原点）。cy：絵の真ん中の高さ
   const key=sprKey(e),D=SPR_DEF[key],S0=SPR[key],sz=r*D.k,sc=S0?sz/Math.max(S0.w,S0.h):1,w=S0?S0.w*sc:sz,h=S0?S0.h*sc:sz;
   const y=D.foot?-h+r*.35:-h/2-r*.1;return{key,D,S0,w,h,x:-w/2,y,cy:D.foot?y+h/2:0};
