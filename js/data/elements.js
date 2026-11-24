@@ -182,7 +182,7 @@ const ITEMS={
   kiyome:  {name:'浄めの霧',t:5,c:'#d8f0ff',kind:'ward', range:150,ward:'sil',                       desc:'まわりの影の力を封じつづける'},
   hougyoku:{name:'竜の宝玉',t:6,c:'#ffd24a',kind:'ward', range:160,gold:2,                           desc:'まわりで倒した影の魔力が 2 倍'},
   // 要石と系統の結界：輪の中の影が、その系統の攻撃を AMP_MUL 倍受ける（影の側にかかる。同じ系統は重ならない）
-  kaname:  {name:'要石',    t:4,c:'#e8dcb8',kind:'bolt', dmg:90, rate:.6,  range:130,splash:30,                 desc:'地を鎮める重い石を落とす'},
+  kaname:  {name:'要石',    t:3,c:'#e8dcb8',kind:'bolt', dmg:75, rate:.6,  range:130,splash:30,                 desc:'地を鎮める重い石を落とす'},
   flameward:{name:'炎の結界',t:5,c:'#ff6a3d',kind:'ward',range:170,amp:'flame',desc:'輪の中の影は、炎の系統の攻撃を 2 倍受ける'},
   waterward:{name:'水の結界',t:5,c:'#4aa8ff',kind:'ward',range:170,amp:'water',desc:'輪の中の影は、水の系統の攻撃を 2 倍受ける'},
   earthward:{name:'土の結界',t:5,c:'#c08a4a',kind:'ward',range:170,amp:'earth',desc:'輪の中の影は、土の系統の攻撃を 2 倍受ける'},
@@ -384,8 +384,8 @@ const RECIPES=[
   ['juka','bat','choonpa'],['juka','tomb','chinkonka'],['wakon','flash','sanbika'],['suzu','gem','orgel'],['hanabi','bolt','raimei'],
   ['taiko','mountain','yamabiko'],['taiko','shakudama','matsuribayashi'],['komoriuta','sea','siren'],['choonpa','crystal','kyoumei'],['chinkonka','curse','soukyoku'],['sanbika','holylight','shukufuku'],['furin','kusabue','shirabe'],
   ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
-  // 要石と系統の結界：要石 ＋ 系統ごとに決まった★4
-  ['mountain','holylight','kaname'],
+  // 要石と系統の結界：要石（★3）＋ 系統ごとに決まった★4
+  ['rock','flash','kaname'],
   ['kaname','purgatory','flameward'],['kaname','tsunami','waterward'],['kaname','peak','earthward'],['kaname','storm','windward'],['kaname','raijin','voltward'],['kaname','permafrost','iceward'],['kaname','mire','poisonward'],['kaname','wraith','darkward'],['kaname','tenkou','lightward'],['kaname','jukai','woodward'],
   // 時
   ['time','water','shio'],['time','earth','fossil'],['time','wind','fuka'],['time','wood','nenrin'],['time','light','hidokei'],['time','dark','boukyaku'],['time','sound','tokei'],['time','time','setsuna'],
