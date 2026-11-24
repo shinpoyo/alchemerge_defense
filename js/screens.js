@@ -84,8 +84,7 @@ function openDetail(id,from){
   const chip=i=>`<span class="rcp" data-el="${i}">${img(i)}<span>${nm(ITEMS[i])}</span></span>`;
   const row=(a,b,r,go)=>`<div class="rc${go?' go':''}"${go?` data-id="${go}"`:''}>${chip(a)}＋${chip(b)}＝${chip(r)}</div>`;
   let h=`<div class="dh" style="--c:${d.c}">${img(id)}<div><b>${nm(d)}</b><span>${'★'.repeat(d.t)}</span><i>${TT('k_'+d.kind)}</i>${d.fam.length?`<i>${TT('dFam',d.fam.map(f=>TT('f_'+f)).join(LANG==='ja'?'・':' / '))}</i>`:''}<i>◆${itemValue(d)}</i></div></div>`;
-  const synK=noAtk(d)?[]:SYN.filter(y=>y.to.some(f=>d.fam.includes(f))); // 属性シナジーで強くなる側の一文。状態をかける側は「敵にかける効果」に出す
-  h+=`<div class="dd">${ds(d)}</div>${synK.map(y=>`<div class="dn">${TT('dSynTo',TT(y.st),SYN_MUL,y.by.slice(0,2).map(k=>nm(ITEMS[k])).join(LANG==='ja'?'・':', '))}</div>`).join('')}<div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
+  h+=`<div class="dd">${ds(d)}</div><div class="dn">${TT(d.kind==='trap'?'dPlaceTrap':d.kind==='relic'?'dPlaceCore':'dPlaceTower')}<br>${TT(d.t===1||canBuy(id)?'dBuyYes':'dBuyNo',d.t)}</div>${buyBtn(d)}`;
   h+=`<div class="dsec">${TT('dStats')}</div><div class="dst" style="--c:${d.c}">${st.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(fx2.length)h+=`<div class="dsec">${TT(ward?'dEffects2':'dEffects')}</div><div class="dst">${fx2.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')}</div>`;
   if(d.buffD!=null)h+=`<div class="dsec">${TT('dSupFx')}</div><div class="dst"><span>${TT('dSupDmg')}</span><b>${TT('dSupUp',Math.round(d.buffD*100))}</b><span>${TT('dSupRate')}</span><b>${TT('dSupUp',Math.round(d.buffR*100))}</b></div><div class="dn">${TT('dSupNote')}</div>`;
