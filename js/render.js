@@ -509,7 +509,7 @@ function render(dt){
     ctx.beginPath();ctx.arc(s.x,s.y,d.range+pu*1.5,0,TAU);ctx.fill();ctx.stroke();
     trapFx(s,it,d,T,dt);
     const off=rankOff(it);drawItem(it,it.rx,it.ry,.8,off?.3:.9);if(off)banMark(it.rx+17,it.ry-17)}
-  for(const e of S.enemies)drawEnemy(e);
+  for(const e of S.enemies)if(!sprTall(e))drawEnemy(e);
   // 置いてある元素
   ctx.save();if(S.benchShake>0){S.benchShake-=dt}
   for(const s of slots){const it=s.item;if(!it||s.path||it.hide>0||it===held?.item)continue;
@@ -527,6 +527,7 @@ function render(dt){
         ctx.drawImage(glow(d.c),ox-8,oy-8,16,16);ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(ox,oy,2.1,0,TAU);ctx.fill()}
       ctx.restore()}}
   ctx.restore();
+  for(const e of S.enemies)if(sprTall(e))drawEnemy(e); // 背の高い王は、塔にかぶっても手前に見えるよう塔のあとに描く
   // 光線・弾・演出（加算合成）
   ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
   for(const s of slots){const it=s.item;if(!it||!it.beamT.length)continue;const d=ITEMS[it.id],bc=it.beamC||d.c;

@@ -15,7 +15,8 @@ function sprBox(e,r){ // 絵を描く大きさと位置（敵の位置が原点�
   const y=D.foot?-h+r*.35:-h/2-r*.1;return{key,D,S0,w,h,x:-w/2,y,cy:D.foot?y+h/2:0};
 }
 const sprR=(e,r)=>{const b=sprBox(e,r);return b.D.foot?b.h*.45:r*b.D.k*.46}; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
-const sprCY=(e,r)=>sprBox(e,r).cy; // 足もとを道に合わせた絵は、輪や体力の帯を絵の真ん中に合わせて上へずらす
+const sprCY=(e,r)=>sprBox(e,r).cy;
+const sprTall=e=>{const k=sprKey(e);return!!(SPR_DEF[k].foot&&SPR[k])}; // 背の高い王：塔より手前に描く（render.js） // 足もとを道に合わせた絵は、輪や体力の帯を絵の真ん中に合わせて上へずらす
 function sprLoad(type){
   const img=new Image();
   img.onload=()=>{
@@ -47,15 +48,16 @@ function drawSprite(e,t,r,rage){
   if(D.face){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||e.P.seg[e.P.seg.length-1],vx=cs.bx-cs.ax;if(vx*D.face<-.01)ctx.scale(-1,1)}
   const rim=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):gc||fc||D.rim||e.def.rim,o=e.type==='boss'||gc?1.6:1.1,R=sprTint(S0,rim);
   for(const[dx,dy]of[[o,0],[-o,0],[0,o],[0,-o]])ctx.drawImage(R,x+dx,y+dy,w,h); // 縁どり
-  if(e.flash>0)ctx.drawImage(S0.white,x,y,w,h);
+  if(e.flash>0&&!D.foot)ctx.drawImage(S0.white,x,y,w,h);
   else{
     const B=arm?sprFam(S0,e.armor):S0;
     ctx.drawImage(B.body,x,y,w,h);
     if(gc){ctx.globalAlpha=.3;ctx.drawImage(sprTint(S0,gc),x,y,w,h);ctx.globalAlpha=1}
     if(rage){ctx.globalAlpha=.45;ctx.drawImage(sprTint(S0,e.phase>2?'#c0601a':'#b02020'),x,y,w,h);ctx.globalAlpha=1} // 怒り：体が赤く
-    ctx.globalCompositeOperation='lighter';ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=.6;ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+    ctx.globalCompositeOperation='lighter';if(D.foot){ctx.globalAlpha=.4;ctx.drawImage(B.glow,x,y,w,h)}else{ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=.6;ctx.drawImage(B.glow,x,y,w,h)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'; // 光る所を足す（大きい王は光る所が広いので弱めに 1 回だけ）
     if(e.stopT>0){ctx.globalAlpha=.52;ctx.drawImage(sprTint(S0,'#c8f2ff'),x,y,w,h);ctx.globalAlpha=1} // 停止：青白く凍りつく
     if(e.dotT>0&&e.dotK){ctx.globalAlpha=.33;ctx.drawImage(sprTint(S0,'#a8f06a'),x,y,w,h);ctx.globalAlpha=1} // 毒：体が緑がかる
+    if(e.flash>0){ctx.globalAlpha=.22;ctx.drawImage(S0.white,x,y,w,h);ctx.globalAlpha=1} // 大きい王の被弾：真っ白にせず、うっすら明るくするだけ（体が見えなくならないように）
   }
   ctx.restore();
   const rv=sprR(e,r);
