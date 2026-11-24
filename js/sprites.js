@@ -6,9 +6,11 @@
    絵がまだ読みこめていないあいだは、これまでの形（render.js の ePath）で描く */
 const SPR_DEF={ // face：絵の向き（-1 左向き、1 右向き、0 正面。進む向きに合わせて左右を返す）、k：絵の大きさ（半径の何倍）
   shade:{face:0,k:2.7},wisp:{face:-1,k:2.9},golem:{face:0,k:2.5},mite:{face:-1,k:3.1},runner:{face:1,k:2.8},
-  flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9}};
+  flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9},
+  king_ice:{face:0,k:3.2,rim:'#8fe6ff'}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色
 const SPR={};
-const sprR=(e,r)=>r*SPR_DEF[e.type].k*.46; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
+const sprKey=e=>e.final&&STAGES[STAGE].king&&SPR[STAGES[STAGE].king]?STAGES[STAGE].king:e.type; // 第20波の夜の王は、ステージ専用の絵があればそれ
+const sprR=(e,r)=>r*SPR_DEF[sprKey(e)].k*.46; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
 function sprLoad(type){
   const img=new Image();
   img.onload=()=>{
@@ -34,12 +36,12 @@ function sprFam(S0,fam){ // 鎧の影：体と光る所を、防ぐ系統の色�
 }
 // 絵で敵を描く。描けたら true（まだ読みこめていなければ false を返し、これまでの形で描く）
 function drawSprite(e,t,r,rage){
-  const S0=SPR[e.type];if(!S0)return false;
-  const D=SPR_DEF[e.type],sz=r*D.k,sc=sz/Math.max(S0.w,S0.h),w=S0.w*sc,h=S0.h*sc,x=-w/2,y=-h/2-r*.1;
+  const key=sprKey(e),S0=SPR[key];if(!S0)return false;
+  const D=SPR_DEF[key],sz=r*D.k,sc=sz/Math.max(S0.w,S0.h),w=S0.w*sc,h=S0.h*sc,x=-w/2,y=-h/2-r*.1;
   const arm=e.type==='armored',fc=arm?(ELEM[e.armor]||ELEM.earth).c:null,gc=e.gate&&ELEM[e.gate].c; // 門ごとの系統の敵：縁どりと体を系統の色にする
   ctx.save();
   if(D.face){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||e.P.seg[e.P.seg.length-1],vx=cs.bx-cs.ax;if(vx*D.face<-.01)ctx.scale(-1,1)}
-  const rim=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):gc||fc||e.def.rim,o=e.type==='boss'||gc?1.6:1.1,R=sprTint(S0,rim);
+  const rim=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):gc||fc||D.rim||e.def.rim,o=e.type==='boss'||gc?1.6:1.1,R=sprTint(S0,rim);
   for(const[dx,dy]of[[o,0],[-o,0],[0,o],[0,-o]])ctx.drawImage(R,x+dx,y+dy,w,h); // 縁どり
   if(e.flash>0)ctx.drawImage(S0.white,x,y,w,h);
   else{
