@@ -7,10 +7,15 @@
 const SPR_DEF={ // face：絵の向き（-1 左向き、1 右向き、0 正面。進む向きに合わせて左右を返す）、k：絵の大きさ（半径の何倍）
   shade:{face:0,k:2.7},wisp:{face:-1,k:2.9},golem:{face:0,k:2.5},mite:{face:-1,k:3.1},runner:{face:1,k:2.8},
   flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9},
-  king_ice:{face:0,k:4.8,rim:'#8fe6ff'},king_fire:{face:-1,k:5.2,rim:'#ff7a2a'}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色
+  king_ice:{face:0,k:4.8,rim:'#8fe6ff',foot:1},king_fire:{face:-1,k:5.2,rim:'#ff7a2a',foot:1}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色、foot：足もとを道に合わせる（大きい絵）
 const SPR={};
 const sprKey=e=>e.final&&STAGES[STAGE].king&&SPR[STAGES[STAGE].king]?STAGES[STAGE].king:e.type; // 第20波の夜の王は、ステージ専用の絵があればそれ
-const sprR=(e,r)=>r*SPR_DEF[sprKey(e)].k*.46; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
+function sprBox(e,r){ // 絵を描く大きさと位置（敵の位置が原点）。cy：絵の真ん中の高さ
+  const key=sprKey(e),D=SPR_DEF[key],S0=SPR[key],sz=r*D.k,sc=S0?sz/Math.max(S0.w,S0.h):1,w=S0?S0.w*sc:sz,h=S0?S0.h*sc:sz;
+  const y=D.foot?-h+r*.35:-h/2-r*.1;return{key,D,S0,w,h,x:-w/2,y,cy:D.foot?y+h/2:0};
+}
+const sprR=(e,r)=>{const b=sprBox(e,r);return b.D.foot?b.h*.45:r*b.D.k*.46}; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
+const sprCY=(e,r)=>sprBox(e,r).cy; // 足もとを道に合わせた絵は、輪や体力の帯を絵の真ん中に合わせて上へずらす
 function sprLoad(type){
   const img=new Image();
   img.onload=()=>{
@@ -36,8 +41,7 @@ function sprFam(S0,fam){ // 鎧の影：体と光る所を、防ぐ系統の色�
 }
 // 絵で敵を描く。描けたら true（まだ読みこめていなければ false を返し、これまでの形で描く）
 function drawSprite(e,t,r,rage){
-  const key=sprKey(e),S0=SPR[key];if(!S0)return false;
-  const D=SPR_DEF[key],sz=r*D.k,sc=sz/Math.max(S0.w,S0.h),w=S0.w*sc,h=S0.h*sc,x=-w/2,y=-h/2-r*.1;
+  const{key,D,S0,w,h,x,y}=sprBox(e,r);if(!S0)return false;
   const arm=e.type==='armored',fc=arm?(ELEM[e.armor]||ELEM.earth).c:null,gc=e.gate&&ELEM[e.gate].c; // 門ごとの系統の敵：縁どりと体を系統の色にする
   ctx.save();
   if(D.face){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||e.P.seg[e.P.seg.length-1],vx=cs.bx-cs.ax;if(vx*D.face<-.01)ctx.scale(-1,1)}

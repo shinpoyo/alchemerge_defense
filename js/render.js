@@ -206,6 +206,7 @@ function drawEnemy(e){
   else if(boss){for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.36,-r*.12,Math.max(1.4,r*.1),Math.max(2.4,r*.26),0,0,TAU);ctx.fill()}ctx.beginPath();ctx.ellipse(0,-r*.5,Math.max(1.6,r*.13),Math.max(2.6,r*.3),0,0,TAU);ctx.fill()}
   else{for(const sx of[-1,1]){ctx.beginPath();ctx.ellipse(sx*r*.34,-r*.18,Math.max(1.2,r*.09),Math.max(2,r*.24),0,0,TAU);ctx.fill()}}}
   const rv=spr?sprR(e,r):r; // 状態の輪・印・体力の帯は、絵の大きさに合わせる
+  if(spr)ctx.translate(0,sprCY(e,r));
   if(e.drainT>0){ // 呪い：回る輪と、頭上の印
     ctx.strokeStyle='#d05aff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,rv+4,t*3,t*3+4);ctx.stroke();
     const my=-rv-17-(boss?12:0);ctx.fillStyle='#d98aff';ctx.beginPath();ctx.moveTo(-5,my-4);ctx.lineTo(5,my-4);ctx.lineTo(0,my+4);ctx.fill();ctx.fillStyle='#1c0a2c';ctx.beginPath();ctx.ellipse(0,my-1.5,.9,2,0,0,TAU);ctx.fill()}
