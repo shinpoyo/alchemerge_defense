@@ -6,9 +6,23 @@
    絵がまだ読みこめていないあいだは、これまでの形（render.js の ePath）で描く */
 const SPR_DEF={ // face：絵の向き（-1 左向き、1 右向き、0 正面。進む向きに合わせて左右を返す）、k：絵の大きさ（半径の何倍）
   shade:{face:0,k:2.7},wisp:{face:-1,k:2.9},golem:{face:0,k:2.5},mite:{face:-1,k:3.1},runner:{face:1,k:2.8},
-  flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9}};
+  flyer:{face:0,k:3.4},splitter:{face:0,k:2.6},healer:{face:0,k:2.9},armored:{face:1,k:3},boss:{face:0,k:2.9},
+  king_ice:{face:0,k:4.8,rim:'#8fe6ff',foot:1},king_fire:{face:-1,k:5.2,rim:'#ff7a2a',foot:1},
+  king_corridor:{face:0,k:4.3,rim:'#b48cff',foot:1},king_garden:{face:0,k:5.6,rim:'#7ac85a',foot:1},king_valley:{face:0,k:5,rim:'#c0a0ff',foot:1},
+  king_gates_flame:{face:-1,k:5.5,rim:'#ff7a2a',foot:1},king_gates_ice:{face:1,k:5.6,rim:'#8fe6ff',foot:1},king_throne:{face:0,k:5.4,rim:'#ff3b6b',foot:1},
+  king_hg_earth:{face:0,k:4,rim:'#e0a050',foot:1},king_hg_wind:{face:0,k:5.6,rim:'#7df0c0',foot:1},king_altar:{face:0,k:4.4,rim:'#ff9a5a',foot:1},
+  king_sunken:{face:0,k:5.5,rim:'#4aa8ff',foot:1},king_forest:{face:0,k:5.6,rim:'#6affc0',foot:1},king_swamp:{face:0,k:5.6,rim:'#b070ff',foot:1},
+  king_cathedral:{face:0,k:4.9,rim:'#fff2a0',foot:1},king_crossroads:{face:0,k:4.2,rim:'#ff6a4a',foot:1},king_starfall:{face:0,k:4,rim:'#a0c0ff',foot:1}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色、foot：足もとを道に合わせる（大きい絵）
 const SPR={};
-const sprR=(e,r)=>r*SPR_DEF[e.type].k*.46; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
+const sprKey=e=>{ // 第20波の夜の王は、ステージ専用の絵があればそれ。門が 2 つのステージは king が {門の系統:絵} で、門ごとの王に別の絵
+  if(!e.final)return e.type;const k=STAGES[STAGE].king,q=k&&(typeof k==='string'?k:k[e.gate]);return q&&SPR[q]?q:e.type};
+function sprBox(e,r){ // 絵を描く大きさと位置（敵の位置が原点）。cy：絵の真ん中の高さ
+  const key=sprKey(e),D=SPR_DEF[key],S0=SPR[key],sz=r*D.k,sc=S0?sz/Math.max(S0.w,S0.h):1,w=S0?S0.w*sc:sz,h=S0?S0.h*sc:sz;
+  const y=D.foot?-h+r*.35:-h/2-r*.1;return{key,D,S0,w,h,x:-w/2,y,cy:D.foot?y+h/2:0};
+}
+const sprR=(e,r)=>{const b=sprBox(e,r);return b.D.foot?b.h*.45:r*b.D.k*.46}; // 絵の見た目の半径（状態の輪や体力の帯をこの大きさに合わせる）
+const sprCY=(e,r)=>sprBox(e,r).cy;
+const sprTall=e=>{const k=sprKey(e);return!!(SPR_DEF[k].foot&&SPR[k])}; // 背の高い王：塔より手前に描く（render.js） // 足もとを道に合わせた絵は、輪や体力の帯を絵の真ん中に合わせて上へずらす
 function sprLoad(type){
   const img=new Image();
   img.onload=()=>{
@@ -34,22 +48,22 @@ function sprFam(S0,fam){ // 鎧の影：体と光る所を、防ぐ系統の色�
 }
 // 絵で敵を描く。描けたら true（まだ読みこめていなければ false を返し、これまでの形で描く）
 function drawSprite(e,t,r,rage){
-  const S0=SPR[e.type];if(!S0)return false;
-  const D=SPR_DEF[e.type],sz=r*D.k,sc=sz/Math.max(S0.w,S0.h),w=S0.w*sc,h=S0.h*sc,x=-w/2,y=-h/2-r*.1;
+  const{key,D,S0,w,h,x,y}=sprBox(e,r);if(!S0)return false;
   const arm=e.type==='armored',fc=arm?(ELEM[e.armor]||ELEM.earth).c:null,gc=e.gate&&ELEM[e.gate].c; // 門ごとの系統の敵：縁どりと体を系統の色にする
   ctx.save();
   if(D.face){const cs=e.P.seg.find(q=>e.d<=q.s+q.l)||e.P.seg[e.P.seg.length-1],vx=cs.bx-cs.ax;if(vx*D.face<-.01)ctx.scale(-1,1)}
-  const rim=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):gc||fc||e.def.rim,o=e.type==='boss'||gc?1.6:1.1,R=sprTint(S0,rim);
+  const rim=e.stopT>0?'#e6f9ff':e.slowT>0?'#8fe6ff':e.dotT>0?(e.dotK?'#a8f06a':'#ff8a3a'):gc||fc||D.rim||e.def.rim,o=e.type==='boss'||gc?1.6:1.1,R=sprTint(S0,rim);
   for(const[dx,dy]of[[o,0],[-o,0],[0,o],[0,-o]])ctx.drawImage(R,x+dx,y+dy,w,h); // 縁どり
-  if(e.flash>0)ctx.drawImage(S0.white,x,y,w,h);
+  if(e.flash>0&&!D.foot)ctx.drawImage(S0.white,x,y,w,h);
   else{
     const B=arm?sprFam(S0,e.armor):S0;
     ctx.drawImage(B.body,x,y,w,h);
     if(gc){ctx.globalAlpha=.3;ctx.drawImage(sprTint(S0,gc),x,y,w,h);ctx.globalAlpha=1}
     if(rage){ctx.globalAlpha=.45;ctx.drawImage(sprTint(S0,e.phase>2?'#c0601a':'#b02020'),x,y,w,h);ctx.globalAlpha=1} // 怒り：体が赤く
-    ctx.globalCompositeOperation='lighter';ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=.6;ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+    ctx.globalCompositeOperation='lighter';if(D.foot){ctx.globalAlpha=.4;ctx.drawImage(B.glow,x,y,w,h)}else{ctx.drawImage(B.glow,x,y,w,h);ctx.globalAlpha=.6;ctx.drawImage(B.glow,x,y,w,h)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'; // 光る所を足す（大きい王は光る所が広いので弱めに 1 回だけ）
     if(e.stopT>0){ctx.globalAlpha=.52;ctx.drawImage(sprTint(S0,'#c8f2ff'),x,y,w,h);ctx.globalAlpha=1} // 停止：青白く凍りつく
     if(e.dotT>0&&e.dotK){ctx.globalAlpha=.33;ctx.drawImage(sprTint(S0,'#a8f06a'),x,y,w,h);ctx.globalAlpha=1} // 毒：体が緑がかる
+    if(e.flash>0){ctx.globalAlpha=.22;ctx.drawImage(S0.white,x,y,w,h);ctx.globalAlpha=1} // 大きい王の被弾：真っ白にせず、うっすら明るくするだけ（体が見えなくならないように）
   }
   ctx.restore();
   const rv=sprR(e,r);
