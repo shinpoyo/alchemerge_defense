@@ -182,7 +182,8 @@ function openStages(){
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
+    const bdg=Array.isArray(r.badges)&&r.badges.length?`<span class="gift" style="color:#ffe9a0">${r.badges.map(x=>'✦'+TT('badge_'+x)).join('　')}</span>`:'';
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${bdg}${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
