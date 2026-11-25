@@ -1,7 +1,7 @@
 'use strict';
 // 入力（タッチ・マウス）（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- 入力 ---------------- */
-let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null,ENH_R=null,ENH_R0p=0;
+let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null,ENH_R=null,ENH_R0p=0,TGT_R=null;
 const LONG_MS=480; // これだけ押し続けると詳細を開く
 const lpClear=()=>{if(lpT){clearTimeout(lpT);lpT=null}};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
@@ -18,6 +18,10 @@ cv.addEventListener('pointerdown',ev=>{
   ring(p.x,p.y,'#8b5cf6',18,.3,1.5,2);
   if(INFO_R&&sel&&sel.item&&inBtn(INFO_R,p.x,p.y)){buzz(12);openDetail(INFO_R.id,'game');return}
   if(ENH_R&&sel&&canEnh(sel.item)&&inBtn(ENH_R,p.x,p.y)){ENH_R0p=1;undoable(()=>enhance(sel));return}
+  if(TGT_R&&sel&&sel.item&&inBtn(TGT_R,p.x,p.y)){
+    const cur=sel.item.tgt||'first',nx=TGT_MODES[(TGT_MODES.indexOf(cur)+1)%TGT_MODES.length];
+    sel.item.tgt=nx;sfx.ui();buzz(8);if(!S.active)saveRun();return;
+  }
   const tb=p.y>=TABS[0].y-3&&p.y<TABS[0].y+TABS[0].h+2&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);
   if(tb){if(tb.t==='f'){sfx.ui();openFilter();return}sfx.ui();if(FLT.rank.size===1&&FLT.rank.has(tb.t))setRank([]);else{setRank([tb.t]);wsHint(tb.t)}return}
   if(inBtn(SHOP,p.x,p.y)){strip={sx:p.x,sy:p.y,s0:SHOP.scroll[SHOP.tab],moved:false,touch:ev.pointerType==='touch',i:Math.floor((p.x-SHOP.x+SHOP.scroll[SHOP.tab])/SHOP.pitch)};

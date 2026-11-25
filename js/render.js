@@ -591,6 +591,18 @@ function render(dt){
     const sc=1-ENH_R.p*.08;ctx.save();ctx.translate(bx+bw/2,by+bh/2);ctx.scale(sc,sc);ctx.translate(-bx-bw/2,-by-bh/2);
     ctx.fillStyle='#07060de8';rr(ctx,bx,by,bw,bh,15);ctx.fill();ctx.strokeStyle=rgba('#e8c36a',can?.9:.3);ctx.lineWidth=1.5;ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f1,800);ctx.fillStyle=can?'#ffe9a0':'#8d86a3';ctx.fillText(TT('enhBtn',(it.lv||0)+1,cost),bx+bw/2,by+bh/2+1,bw-12);ctx.restore()}
+  // ターゲット優先度切替ボタン（魔法陣上の攻撃塔を選んでいるとき）
+  TGT_R=null;
+  if(sel&&!held&&sel.field&&sel.item&&canTarget(ITEMS[sel.item.id])){
+    const mode=sel.item.tgt||'first',bw=124,bh=26,bx=clamp(sel.x-bw/2,6,W-bw-6);
+    const by=ENH_R?Math.min(LY.top-bh-4,ENH_R.y+ENH_R.h+6):Math.min(LY.top-bh-4,sel.y+40);
+    TGT_R={x:bx,y:by,w:bw,h:bh};
+    ctx.save();ctx.fillStyle='#0c0918e8';rr(ctx,bx,by,bw,bh,13);ctx.fill();
+    ctx.strokeStyle=rgba(mode==='first'?'#8b5cf6':'#e8c36a',.75);ctx.lineWidth=1.2;ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f1,800);
+    ctx.fillStyle=mode==='first'?'#cfc8e6':'#ffe9a0';
+    ctx.fillText(TT('tgtBtn',TT('tgt_'+mode)),bx+bw/2,by+bh/2+.5,bw-10);ctx.restore();
+  }
   // 最初の手引き
   if(S.tut<9&&!held&&!S.banner&&!S.over)drawTut(T);
   // 運んでいる元素

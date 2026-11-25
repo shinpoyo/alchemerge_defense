@@ -398,10 +398,19 @@ function leak(e){
   burst(CORE.x,CORE.y,'#ff2a4a',24,180);ring(CORE.x,CORE.y,'#ff2a4a',80,.5,4);
   if(S.lives<=0){S.lives=0;if(!S.over)gameOver()} // 陥落と同じ瞬間にほかの影が抜けても、灯は 0 より下げない
 }
-function inRange(x,y,R,max){ // 射程内の敵を、ゴールに近い順に
+const TGT_MODES=['first','strong','weak','special'];
+const canTarget=d=>!!d&&!noAtk(d)&&d.kind!=='trap'&&d.kind!=='pulse';
+function inRange(x,y,R,max,mode='first'){ // 射程内の敵を、指定した優先度で並べる
   const a=[];
   for(const e of S.enemies){if(e.dead)continue;const dx=e.x-x,dy=e.y-y;if(dx*dx+dy*dy<=(R+e.r)*(R+e.r))a.push(e)}
-  a.sort((p,q)=>(p.P.len-p.d)-(q.P.len-q.d));return max?a.slice(0,max):a;
+  const rem=e=>e.P.len-e.d;
+  if(mode==='strong')a.sort((p,q)=>q.hp-p.hp||rem(p)-rem(q));
+  else if(mode==='weak')a.sort((p,q)=>p.hp-q.hp||rem(p)-rem(q));
+  else if(mode==='special'){
+    const sp=e=>e.type==='healer'?3:e.armor?2:e.type==='boss'?1:0;
+    a.sort((p,q)=>sp(q)-sp(p)||rem(p)-rem(q));
+  }else a.sort((p,q)=>rem(p)-rem(q));
+  return max?a.slice(0,max):a;
 }
 // 支援：魔法陣の上の支援の塔が、広さの中にいる味方の塔を強める。重ならない（いちばん強い 1 つだけ）。支援の塔どうしと罠には効かない
 function wardTick(dt=1/30){ // 浄めの霧：広さの中にいる影は、ずっと沈黙（回復と鎧が働かない）。系統の結界の輪もここで集める
@@ -469,7 +478,7 @@ function towerFire(sl,it,dt){
   const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD:1)*enhM(it)*soulM(it),rm=b?1+b.buffR:1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
   if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
-    const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
+    const ts=inRange(x,y,R,d.beams,it.tgt);it.beamT=ts;it.beamC=null;
     if(!ts.length){idleChg(it,d,dt);it.cd=0;return}
     for(const e of ts){applyHit(e,d,m,d.c);hurt(e,d.dmg*m*rm*dt,d.fam);if(FX&&Math.random()<dt*14)sparks(e.x,e.y,d.c,1,90)}
     if((it.chg||0)>0){it.chgB=(it.chgB||0)+it.chg;it.chg=0;it.chgT=0;it.cd=0}
@@ -479,7 +488,7 @@ function towerFire(sl,it,dt){
     return;
   }
   if(it.beamDur>0){it.beamDur-=dt;it.beamT=it.beamT.filter(e=>!e.dead);if(it.beamDur<=0)it.beamT.length=0}else it.beamT.length=0;
-  let ts=inRange(x,y,R);
+  let ts=inRange(x,y,R,null,it.tgt);
   if(!ts.length){idleChg(it,d,dt);it.cd=Math.max(0,it.cd-dt);return}
   it.cd-=dt;if(it.cd>0)return;
   let ad=d;

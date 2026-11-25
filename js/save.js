@@ -69,7 +69,7 @@ function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({di
 function saveRun(){
   if(!FX||S.over||(S.cleared&&!S.endless))return;
   RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,
-       items:slots.map((sl,i)=>sl.item?(sl.item.lv?[i,sl.item.id,sl.item.lv]:[i,sl.item.id]):null).filter(Boolean)};
+       items:slots.map((sl,i)=>{const it=sl.item;if(!it)return null;const t=it.tgt&&it.tgt!=='first'?it.tgt:0;return t?[i,it.id,it.lv||0,t]:it.lv?[i,it.id,it.lv]:[i,it.id]}).filter(Boolean)};
   if(DAILY)RUN.daily=DAILY; // 今日の挑戦の途中なら、その日付も残す
   save();
 }
@@ -78,7 +78,7 @@ function resumeRun(){
   const r=RUN;if(!r)return;
   const n0=NIGHT;STAGE=r.stage;NIGHT=toDiff(r.night);DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
   for(const sl of slots)sl.item=null;
-  r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
+  r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv,tgt]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);if(typeof tgt==='string')it.tgt=tgt;it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
   S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
 }
