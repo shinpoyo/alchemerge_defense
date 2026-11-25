@@ -296,7 +296,7 @@ function drawShop(dt){
     const x=shopBtnX(i);if(x>SHOP.x+SHOP.w||x+SHOP.bw<SHOP.x)return;
     const cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
     if(d.ws){ // 工房レベルを上げる札
-      const next=d.ws===S.ws+1,cost=WS_COST[d.ws],can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
+      const next=d.ws===S.ws+1,cost=wsCost(d.ws),can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
       ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
       const g2=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);g2.addColorStop(0,next?'#3a2a14':'#16120e');g2.addColorStop(1,'#0a0814');
       ctx.fillStyle=g2;rr(ctx,x,SHOP.y,SHOP.bw,SHOP.h,4);ctx.fill(); // 元素の札（角の丸い札）と見分けがつくよう、角を立てて二重の枠にする
@@ -392,7 +392,7 @@ function drawHud(dt){
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';
   }else ctx.fillText(stn,W/2,43);
   { // 工房レベル（★をどこまで錬成できるか）を魔力の下に出す。次のレベルに届く魔力があれば金色に。ステージ名と重なるときは短く
-    const cw=ctx.measureText(stn+(S.active?'　'+TT('left',S.queue.length+S.enemies.length):'')).width,nx=WS_COST[S.ws+1];
+    const cw=ctx.measureText(stn+(S.active?'　'+TT('left',S.queue.length+S.enemies.length):'')).width,nx=wsCost(S.ws+1);
     let t=TT('wsHud',S.ws,Math.min(6,S.ws+1));if(W-56-ctx.measureText(t).width<W/2+cw/2+10)t=TT('wsHudS',S.ws);
     ctx.textAlign='right';ctx.fillStyle=nx&&S.mana>=nx?'#e8c36a':'#a9a2c0';ctx.fillText(t,W-56,43);ctx.textAlign='center';
   }

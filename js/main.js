@@ -2,7 +2,7 @@
 // メインループ（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- メインループ ---------------- */
 let last=performance.now(),ambT=0;
-const PAUSE_OV=['title','codex','stages','menu','detail','stats','ach','pause','flt']; // 開いている間は戦闘を止める画面
+const PAUSE_OV=['title','codex','stages','menu','detail','stats','ach','pause','flt','moon']; // 開いている間は戦闘を止める画面
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   const paused=PAUSE_OV.some(id=>$('#'+id).classList.contains('on'));
