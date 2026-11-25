@@ -188,7 +188,7 @@ function openStages(){
     box.appendChild(b);
   });
   if(!dayOpen)dayBtn();
-  $('#sStats').textContent=TT('statsTitle');$('#sAch').textContent=TT('achTitle');
+  $('#sStats').textContent=TT('statsTitle');$('#sAch').textContent=TT('achTitle');$('#sHelp').textContent=TT('helpBtn');
   show('stages');
 }
 /* ---------------- 実績 ----------------
@@ -346,17 +346,25 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
   document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
   $('#t1').innerHTML=spanify(ja?'アルケマージ\nディフェンス':'ALCHEMERGE\nDEFENSE');
-  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
+  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#bHelp0','helpBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
   orbCache=new Map();bgCanvas=null;
 }
+const SPK='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>',
+      SPK0='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>';
 function openMenu(){
-  $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
-  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');
-  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
+  $('#hMenu').textContent=TT('menuTitle');$('#mClose').textContent=TT('mBack');$('#mHelp').textContent=TT('helpBtn');
+  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
+  $('#mSec1').textContent=TT('mSec1');$('#mSec2').textContent=TT('mSec2');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
-  $('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
+  // スピーカーの絵：効果音の行はすべての音、音楽の行は音楽だけを消す（前の「音：オン／オフ」「音楽：オン／オフ」ボタンと同じはたらき）
+  $('#mSound').innerHTML=muted?SPK0:SPK;$('#mSound').setAttribute('aria-label',TT(muted?'mUnmuteBtn':'mMuteBtn')+': '+TT('mSeVol'));
+  $('#mMusic').innerHTML=musicOff?SPK0:SPK;$('#mMusic').setAttribute('aria-label',TT(musicOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mBgmVol'));
+  $('#lDmg').textContent=TT('mDmg');$('#mDmg').classList.toggle('on',!dmgOff);$('#mDmg').setAttribute('aria-pressed',!dmgOff);
+  $('#lVib').textContent=TT('mVib');$('#mVib').classList.toggle('on',!vibOff);$('#mVib').setAttribute('aria-pressed',!vibOff);
+  $('#lLang').textContent=TT('mLangL');$('#mJa').classList.toggle('on',LANG==='ja');$('#mEn').classList.toggle('on',LANG==='en');
+  $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
 $('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
@@ -370,9 +378,28 @@ $('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow(
 $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
-$('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
+function setLang(l){if(LANG===l)return;LANG=l;save();applyLang();sfx.ui();openMenu()}
+$('#mJa').onclick=()=>setLang('ja');$('#mEn').onclick=()=>setLang('en');
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
+/* ---------------- 遊び方 ---------------- */
+// 章は 8 つ。ルールと操作だけを書く（敵や札の中身など、遊んで知る楽しみは書かない）
+let helpCh=0,helpFrom=null;
+function openHelp(from,ch){
+  if(from!==undefined)helpFrom=from;if(ch!==undefined)helpCh=ch;
+  $('#hHelp').textContent=TT('helpT');$('#hPrev').textContent=TT('hPrev');$('#hNext').textContent=TT('hNext');$('#hClose').textContent=TT('close');
+  let t='';for(let i=0;i<8;i++)t+=`<button class="${i===helpCh?'on':''}" data-i="${i}">${TT('hc'+(i+1))}</button>`;
+  $('#hTabs').innerHTML=t;$('#hTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{sfx.ui();openHelp(undefined,+b.dataset.i)});
+  $('#hBody').innerHTML=`<h3>${TT('hc'+(helpCh+1))}</h3><ul>${TT('hb'+(helpCh+1))}</ul>`;$('#hBody').scrollTop=0;
+  $('#hPrev').disabled=helpCh===0;$('#hNext').disabled=helpCh===7;
+  if(!$('#help').classList.contains('on')){show('help');shownAt=performance.now()}
+}
+$('#hPrev').onclick=()=>{if(helpCh>0){sfx.ui();openHelp(undefined,helpCh-1)}};
+$('#hNext').onclick=()=>{if(helpCh<7){sfx.ui();openHelp(undefined,helpCh+1)}};
+$('#hClose').onclick=()=>{sfx.ui();if(helpFrom==='menu')openMenu();else if(helpFrom==='stages')openStages();else if(helpFrom==='title')show('title');else show(null)};
+$('#mHelp').onclick=()=>{sfx.ui();openHelp('menu',helpCh)};
+$('#sHelp').onclick=()=>{audio();sfx.ui();openHelp('stages',helpCh)};
+$('#bHelp0').onclick=()=>{audio();sfx.ui();openHelp('title',0)};
 // 一時停止：止まるだけ。開いている間は盤面にも一覧にも触れない。どこを押しても再開
 function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pMoon').textContent=moonGot().length?TT('moonNow',moonList()):'';$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
 $('#pause').onclick=()=>{sfx.ui();show(null)};
