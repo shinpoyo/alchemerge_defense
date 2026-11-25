@@ -119,6 +119,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dailyNew:['まだ挑戦していない','Not played yet'],dailyLocked:['宵の回廊をクリアすると開く','Clear Dusk Corridor to unlock'],
   dailyBest:['今日の最高 第 {0} 波','Today’s best: wave {0}'],dailyClear:['✦ 今日はクリア（最高 第 {0} 波）','✦ Cleared today (best: wave {0})'],
   stDaily:['今日の挑戦の記録','Daily Challenge'],stDays:['挑戦した日数','Days played'],stDayWave:['第 {0} 波','Wave {0}'],stDayClear:['✦ 第 {0} 波','✦ Wave {0}'],
+  mergeBurst:['錬成波！','Merge Burst!'],
 };
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明
