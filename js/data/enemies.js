@@ -20,8 +20,11 @@ const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},ear
   ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'},wood:{c:'#7ac85a',icon:'wood'}};
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
+const ENDLESS_PHASES=['bloodMoon','denseFog','starfall','eclipse'];
+const EPH_COL={bloodMoon:'#ff6a88',denseFog:'#9ab8e8',starfall:'#ffe45c',eclipse:'#c490ff'};
+const endlessPhase=(w=S?S.wave:0)=>w>MAX_WAVE?ENDLESS_PHASES[Math.floor((w-MAX_WAVE-1)/5)%ENDLESS_PHASES.length]:null;
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
-const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
+const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(endlessPhase(w)==='starfall'?1.15:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};

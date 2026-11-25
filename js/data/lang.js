@@ -119,6 +119,10 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dailyNew:['まだ挑戦していない','Not played yet'],dailyLocked:['宵の回廊をクリアすると開く','Clear Dusk Corridor to unlock'],
   dailyBest:['今日の最高 第 {0} 波','Today’s best: wave {0}'],dailyClear:['✦ 今日はクリア（最高 第 {0} 波）','✦ Cleared today (best: wave {0})'],
   stDaily:['今日の挑戦の記録','Daily Challenge'],stDays:['挑戦した日数','Days played'],stDayWave:['第 {0} 波','Wave {0}'],stDayClear:['✦ 第 {0} 波','✦ Wave {0}'],
+  eph_bloodMoon:['紅月','Blood Moon'],ephD_bloodMoon:['敵の速度 +20%・獲得魔力 +30%','Foes +20% speed · +30% mana'],
+  eph_denseFog:['濃霧','Dense Fog'],ephD_denseFog:['塔の射程 -15%・状態異常時間 +40%','Tower range -15% · Status duration +40%'],
+  eph_starfall:['星雨','Starfall'],ephD_starfall:['塔の攻撃速度 +20%・敵体力 +15%','Tower rate +20% · Foe HP +15%'],
+  eph_eclipse:['月蝕','Eclipse'],ephD_eclipse:['敵の回復強化・属性シナジー 2.0 倍','Stronger enemy heal · Synergy ×2.0'],
 };
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明
