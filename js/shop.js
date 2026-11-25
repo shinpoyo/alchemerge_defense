@@ -58,7 +58,7 @@ function wsHint(t,delay=0){ // 工房の札が初めて目に入ったとき、�
 }
 function upgradeWs(t,b){
   if(t!==S.ws+1){sfx.fail();floatText(b.x+b.w/2,SHOP.y-10,TT('wsFirst',t-1),'#b9b1d0',FS.f1);return}
-  const cost=WS_COST[t];
+  const cost=wsCost(t);
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return}
   S.mana-=cost;S.ws=t;S.manaBump=1;sfx.merge(t);buzz(20);
   const cx=b.x+b.w/2,cy=b.y+b.h/2;if(FX){burst(cx,cy,'#e8c36a',24,160);ring(cx,cy,'#ffe9a0',60,.5,3);sparks(cx,cy,'#fff',12,220)}
