@@ -414,7 +414,7 @@ function drawBossBar(dt){ // 夜の王が2体いるときは帯を2本重ねて�
 const BOSS_BAR_GAP=16;
 function drawBossBar1(e,dt,y){
   const k=clamp(e.hp/e.max,0,1);e.lag=Math.max(k,(e.lag??1)-dt*.35);
-  const T=performance.now()/1000,ph=e.phase||1,name=TT(e.final?'bossKing':'bossLord')+(ph>1?(LANG==='ja'?'・':' · ')+TT(ph>2?'bossFury':'bossRage'):'');
+  const T=performance.now()/1000,ph=e.phase||1,baseNm=e.final?kingName(sprKey(e)):TT('bossLord'),name=baseNm+(ph>1?(LANG==='ja'?'・':' · ')+TT(ph>2?'bossFury':'bossRage'):'');
   ctx.save();ctx.globalAlpha=S.bossA;ctx.translate(0,(1-S.bossA)*-8);
   ctx.font=FONT(FS.f1,800);ctx.textAlign='left';ctx.textBaseline='middle';const nw=ctx.measureText(name).width,x=20+nw+8,w=W-16-x,h=9;
   ctx.fillStyle=ph>2?'#ffd98a':ph>1?'#ffb070':'#ffd0d8';ctx.fillText(name,16,y+h/2+.5);
@@ -628,6 +628,144 @@ function render(dt){
       ctx.textAlign='center';ctx.font=FONT(FS.f2,800);ctx.fillStyle='#e8c36a';ctx.fillText(TT(b.base?'newBase':'newFound'),W/2,192);
       ctx.font=FONT(FS.f5,800);ctx.fillStyle=d.c;ctx.fillText(nm(d),W/2,340);ctx.font=FONT(FS.f2);ctx.fillStyle='#cfc8e6';ctx.fillText(ds(d),W/2,366);
       ctx.font=FONT(FS.f1,800);ctx.fillStyle='#e8c36a';ctx.fillText(TT('buyNext',itemValue(d)),W/2,394);ctx.globalAlpha=1}}
+  if(S.kingIntro)drawKingIntro(dt);
   if(S.flash>0){ctx.globalCompositeOperation='lighter';ctx.fillStyle=rgba(S.flashC,Math.min(.7,S.flash));ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over';S.flash-=dt*1.6}
   S.shake*=Math.exp(-dt*9);S.manaBump*=Math.exp(-dt*10);if(S.manaErr>0)S.manaErr-=dt;
+}
+function drawKingIntro(dt){ // 夜の王 降臨カットイン：暗転＆シルエット → 閃光で全身顕現 → 二つ名と固有名を刻印
+  const ki=S.kingIntro;ki.t+=dt;
+  const t=ki.t,dur=ki.dur,T=performance.now()/1000,pair=ki.kings.length>1;
+  if(t>=dur){S.kingIntro=null;return}
+  const revAt=.52,fadeIn=clamp(t/.2,0,1),fadeOut=t>dur-.32?clamp((dur-t)/.32,0,1):1,alpha=fadeIn*fadeOut;
+  const revealed=t>=revAt,rt=Math.max(0,t-revAt);
+  const c0=ki.kings[0].c,c1=pair?ki.kings[1].c:c0;
+  // 顕現の瞬間にフラッシュ・画面揺れ・パーティクル爆発
+  if(revealed&&!ki.flashed){
+    ki.flashed=true;S.shake=14;S.flash=.72;S.flashC=c0;
+    for(let i=0;i<70;i++){
+      const a=rnd(TAU),v=rnd(90,390),col=i%4===0?'#ffffff':i%2?c0:c1;
+      ki.parts.push({x:W/2+rnd(-24,24),y:H*.43+rnd(-24,24),vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:rnd(.6,1.4),m:1.4,s:rnd(2,5.5),c:col,st:i%3===0});
+    }
+  }
+  // 継続的に舞い上がるオーラパーティクル
+  if(t<dur-.35){
+    const rate=revealed?36:24;
+    if(Math.random()<dt*rate){
+      const col=Math.random()<.5?c0:c1;
+      if(!revealed){const a=rnd(TAU),r=rnd(130,240);ki.parts.push({x:W/2+Math.cos(a)*r,y:H*.43+Math.sin(a)*r,vx:-Math.cos(a)*260,vy:-Math.sin(a)*260,l:.45,m:.45,s:rnd(2,4),c:col,st:true})}
+      else{ki.parts.push({x:rnd(20,W-20),y:H*.65+rnd(-30,40),vx:rnd(-22,22),vy:rnd(-160,-60),l:rnd(.7,1.4),m:1.4,s:rnd(2,4.5),c:Math.random()<.25?'#ffe9a0':col,st:false})}
+    }
+  }
+  ctx.save();ctx.globalAlpha=alpha;
+  if(S.shake>.2)ctx.translate(rnd(-S.shake,S.shake),rnd(-S.shake,S.shake));
+  // 背景の深い暗転＋固有色の禍々しいオーラ
+  ctx.fillStyle='#04020be8';ctx.fillRect(0,0,W,H);
+  const cy=H*.42;
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  const bgG=ctx.createRadialGradient(W/2,cy,10,W/2,cy,W*.78);
+  bgG.addColorStop(0,rgba(c0,revealed?.48:.22));bgG.addColorStop(.5,rgba(c1,revealed?.22:.08));bgG.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=bgG;ctx.fillRect(0,0,W,H);
+  // 回転する放射光（顕現後に大きく開く）
+  if(revealed){
+    const rayA=clamp(rt/.25,0,1)*.18;
+    ctx.save();ctx.translate(W/2,cy);ctx.rotate(T*.35);
+    for(let i=0;i<16;i++){const a=i/16*TAU;ctx.fillStyle=rgba(i%2?c1:c0,rayA);ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,W*.95,a,a+.11);ctx.fill()}
+    ctx.restore();
+  }
+  // 背後の回転魔法陣
+  {const mr=(revealed?165+Math.min(1,rt/.4)*22:110+clamp(t/revAt,0,1)*55);
+   ctx.save();ctx.translate(W/2,cy);ctx.rotate(T*(revealed?.4:-1.2));
+   ctx.strokeStyle=rgba(c0,revealed?.55:.35);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,mr,0,TAU);ctx.stroke();
+   ctx.strokeStyle=rgba('#ffe9a0',revealed?.35:.2);ctx.lineWidth=1.2;ctx.setLineDash([8,6]);ctx.beginPath();ctx.arc(0,0,mr*.84,0,TAU);ctx.stroke();ctx.setLineDash([]);
+   for(let k=0;k<2;k++){ctx.beginPath();for(let i=0;i<3;i++){const a=i/3*TAU+k*Math.PI/3;ctx[i?'lineTo':'moveTo'](Math.cos(a)*mr*.84,Math.sin(a)*mr*.84)}ctx.closePath();ctx.stroke()}
+   ctx.restore();}
+  // 顕現時の3連衝撃波リング
+  if(revealed&&rt<.85){
+    for(let i=0;i<3;i++){const rk=clamp((rt-i*.07)/.55,0,1);if(rk<=0||rk>=1)continue;const e=1-(1-rk)**3;
+      ctx.strokeStyle=rgba(i?c0:'#ffffff',(1-rk)*.9);ctx.lineWidth=(5-i*1.2)*(1-rk*.6);
+      ctx.beginPath();ctx.arc(W/2,cy,24+e*(220+i*55),0,TAU);ctx.stroke()}
+  }
+  ctx.restore();
+  // パーティクル描画
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  for(let i=ki.parts.length-1;i>=0;i--){
+    const p=ki.parts[i];p.l-=dt;if(p.l<=0){ki.parts.splice(i,1);continue}
+    p.vx*=Math.exp(-dt*1.8);p.vy*=Math.exp(-dt*1.8);p.x+=p.vx*dt;p.y+=p.vy*dt;
+    const pk=clamp(p.l/p.m,0,1);ctx.globalAlpha=alpha*pk;
+    if(p.st){ctx.strokeStyle=p.c;ctx.lineWidth=p.s*.55;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-p.vx*.04,p.y-p.vy*.04);ctx.stroke()}
+    else{const z=p.s*3.4;ctx.drawImage(glow(p.c),p.x-z/2,p.y-z/2,z,z)}
+  }
+  ctx.restore();
+  // 夜の王の全身イラスト（シルエット → 閃光でくっきり顕現！）
+  const preK=clamp(t/revAt,0,1);
+  ki.kings.forEach((ko,idx)=>{
+    const S0=SPR[ko.key];if(!S0)return;
+    const maxW=pair?215:355,maxH=pair?230:295,sc0=Math.min(maxW/S0.w,maxH/S0.h);
+    const zoom=revealed?(1.08-.08*Math.exp(-rt*9)+Math.min(.07,rt*.035)):(.68+.37*preK*preK);
+    const w=S0.w*sc0*zoom,h=S0.h*sc0*zoom;
+    const cx=pair?(idx===0?W*.28:W*.72):W/2;
+    const shx=!revealed?rnd(-3,3)*preK:0,shy=revealed?Math.sin(rt*2.8+idx)*4:rnd(-3,3)*preK;
+    ctx.save();ctx.translate(cx+shx,cy+shy);
+    // 背後の発光オーラ
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*(revealed?.65:.35);
+    const gz=Math.max(w,h)*1.25;ctx.drawImage(glow(ko.c),-gz/2,-gz/2,gz,gz);ctx.restore();
+    // 固有色の縁取り
+    const R=sprTint(S0,ko.c),o=revealed?3.2:2.2;
+    ctx.globalAlpha=alpha*(revealed?.95:.7);
+    for(const[dx,dy]of[[o,0],[-o,0],[0,o],[0,-o]])ctx.drawImage(R,-w/2+dx,-h/2+dy,w,h);
+    if(!revealed){
+      // シルエット状態：漆黒のシルエットに目・核（glow）だけギラリと光る
+      ctx.globalAlpha=alpha;ctx.drawImage(sprTint(S0,'#090612'),-w/2,-h/2,w,h);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*(.5+.5*preK);
+      ctx.drawImage(S0.glow,-w/2,-h/2,w,h);ctx.drawImage(S0.glow,-w/2,-h/2,w,h);ctx.restore();
+    }else{
+      // 顕現状態：全身イラスト＋光るパーツ＋直後の白フラッシュ余韻
+      ctx.globalAlpha=alpha;ctx.drawImage(S0.body,-w/2,-h/2,w,h);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*.85;ctx.drawImage(S0.glow,-w/2,-h/2,w,h);ctx.restore();
+      if(rt<.22){ctx.globalAlpha=alpha*(1-rt/.22)*.75;ctx.drawImage(S0.white,-w/2,-h/2,w,h)}
+    }
+    ctx.restore();
+  });
+  // 上下のシネマスコープ帯と金線
+  const bandH=Math.round(H*.13)*clamp(t/.24,0,1);
+  ctx.fillStyle='#05030af2';ctx.fillRect(0,0,W,bandH);ctx.fillRect(0,H-bandH,W,bandH);
+  ctx.fillStyle=rgba('#e8c36a',.75);ctx.fillRect(0,bandH-1.5,W,1.5);ctx.fillRect(0,H-bandH,W,1.5);
+  // 上部見出し「― 夜の王 降臨 ―」
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=FONT(LANG==='ja'?15:13,800);ctx.fillStyle='#ffe9a0';
+  ctx.fillText(TT(pair?'kingIntroH2':'kingIntroH'),W/2,bandH*.52,W-24);
+  // 顕現後の名前＆二つ名表示
+  if(revealed){
+    const nk=clamp((rt-.06)/.32,0,1),e=1-(1-nk)**3;
+    const ny=H*.685;
+    // 装飾の金線（中央から左右へ展開）
+    const lw=155*e;
+    ctx.strokeStyle=rgba('#e8c36a',.8*nk);ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(W/2-lw,ny-24);ctx.lineTo(W/2+lw,ny-24);ctx.stroke();
+    ctx.fillStyle='#ffe9a0';ctx.beginPath();ctx.moveTo(W/2,ny-29);ctx.lineTo(W/2+5,ny-24);ctx.lineTo(W/2,ny-19);ctx.lineTo(W/2-5,ny-24);ctx.closePath();ctx.fill();
+    if(!pair){
+      const k=ki.kings[0].key,sub=kingSub(k),nmTxt=kingName(k);
+      ctx.globalAlpha=alpha*nk;
+      if(sub){ctx.font=FONT(LANG==='ja'?14:12.5,700);ctx.fillStyle='#d8c8ff';ctx.fillText(sub,W/2,ny-6,W-36)}
+      ctx.save();ctx.translate(W/2,ny+28);const ns=1+(1-e)*.35;ctx.scale(ns,ns);
+      ctx.font=FONT(LANG==='ja'?32:25,800);
+      ctx.shadowColor=c0;ctx.shadowBlur=20;ctx.lineWidth=5;ctx.strokeStyle='#05030a';ctx.strokeText(nmTxt,0,0,W-28);
+      const tg=ctx.createLinearGradient(0,-18,0,18);tg.addColorStop(0,'#ffffff');tg.addColorStop(.55,'#ffe9a0');tg.addColorStop(1,c0);
+      ctx.fillStyle=tg;ctx.fillText(nmTxt,0,0,W-28);ctx.restore();
+    }else{
+      ctx.globalAlpha=alpha*nk;
+      ki.kings.forEach((ko,idx)=>{
+        const y0=ny+idx*44,nmTxt=kingName(ko.key),sub=kingSub(ko.key);
+        ctx.font=FONT(LANG==='ja'?11.5:10.5,700);ctx.fillStyle=rgba(ko.c,.9);ctx.fillText(sub,W/2,y0-6,W-36);
+        ctx.save();ctx.shadowColor=ko.c;ctx.shadowBlur=14;ctx.font=FONT(LANG==='ja'?23:19,800);
+        ctx.lineWidth=4;ctx.strokeStyle='#05030a';ctx.strokeText(nmTxt,W/2,y0+14,W-28);
+        ctx.fillStyle='#fff6df';ctx.fillText(nmTxt,W/2,y0+14,W-28);ctx.restore();
+      });
+    }
+    if(t>=.65){
+      ctx.globalAlpha=alpha*(.45+.35*Math.sin(T*5));
+      ctx.font=FONT(FS.f1,700);ctx.fillStyle='#cfc8e6';ctx.fillText(TT('tapSkip'),W/2,H-bandH*.48);
+    }
+  }
+  ctx.restore();
 }

@@ -233,7 +233,12 @@ function spawnEnemy(q){
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
     const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
-    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
+    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';
+      if(final){
+        const k=sprKey(e),c=(SPR_DEF[k]&&SPR_DEF[k].rim)||'#ff3b6b';
+        if(S.kingIntro&&S.kingIntro.t<.1){S.kingIntro.kings.push({key:k,c,e})}
+        else{S.kingIntro={kings:[{key:k,c,e}],t:0,dur:2.85,flashed:false,parts:[]};S.warn=0;sfx.kingIntro();buzz([40,50,80,50,120])}
+      }else{sfx.boom();buzz(30)}
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
   }
