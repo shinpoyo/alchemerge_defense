@@ -20,16 +20,24 @@ const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},ear
   ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'},wood:{c:'#7ac85a',icon:'wood'}};
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
-let HP0=80,HP_GROW=1.28,FINAL_M=2;
-const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
+let HP0=80;
+// 1 波ごとの敵の体力の伸び（GROW_BY）と夜の王の体力の倍率（FINAL_BY）。並びは WAVES_BY_TIER（10・15・20 波）と同じ。
+// 短いステージほど伸びを大きくして、後半にしっかり苦戦するようにする（2026-11-25。それまでは全ステージ 1.28・王 2 倍）
+let GROW_BY=[1.42,1.34,1.30],FINAL_BY=[4,5.5,3.5];
+let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上乗せ（第 4 波から少しずつ、第 8 波で +25%）／夜の王の歩く速さの倍率（2026-11-25）
+const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
+const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
+const ARMOR_FROM=13,ARMOR_AFF_FROM=7;
+const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};
   const gap=Math.max(.38,.95-w*.028);
   if(w>=3&&w%3===0){add('mite',8+w,gap*.38);t+=1}
   const sp=(STAGES[STAGE].spice??1)*DIFF[NIGHT].spice; // くせのある敵の多さ（最初のステージは半分）
-  // 癒す影（第 9 波から）と鎧の影（第 13 波から）は、数を足すのではなく、影・硬い影と入れかわる（敵の総数と魔力の入りはこれまでと同じ）
-  const nHeal=w>=9?Math.ceil((1+Math.floor((w-9)/4))*sp):0,nArm=w>=13?Math.ceil((1+Math.floor((w-13)/3))*sp):0;
+  // 癒す影（第 9 波から）と鎧の影（第 13 波から。系統ステージは第 7 波から）は、数を足すのではなく、影・硬い影と入れかわる（敵の総数と魔力の入りはこれまでと同じ）
+  const a0=STAGES[STAGE].aff?ARMOR_AFF_FROM:ARMOR_FROM; // 系統ステージ（属性の地）は鎧の影が早く出る（10 波のステージでも出るように）
+  const nHeal=w>=9?Math.ceil((1+Math.floor((w-9)/4))*sp):0,nArm=w>=a0?Math.ceil((1+Math.floor((w-a0)/3))*sp):0;
   add('shade',5+Math.floor(w*1.25)-nHeal,gap);
   if(w>=2)add('wisp',1+(w>>1),gap*.7);
   if(w>=4){const ng=Math.max(1,Math.floor(w/2.5)-nArm);
@@ -38,7 +46,7 @@ function buildWave(w){
   if(w>=6)add('runner',Math.ceil((2+Math.floor((w-6)*.5))*sp),gap*.8);
   if(w>=8)add('flyer',Math.ceil((2+Math.floor((w-8)*.5))*sp),gap);
   if(w>=11)add('splitter',Math.ceil((1+Math.floor((w-11)/2))*sp),gap*1.7);
-  if(w%5===0){t+=1;add('boss',1,1,w%20===0?FINAL_M:w===5?.75:1);if(w%20===0)q[q.length-1].final=true} // 20 波ごとの「夜の王」
+  if(w%5===0||isKingWave(w)){t+=1;add('boss',1,1,isKingWave(w)?FINAL_BY[waveTier()]:w===5?.75:1);if(isKingWave(w))q[q.length-1].final=true} // 最後の波（エンドレスでは波数の倍数ごと）に「夜の王」、ほかの 5 の倍数に「夜の主」
   {const g=STAGES[STAGE].gates,k=q[q.length-1]; // 門が 2 つで系統の敵が出るステージ（双つの門・砂時計の峠）：夜の王は門ごとに 1 体ずつ、その門の系統で出る
     if(g&&g.length===2&&k.final){k.path=0;k.m*=KING2_M;q.push({...k,path:1})}}
   return q;
@@ -47,7 +55,7 @@ function wavePreview(w){ // 次の波の予告情報（特徴的な敵のバッ�
   const q=buildWave(w),cnt={};
   for(const e of q)cnt[e.type]=(cnt[e.type]||0)+1;
   const tags=[];
-  if(cnt.boss)tags.push({t:TT(w%20===0?'bossKing':'bossLord'),c:'#ff6a88'});
+  if(cnt.boss)tags.push({t:TT(isKingWave(w)?'bossKing':'bossLord'),c:'#ff6a88'});
   if(cnt.armored){const f=armorFam(w);tags.push({t:TT('pvArm',TT('f_'+f)),c:ELEM[f].c})}
   if(cnt.flyer)tags.push({t:TT('pvFly'),c:'#6ad8ff'});
   if(cnt.healer)tags.push({t:TT('pvHeal'),c:'#9affc8'});
