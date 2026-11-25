@@ -217,7 +217,7 @@ function startWave(){
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
 function spawnEnemy(q){
-  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m,final=!!q.final;
+  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m*(q.type==='boss'?1:mobHp(S.wave)),final=!!q.final;
   const pi=q.path??S.spawned++%PATHS.length;let P=PATHS[pi];
   // 門ごとの系統の敵：その門から出る敵のおよそ半分（交互）が門の系統になる。夜の主と、門が 3 つのステージの夜の王は系統なし
   const gs=STAGES[STAGE].gates;let gate=null;
@@ -232,7 +232,7 @@ function spawnEnemy(q){
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
-    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
+    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd*(final?KING_SPD:1);e.atkEvery=siegeEvery(e)*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
     if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
@@ -245,7 +245,7 @@ const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.2
 function bossPhase(e){
   const k=e.hp/e.max,np=e.final&&k<=BOSS_PH[2].at?3:k<=BOSS_PH[1].at?2:1;
   if(np<=e.phase)return;
-  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd;e.vul=ph.vul;e.atkEvery=SIEGE_EVERY*ph.atk;e.rageT=1;
+  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd*(e.final?KING_SPD:1);e.vul=ph.vul;e.atkEvery=siegeEvery(e)*ph.atk;e.rageT=1;
   for(let i=0;i<ph.call;i++)S.queue.push({type:'mite',at:S.wt+.5+i*.28,m:1,free:true}); // 手下は入口から出る（魔力は落とさない）。主は波の最後に出るので、列はもう空いている
   if(!FX)return;
   const nm2=TT(e.final?'bossKing':'bossLord');
@@ -382,12 +382,16 @@ function kill(e){
   const n=boss?12:Math.min(3,1+(e.reward/6|0));
   for(let i=0;i<n;i++)fx.push({ty:'mana',x:e.x,y:e.y,cx:e.x+rnd(-60,60),cy:e.y+rnd(-70,-20),t:-i*.05,dur:rnd(.5,.75)});
 }
-// 灯への攻撃：夜の王は 1 回で 2、主は 1。主は 8 回攻撃すると去る（これまでの「通すと 8 減る」と同じ上限）。王は倒すまで去らない
-const SIEGE_FIRST=1.4,SIEGE_EVERY=1.1,SIEGE_MAX=8;
+// 灯への攻撃：主は 1.1 秒ごとに 1。主は 8 回攻撃すると去る（これまでの「通すと 8 減る」と同じ上限）。
+// 夜の王はためが長く、3.5 秒ごとに 5 の重い一撃（2026-11-25。それまでは 1.1 秒ごとに 2）。王は倒すまで去らない
+const SIEGE_FIRST=1.4,SIEGE_EVERY=1.1,SIEGE_MAX=8,KING_SIEGE_FIRST=2.6,KING_SIEGE_EVERY=3.5,KING_SIEGE_DMG=5;
+const siegeEvery=e=>e.final?KING_SIEGE_EVERY:SIEGE_EVERY;
 function siegeHit(e){
-  const dmg=e.final?2:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
-  shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
-  burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',FS.f3);
+  const dmg=e.final?KING_SIEGE_DMG:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
+  if(e.final){shake(16);S.flash=.45;S.flashC='#ff2a4a';sfx.leak();sfx.boom();buzz([60,40,120]);hitStop(HS_BOSS);
+    burst(CORE.x,CORE.y,'#ff2a4a',40,280);ring(CORE.x,CORE.y,'#ff2a4a',130,.6,6);ring(CORE.x,CORE.y,'#ffe45c',70,.4,3);floatText(CORE.x-6,CORE.y-40,'−'+dmg,'#ff8a9a',FS.f5)}
+  else{shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
+  burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',FS.f3)}
   if(S.lives<=0){S.lives=0;if(!S.over)gameOver();return} // 陥落したあとに重ねて攻撃されても、灯は 0 より下げない
   if(!e.final&&e.hits>=SIEGE_MAX){e.dead=true;if(FX){burst(e.x,e.y,e.def.rim,20,160);smoke(e.x,e.y,'#1a1230',8,20,10,.8,.7)}}
 }
@@ -584,9 +588,9 @@ function update(dt){
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
-      e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',FS.f2);sfx.wave(5)}}
+      e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=e.final?KING_SIEGE_FIRST:SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',FS.f2);sfx.wave(5)}}
       if(!stopped)e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
-      if(!stopped&&e.atk<=0){e.atk+=e.atkEvery||SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
+      if(!stopped&&e.atk<=0){e.atk+=e.atkEvery||siegeEvery(e);siegeHit(e);if(e.dead)continue}
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }

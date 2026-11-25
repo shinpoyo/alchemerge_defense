@@ -23,7 +23,9 @@ const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*3
 let HP0=80;
 // 1 波ごとの敵の体力の伸び（GROW_BY）と夜の王の体力の倍率（FINAL_BY）。並びは WAVES_BY_TIER（10・15・20 波）と同じ。
 // 短いステージほど伸びを大きくして、後半にしっかり苦戦するようにする（2026-11-25。それまでは全ステージ 1.28・王 2 倍）
-let GROW_BY=[1.42,1.34,1.30],FINAL_BY=[3,3,2];
+let GROW_BY=[1.42,1.34,1.30],FINAL_BY=[5.5,5.5,3.5];
+let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上乗せ（第 4 波から少しずつ、第 8 波で +25%）／夜の王の歩く速さの倍率（2026-11-25）
+const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
 const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
 const ARMOR_FROM=13,ARMOR_AFF_FROM=7;
 const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
