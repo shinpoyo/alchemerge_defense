@@ -46,7 +46,7 @@ const STAGES=[
   // 属性の地：aff の系統で、影の受ける傷が変わる（weak ×AFF_WEAK、resist ×AFF_RES）。鎧の影は resist の系統をいつも防ぐ
   // 凍った湖のまわりを一周してから、湖の真ん中の灯へ。氷の影は炎に弱く、氷が効きにくい
   {name:'凍てつく湖',note:'凍った湖をめぐって中央の灯へ',en:'Frozen Lake',noteEn:'Circle the frozen lake to its heart',hp:1.25,spice:1.1,
-   aff:{weak:'flame',resist:'ice',c:'#8fe6ff'},neb:['#1d4a6e','#2a3a7e'],bg:'img/stages/ice.webp',king:'king_ice', // king：第20波の夜の王の絵（img/enemies/）
+   aff:{weak:'flame',resist:'ice',c:'#8fe6ff'},neb:['#1d4a6e','#2a3a7e'],bg:'img/stages/ice.webp',king:'king_ice', // king：最後の波の夜の王の絵（img/enemies/）
    paths:[[[-30,300],[60,300],[60,90],[390,90],[390,460],[140,460],[140,300],[225,300]]],
    field:[[280,330],[200,380],[340,300],[200,230],[280,240],[270,400],[340,390],[110,240],[190,160],[270,160],[340,160],[110,170]],
    traps:[[60,200],[225,90],[390,280],[265,460],[140,380]]},
@@ -114,6 +114,10 @@ const DIFF=[{hp:1,lives:20,spice:1},{hp:NIGHT_HP,lives:NIGHT_LIVES,spice:1},{hp:
 const toDiff=n=>n===2?2:n?1:0;
 const dParen=n=>n===2?TT('abyssParen'):n?TT('nightParen'):'';
 let STAGE=0,NIGHT=0;
+// ステージの波数（2026-11-25）：並び順で 1〜5 面は 10 波、6〜10 面は 15 波、11〜15 面は 20 波。夜の王は最後の波に出る。難易度（悪夢・深淵）でも同じ
+const WAVES_BY_TIER=[10,15,20];
+const maxWave=(i=STAGE)=>{const k=ORDER.indexOf(i);return k<0?20:WAVES_BY_TIER[Math.min(WAVES_BY_TIER.length-1,Math.floor(k/5))]};
+const isKingWave=w=>w%maxWave()===0; // エンドレスでも、波数の倍数ごとに夜の王
 const PATHS=[],CORE={x:0,y:0},slots=[];
 function loadStage(i){
   STAGE=i;const st=STAGES[i];PATHS.length=0;

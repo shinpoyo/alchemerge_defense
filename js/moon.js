@@ -11,7 +11,7 @@ const MOON_KAGO=1.25,MOON_KAGO_ELSE=.95,MOON_DEEP=1.2,MOON_DEEP_TOWER=.95,MOON_L
       MOON_NIGHT=1.5,MOON_DROP=1.2,MOON_CRUSH=.5,MOON_FULL=1.5,MOON_FULL_SPD=1.05,MOON_RED=1.3,MOON_RED_LIVES=3,MOON_WANE=.75,MOON_WANE_SPD=1.1;
 const moonGot=()=>S.moon?S.moon.got:[];
 const moonHas=id=>moonGot().includes(id);
-const lastWave=()=>typeof maxWave==='function'?maxWave():MAX_WAVE; // ステージごとの波数が入ったら、そちらに合わせる
+const lastWave=()=>maxWave(); // ステージの最後の波（10・15・20 波）
 const moonDue=w=>w>0&&w%MOON_EVERY===0&&(S.endless||w<lastWave());
 // 威力：加護（系統ごと）と赤い月。fs は攻撃した元素の系統の配列
 function moonM(fs){
