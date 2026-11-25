@@ -42,13 +42,33 @@ function dropOn0(from,to){
   const n=mkItem(res.id,dst.x,dst.y);n.hide=.3;n.s=.01;
   const isNew=!disc.has(res.id);
   if(isNew){disc.add(res.id);save()}
-  if(FX)fx.push({ty:'merge',x:dst.x,y:dst.y,a:{id:it.id,x:it.rx,y:it.ry},b:{id:to.item.id,x:to.item.rx,y:to.item.ry},t:0,dur:.3,res:n,isNew});
-  else n.hide=0,n.s=1;
+  const doBurst=S.active&&!dst.bench;
+  if(FX)fx.push({ty:'merge',x:dst.x,y:dst.y,a:{id:it.id,x:it.rx,y:it.ry},b:{id:to.item.id,x:to.item.rx,y:to.item.ry},t:0,dur:.3,res:n,isNew,burst:doBurst});
+  else{n.hide=0;n.s=1;if(doBurst)mergeBurst(dst.x,dst.y,ITEMS[res.id])}
   const rk=rkey(it.id,to.item.id); // to.item を null にする前にキーを作る
   if(RECIPE[rk]&&!madeR.has(rk)){madeR.add(rk);save()} // ★合成など、レシピ表にない組み合わせは記録しない
   from.item=null;to.item=null;dst.item=n;
+  if(moonHas('rest')){S.mana+=MOON_REST;floatText(dst.x,dst.y-52,'+'+MOON_REST,'#e8c36a',FS.f1)} // 月の恵み：錬成の余り
   S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
+}
+function mergeBurst(x,y,d){ // 戦闘中に盤面（魔法陣・罠マス）で錬成すると、周囲の敵へ衝撃波ダメージ＋押し戻し
+  if(!S.active||S.over)return;
+  const R=85+d.t*14,dmg=Math.round(waveHp(S.wave)*(.18+d.t*.08)),kb=18+d.t*6;
+  let hit=0;
+  for(const e of S.enemies){
+    if(e.dead||(e.x-x)**2+(e.y-y)**2>(R+e.r)**2)continue;
+    hit++;
+    if(e.type!=='boss'&&!e.def.fly){e.d=Math.max(0,e.d-kb);const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];e.kb=.3}
+    hurt(e,dmg,d.fam);
+  }
+  if(!hit)return;
+  if(FX){
+    ring(x,y,'#ffe9a0',R,.42,3.5,12);ring(x,y,d.c,R*.82,.35,2.5,8);
+    sparks(x,y,'#ffe9a0',12+d.t*3,240);shake(3+d.t*.8);
+    tone(180+d.t*40,.22,'triangle',.12,80);noise(.14,.08,1600);
+    floatText(x,y-52,TT('mergeBurst'),'#ffe9a0',FS.f2);
+  }
 }
 function enhance(sl){ // 選んでいる最高ランクを魔力で +1
   const n=sl.item;if(!canEnh(n))return;const cost=enhCost(n),d=ITEMS[n.id];
@@ -66,6 +86,7 @@ function mergeDone(f){
   ring(f.x,f.y,d.c,46+d.t*14,.45,3);ring(f.x,f.y,'#ffffff',30+d.t*8,.28,1.5);
   shake(2+d.t*1.2);buzz(15+d.t*6);sfx.merge(d.t-1);
   floatText(f.x,f.y-36,'★'.repeat(d.t),'#ffe9a0',FS.f2);
+  if(f.burst)mergeBurst(f.x,f.y,d);
   if(S.tut===0)S.tut=1;
   if(f.isNew&&disc.size>=TOTAL){S.allFound=8;fx.push({ty:'wave',t:-2.4,dur:3.2,txt:TT('allFound',TOTAL)});setTimeout(()=>sfx.clear(),2400)}
   if(f.isNew){shopShow(n.id);SHOP.dotT[d.t]=6;S.banner={id:n.id,t:0,dur:2.6};S.slowmo=1.1;sfx.disc();S.flash=.35;S.flashC=d.c;}

@@ -14,7 +14,7 @@ const SPR_DEF={ // face：絵の向き（-1 左向き、1 右向き、0 正面�
   king_sunken:{face:0,k:5.5,rim:'#4aa8ff',foot:1},king_forest:{face:0,k:5.6,rim:'#6affc0',foot:1},king_swamp:{face:0,k:5.6,rim:'#b070ff',foot:1},
   king_cathedral:{face:0,k:4.9,rim:'#fff2a0',foot:1},king_crossroads:{face:0,k:4.2,rim:'#ff6a4a',foot:1},king_starfall:{face:0,k:4,rim:'#a0c0ff',foot:1}}; // king_*：ステージ専用の夜の王（stages.js の king）。rim：縁どりの色、foot：足もとを道に合わせる（大きい絵）
 const SPR={};
-const sprKey=e=>{ // 第20波の夜の王は、ステージ専用の絵があればそれ。門が 2 つのステージは king が {門の系統:絵} で、門ごとの王に別の絵
+const sprKey=e=>{ // 最後の波の夜の王は、ステージ専用の絵があればそれ。門が 2 つのステージは king が {門の系統:絵} で、門ごとの王に別の絵
   if(!e.final)return e.type;const k=STAGES[STAGE].king,q=k&&(typeof k==='string'?k:k[e.gate]);return q&&SPR[q]?q:e.type};
 function sprBox(e,r){ // 絵を描く大きさと位置（敵の位置が原点）。cy：絵の真ん中の高さ
   const key=sprKey(e),D=SPR_DEF[key],S0=SPR[key],sz=r*D.k,sc=S0?sz/Math.max(S0.w,S0.h):1,w=S0?S0.w*sc:sz,h=S0?S0.h*sc:sz;
