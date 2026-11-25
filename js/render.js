@@ -305,7 +305,7 @@ function drawShop(dt){
     const x=shopBtnX(i);if(x>SHOP.x+SHOP.w||x+SHOP.bw<SHOP.x)return;
     const cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
     if(d.ws){ // 工房レベルを上げる札
-      const next=d.ws===S.ws+1,cost=WS_COST[d.ws],can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
+      const next=d.ws===S.ws+1,cost=wsCost(d.ws),can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
       ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
       const g2=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);g2.addColorStop(0,next?'#3a2a14':'#16120e');g2.addColorStop(1,'#0a0814');
       ctx.fillStyle=g2;rr(ctx,x,SHOP.y,SHOP.bw,SHOP.h,4);ctx.fill(); // 元素の札（角の丸い札）と見分けがつくよう、角を立てて二重の枠にする
@@ -394,14 +394,14 @@ function drawHud(dt){
   const ls=1+S.coreHit*.5;ctx.save();ctx.translate(20+lw,25);ctx.scale(ls,ls);ctx.fillText(S.lives,0,1);ctx.restore();
   // 波
   ctx.textAlign='center';ctx.font=FONT(FS.f2);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
-  ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,23);
+  ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':maxWave()}`,W/2+12,23);
   ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(DAILY?TT('dailyDot'):'');
   if(S.active){ // 戦闘中は、ステージ名の右に残りの敵の数を金色で出す
     const lt='　'+TT('left',S.queue.length+S.enemies.length),w1=ctx.measureText(stn).width,w2=ctx.measureText(lt).width,x0=W/2-(w1+w2)/2;
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';
   }else ctx.fillText(stn,W/2,43);
   { // 工房レベル（★をどこまで錬成できるか）を魔力の下に出す。次のレベルに届く魔力があれば金色に。ステージ名と重なるときは短く
-    const cw=ctx.measureText(stn+(S.active?'　'+TT('left',S.queue.length+S.enemies.length):'')).width,nx=WS_COST[S.ws+1];
+    const cw=ctx.measureText(stn+(S.active?'　'+TT('left',S.queue.length+S.enemies.length):'')).width,nx=wsCost(S.ws+1);
     let t=TT('wsHud',S.ws,Math.min(6,S.ws+1));if(W-56-ctx.measureText(t).width<W/2+cw/2+10)t=TT('wsHudS',S.ws);
     ctx.textAlign='right';ctx.fillStyle=nx&&S.mana>=nx?'#e8c36a':'#a9a2c0';ctx.fillText(t,W-56,43);ctx.textAlign='center';
   }
@@ -632,7 +632,7 @@ function render(dt){
     else if(f.ty==='wave'){if(f.t<0)continue;const k=f.t/f.dur;if(k>=1){fx.splice(i,1);continue}
       const a=k<.2?k/.2:k>.7?(1-k)/.3:1,ox=(1-Math.min(1,k/.2))**3*-160+(k>.7?((k-.7)/.3)**3*160:0);
       ctx.globalAlpha=a;ctx.fillStyle='#05040a99';ctx.fillRect(0,282,W,56);ctx.fillStyle='#ff3b6b';ctx.fillRect(0,282,W,1);ctx.fillRect(0,337,W,1);
-      ctx.font=FONT(FS.f5,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(f.n%20===0?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
+      ctx.font=FONT(FS.f5,800);ctx.fillStyle='#ffd0d8';ctx.fillText(f.txt||TT('waveN',f.n)+(isKingWave(f.n)?TT('finalTag'):f.n%5===0?TT('bossTag'):''),W/2+ox,311);ctx.globalAlpha=1}
   }
   ctx.restore();
   if(S.warn>0)drawWarn(dt);

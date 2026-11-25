@@ -415,7 +415,7 @@ const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
 const UNLOCK={wood:0,light:1,dark:14,sound:2,time:6,dream:11,soul:3,void:15}; // 基本元素は、このステージ（STAGES の番号。通常の難易度）をクリアすると届く。図鑑の数では開かない
 // 並び順では 宵の回廊→木、螺旋の庭→光、十字の辻→闇、双つの門→音、砂時計の峠→時、光の届かぬ森→夢、三叉の谷→魂、星降りの道→無。王の間と最果ての祭壇は空き
-const BASE_COST=10,MAX_WAVE=20,TOTAL=Object.keys(ITEMS).length;
+const BASE_COST=10,TOTAL=Object.keys(ITEMS).length;
 // 最高ランク（いまは★6）：これより上の錬成がない★。エンドレスでは盤面で選ぶと魔力で「+1」ずつ強化できる（上限なし）
 // +n の威力は (1+ENH_POW×n) 倍。+n から +n+1 への値段は ENH_COST+ENH_STEP×n（段ごとに少しずつ上がる）
 const MAX_T=Math.max(...Object.values(ITEMS).map(d=>d.t));

@@ -162,7 +162,7 @@ function openStages(){
     const st=STAGES[RUN.stage],b=document.createElement('button');b.className='stg res';
     b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('resume')}</b><span>${sn(st)}${dParen(toDiff(RUN.night))}${RUN.daily?TT('dailyParen'):''}</span><span><em>${TT('resumeNote',RUN.wave+1,RUN.lives,RUN.mana)}</em></span></div>`;
     miniMap(b.querySelector('canvas'),st);
-    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2)};
+    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2);if(S.moon&&S.moon.pend)openMoon()};
     box.appendChild(b);
   }
   // 今日の挑戦：日付で決まるステージと難易度。開放の順に関係なく遊べる（ふつうの進行度には数えない）
@@ -182,7 +182,7 @@ function openStages(){
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}${TT('stLen',maxWave(i))}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -282,7 +282,7 @@ function subBack(){if(subFrom==='stages')openStages();else if(subFrom==='menu')o
 function openStats(from){
   if(from)subFrom=from;
   const row=(k,v)=>`<span>${k}</span><b>${v}</b>`;
-  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>MAX_WAVE?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):diffOpen(i,n)?TT('untried'):TT('stNone')};
+  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>maxWave(i)?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):diffOpen(i,n)?TT('untried'):TT('stNone')};
   let h=`<div class="dsec">${TT('stTotal')}</div><div class="dst">`
     +row(TT('stKills'),fmtN(stats.kills))+row(TT('stBosses'),fmtN(stats.bosses))+row(TT('stMerges'),fmtN(stats.merges))
     +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
@@ -302,7 +302,7 @@ $('#sStats').onclick=()=>{audio();sfx.ui();openStats('stages')};
 const SITE='https://shinpoyo.com/alchemerge_defense/';
 function shareLines(kind){
   const st=sn(STAGES[STAGE])+dParen(NIGHT)+(DAILY?TT('dailyParen'):'');
-  const res=kind==='codex'?'':S.cleared?TT('shareClear',MAX_WAVE):TT('shareOver',S.wave);
+  const res=kind==='codex'?'':S.cleared?TT('shareClear',maxWave()):TT('shareOver',S.wave);
   return{title:TT('title'),st:kind==='codex'?TT('codexTitle'):st,res,found:TT('found',disc.size,TOTAL)};
 }
 function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×800）
@@ -374,7 +374,7 @@ $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
 // 一時停止：止まるだけ。開いている間は盤面にも一覧にも触れない。どこを押しても再開
-function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
+function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pMoon').textContent=moonGot().length?TT('moonNow',moonList()):'';$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
 $('#pause').onclick=()=>{sfx.ui();show(null)};
 addEventListener('keydown',e=>{if(e.code!=='Space'&&e.code!=='KeyP')return; // Space／P でも止める・再開する（Space で止めるのは startWave 側）
   if($('#pause').classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();sfx.ui();show(null)}else if(e.code==='KeyP'&&!$('.ov.on')&&S.active&&!S.over){e.preventDefault();openPause()}},true);
