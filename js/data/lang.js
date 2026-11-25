@@ -119,6 +119,11 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dailyNew:['まだ挑戦していない','Not played yet'],dailyLocked:['宵の回廊をクリアすると開く','Clear Dusk Corridor to unlock'],
   dailyBest:['今日の最高 第 {0} 波','Today’s best: wave {0}'],dailyClear:['✦ 今日はクリア（最高 第 {0} 波）','✦ Cleared today (best: wave {0})'],
   stDaily:['今日の挑戦の記録','Daily Challenge'],stDays:['挑戦した日数','Days played'],stDayWave:['第 {0} 波','Wave {0}'],stDayClear:['✦ 第 {0} 波','✦ Wave {0}'],
+  mut_craftOnly:['純粋錬成','Pure Craft'],mutD_craftOnly:['工房からの直接呼び出し不可（★1とこの戦いで作った元素のみ）','No Workshop summoning (★1 & crafted this battle only)'],
+  mut_trapMaster:['罠の夜','Night of Traps'],mutD_trapMaster:['罠の魔力半額・塔は 1.3 倍','Traps half price · Towers ×1.3 cost'],
+  mut_swiftBounty:['疾風と豊穣','Swift & Bountiful'],mutD_swiftBounty:['敵の速度 1.25 倍・獲得魔力 1.4 倍','Foes 25% faster · +40% mana from kills'],
+  mut_highMana:['魔力奔流','Mana Surge'],mutD_highMana:['初期魔力 100・波報酬 1.3 倍／敵体力 1.25 倍','Start with ◆100 & +30% wave bonus · Foe HP ×1.25'],
+  mut_noSupport:['孤高の塔','Lone Towers'],mutD_noSupport:['支援の塔無効・すべての攻撃塔の威力 +15%','Support buffs disabled · All attack towers +15% DMG'],
 };
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明

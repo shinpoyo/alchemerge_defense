@@ -28,6 +28,7 @@ const mixH=h=>{h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846
 // 今日の挑戦に出るステージの組。ステージを足したり外したりするときは、組を書きかえず、明日以降の日付（from）で新しい組を足す。
 // こうすると、もう始まっている日の挑戦のステージが更新で入れかわらない（ステージの並び替え PR #42 で今日の分が変わってしまったため）
 const DAILY_POOLS=[{from:'',ids:ORDER}]; // 並び替え後の 15 ステージ（ボツの迷いの森は出さない）
+const DAILY_MUTS=['craftOnly','trapMaster','swiftBounty','highMana','noSupport'];
 function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前の日と同じものが続かないように決める
   // 日付を 7 日ごとの組に分ける。組の 1 日目は組の番号だけで決め、2 日目からは「前の日のステージから 1〜L-1 だけ進める」ので、前の日と同じにならない。
   // 組の最後の日は、前の日とも、次の組の 1 日目ともちがうステージから選ぶ（組の境目でも続かない）。
@@ -37,7 +38,7 @@ function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前�
   for(let j=1;j<=n-b*B;j++){const r=h('d'+(b*B+j));
     if(j<B-1)s=(s+1+r%(L-1))%L;
     else{const nx=first(b+1),c=pool.map((_,i)=>i).filter(i=>i!==s&&i!==nx);s=c[r%c.length]}}
-  return{stage:pool[s],night:(h(key)>>>8)%3===0}; // 悪夢になる日は、これまでと同じ
+  return{stage:pool[s],night:(h(key)>>>8)%3===0,mut:DAILY_MUTS[h(key+':mut')%DAILY_MUTS.length]}; // 悪夢になる日は、これまでと同じ
 }
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.daily&&typeof d.daily==='object')for(const k in d.daily){const v=d.daily[k];
   if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0&&ORDER.includes(v.stage))daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
@@ -52,7 +53,8 @@ function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
 let nightSel=null; // 今日の挑戦に入る前に、ステージ選択で選んでいた難易度。ステージ選択へ戻ったときに戻す（挑戦の難易度を、ふつうのステージの選択に持ちこまない）
 // 実際に出す今日の挑戦。そのステージの悪夢がまだ開いていなければ、悪夢の日でも通常にする。
 // その日の記録がすでにあれば、記録と同じステージ・難易度のままにする（途中で悪夢が開いても、同じ日の記録に通常と悪夢がまざらない）
-function dailyNow(k=dayKey()){const r=daily[k];if(r)return{stage:r.stage,night:r.night};const c=dailyOf(k);return{stage:c.stage,night:c.night&&nightOpen(c.stage)}}
+function dailyNow(k=dayKey()){const r=daily[k],c=dailyOf(k);if(r)return{stage:r.stage,night:r.night,mut:c.mut};return{stage:c.stage,night:c.night&&nightOpen(c.stage),mut:c.mut}}
+const dailyMut=()=>DAILY?dailyOf(DAILY).mut:null;
 function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=+c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
@@ -92,7 +94,8 @@ const abyssOpen=i=>nightOpen(i)&&rec(i,1).clear;     // 悪夢でクリアする
 const diffOpen=(i,n)=>n===2?abyssOpen(i):n?nightOpen(i):stageOpen(i);
 function reset(){
   loadStage(STAGE);
-  S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
+  const m0=dailyMut()==='highMana'?100:40;
+  S={mana:m0,manaShow:m0,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
      tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
   const bench=slots.filter(s=>s.bench);

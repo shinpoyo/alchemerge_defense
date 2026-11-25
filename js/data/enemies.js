@@ -21,7 +21,7 @@ const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},ear
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
 let HP0=80,HP_GROW=1.28,FINAL_M=2;
-const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
+const waveHp=w=>HP0*HP_GROW**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(typeof dailyMut==='function'&&dailyMut()==='highMana'?1.25:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};

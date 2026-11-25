@@ -386,7 +386,7 @@ function drawHud(dt){
   // 波
   ctx.textAlign='center';ctx.font=FONT(FS.f2);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
   ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':MAX_WAVE}`,W/2+12,23);
-  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(DAILY?TT('dailyDot'):'');
+  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const dm=dailyMut(),stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(dm?'・'+TT('mut_'+dm):DAILY?TT('dailyDot'):'');
   if(S.active){ // 戦闘中は、ステージ名の右に残りの敵の数を金色で出す
     const lt='　'+TT('left',S.queue.length+S.enemies.length),w1=ctx.measureText(stn).width,w2=ctx.measureText(lt).width,x0=W/2-(w1+w2)/2;
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';

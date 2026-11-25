@@ -25,7 +25,7 @@ const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*(58.7+5),y:660,w:58.7,h:34})).con
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
 // ★t を錬成するには工房レベル t-1 が要る（序盤に上位元素ひとつで押し切れないように）
 const rankLv=t=>t-1,rankOpen=t=>S.ws>=rankLv(t);
-const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||d.t<=S.ws)};
+const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||(dailyMut()!=='craftOnly'&&d.t<=S.ws))};
 // しぼりこみと並べ替え（⇅の窓で選ぶ）。rank・place・role は複数選べ、何も選んでいなければ全部を出す
 // rank：1〜6、place：tower/trap、role：burn/slow/area/chain/pierce/buff
 // fam：系統（none は系統なし）。図鑑は CFLT に別に持つ（only は「見つけたものだけ」）

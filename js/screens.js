@@ -171,7 +171,7 @@ function openStages(){
   const dayBtn=()=>{
     const k=dayKey(),c=dailyNow(k),st=STAGES[c.stage],r=daily[k],b=document.createElement('button');b.className='stg day';b.disabled=!dayOpen;
     const date=new Date().toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'});
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${dParen(+c.night)}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span></div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${dParen(+c.night)}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span><span class="gift" style="color:#ffe9a0">✦ ${TT('mut_'+c.mut)}：${TT('mutD_'+c.mut)}</span></div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();startDaily();show(null);sfx.merge(2)};
     box.appendChild(b);
