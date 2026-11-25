@@ -99,6 +99,18 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 .dn b{color:#a890ff}
 #pause{background:#05040999;cursor:pointer} /* 一時停止：盤面が透けて見えるよう薄く暗くする */
 #pause h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
+#pMoon{margin:0 0 calc(var(--u)*16);max-width:calc(var(--u)*380);color:var(--dim);font-size:calc(var(--u)*var(--f1));line-height:1.7}
+/* 月の恵み：3 枚の札から 1 枚えらぶ */
+#moon{background:radial-gradient(ellipse at 50% 30%,#1a1430f0 0%,#050409f5 70%)}
+#moon h2{margin:0 0 calc(var(--u)*4);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
+#moonSub{color:var(--dim);margin-bottom:calc(var(--u)*16)}
+#moonCards{display:flex;flex-direction:column;gap:calc(var(--u)*12);width:100%;max-width:calc(var(--u)*360)}
+#moonCards .mc{--fc:var(--gold);display:flex;flex-direction:column;gap:calc(var(--u)*4);text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);
+  padding:calc(var(--u)*12) calc(var(--u)*16);min-height:44px;border-radius:calc(var(--u)*12);border:1px solid #4a4070;border-left:calc(var(--u)*4) solid var(--fc);
+  background:linear-gradient(180deg,#221a44,#110c24);font-size:calc(var(--u)*var(--f1));line-height:1.6}
+#moonCards .mc b{font-size:calc(var(--u)*var(--f3));color:var(--fc);font-weight:700}
+#moonCards .mc.bad{--fc:#ff8a7a}
+#moonCards .mc:hover,#moonCards .mc:focus-visible{border-color:var(--fc);outline:none;box-shadow:0 0 calc(var(--u)*14) #8b5cf655}
 #menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 #menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
 #menu #mClose{margin-top:calc(var(--u)*22)}
