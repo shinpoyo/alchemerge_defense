@@ -75,7 +75,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   e_runner:['駆ける影 ― 減速が効きにくい','Runner — resists slow'],e_flyer:['飛ぶ影 ― 道と罠を無視して灯へ一直線','Flyer — ignores the road and traps'],e_splitter:['分かれる影 ― 倒すと 3 体に分かれる','Splitter — splits into 3 when killed'],
   e_healer:['癒す影 ― まわりの影の傷を治す','Mender — heals the shades around it'],e_armored:['鎧の影 ― {0}の系統の攻撃をほとんど通さない','Armored — shrugs off {0} attacks'],
   // 月の恵み
-  moonT:['月の恵み','Moon\'s Gift'],moonSub:['札を 1 枚えらぶ（この戦いのあいだ続く）','Choose one card (lasts for this battle)'],moonNow:['月の恵み：{0}','Moon\'s Gifts: {0}'],
+  moonT:['月の恵み','Moon\'s Gift'],moonSub:['札を 1 枚えらぶ（この戦いのあいだ続く）','Choose one card (lasts for this battle)'],moonBad:['代償あり','Has a cost'],moonNow:['月の恵み：{0}','Moon\'s Gifts: {0}'],
   moon_kago:['{0}の加護','Blessing of {0}'],moonD_kago:['{0}の系統の威力 +25%<br>ただし、ほかの系統の威力 −5%','{0} attacks +25%<br>but other families −5%'],
   moon_deep:['深い罠','Deep Traps'],moonD_deep:['罠の効き目と広さ +20%<br>ただし、塔の威力 −5%','Traps +20% stronger and wider<br>but towers −5% damage'],
   moon_full:['満ちる月','Full Moon'],moonD_full:['波の終わりの魔力 1.5 倍<br>ただし、影の足が 5% 速くなる','1.5× mana at the end of each wave<br>but shades move 5% faster'],

@@ -161,6 +161,16 @@ const sfx={
     [0,4,7,11,14,19,23,26].forEach((n,i)=>bell(N(n-5),1.3,.06,.08+i*.075,.75));
     noise(1.4,.02,9000,.3,{type:'highpass',to:6000,a:.4,rev:.9});tone(73,1.2,'sine',.13,55,0,{a:.02,rev:.4});
   },
+  moonOpen(){ // 月の恵み：低い響きの上に、高い鐘がゆっくり降りてくる
+    [-15,-8,-3].forEach(n=>tone(N(n),2.6,'sine',.05,null,0,{a:.6,rev:.9,hold:1.2}));
+    [19,16,12,7,4].forEach((n,i)=>bell(N(n),1.6,.05,.15+i*.12,.85));noise(1.6,.015,8000,.1,{type:'highpass',a:.6,rev:.9});
+  },
+  moonDeal(i){bell(N(7+i*5),.7,.06,0,.6);noise(.08,.04,4000,0,{type:'bandpass',rev:.2})}, // 札が 1 枚ずつ開く
+  moonPick(bad){ // 札を選んだ：吸いこんで、明るい和音が開く（代償つきは少し暗い和音）
+    noise(.3,.05,500,0,{type:'bandpass',to:6000,q:2,a:.2,rev:.4});tone(110,.5,'sine',.18,44,.25,{rev:.4});
+    (bad?[0,3,7,10,15]:[0,4,7,11,16]).forEach((n,i)=>bell(N(n-3),1.6,.07,.3+i*.06,.8));
+    [-10,-3,2].forEach(n=>tone(N(n),1.8,'sawtooth',.025,null,.3,{det:9,a:.2,lp:900,lpTo:2600,rev:.8,hold:.6}));
+  },
   fail(){tone(150,.12,'square',.2,105,0,{lp:500,rev:.1});tone(120,.14,'square',.17,85,.1,{lp:420,rev:.1})},
   thud(){if(S.time-lastKill<.05)return;lastKill=S.time;tone(120,.24,'sine',.2,42,0,{rev:.3});noise(.1,.11,900,0,{rev:.2});tone(rnd(420,560),.1,'triangle',.07,160,0,{rev:.3})}, // 大型を倒した重い音
   kill(){if(S.time-lastKill<.05)return;lastKill=S.time;const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1})},
