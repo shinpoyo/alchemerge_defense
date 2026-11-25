@@ -246,7 +246,7 @@ const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.2
 function bossPhase(e){
   const k=e.hp/e.max,np=e.final&&k<=BOSS_PH[2].at?3:k<=BOSS_PH[1].at?2:1;
   if(np<=e.phase)return;
-  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd*(e.final?KING_SPD:1);e.vul=ph.vul;e.atkEvery=siegeEvery(e)*ph.atk;e.rageT=1;
+  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd; // 怒ったら、夜の王もゆっくり歩きをやめて元の速さで加速するe.vul=ph.vul;e.atkEvery=siegeEvery(e)*ph.atk;e.rageT=1;
   for(let i=0;i<ph.call;i++)S.queue.push({type:'mite',at:S.wt+.5+i*.28,m:1,free:true}); // 手下は入口から出る（魔力は落とさない）。主は波の最後に出るので、列はもう空いている
   if(!FX)return;
   const nm2=TT(e.final?'bossKing':'bossLord');
