@@ -14,7 +14,7 @@ function victory(){
   for(let i=0;i<160;i++)confetti(rnd(W),rnd(-260,0));
   setTimeout(()=>{if(!S.cleared)return;
     const mv=mvpOf();
-    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+(mv?`<br><span style="color:${ITEMS[mv.id].c}">${TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg))}</span>`:'')+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
+    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',maxWave(),disc.size,TOTAL)+(mv?`<br><span style="color:${ITEMS[mv.id].c}">${TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg))}</span>`:'')+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
     if(S.newBase){shopShow(S.newBase);SHOP.dotT[1]=6}
     show('clear');
     if(S.newBase)baseGetOpen(S.newBase)},1500);
