@@ -240,6 +240,7 @@ function spawnEnemy(q){
 }
 /* 主・王の段階：体力が半分を切ると怒り、足が速まり、入口から手下を呼ぶ。夜の王は 25% でさらに激昂し、灯への攻撃も早くなる。
    怒ると守りが甘くなり、受ける傷が同じ割合で増える（vul）。速くなったぶん早く倒れるので、倒れるまでに進む道のりはこれまでと変わらない */
+const KING_CALL_FIRST=2,KING_CALL_EVERY=2.5; // 夜の王がいる間に雑魚が湧く：最初の 1 体までの秒数／その後の間隔
 const BOSS_BORN=.7,WARN_T=2.6,WARN_LEAD=2.4; // 現れるときにふくらむ秒数／警告を出している秒数／現れる何秒前から警告するか
 const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.25,spd:1.3,atk:.85,vul:1.3,call:6}]; // 3 段階目（体力 25%）は夜の王だけ
 function bossPhase(e){
@@ -562,6 +563,10 @@ function update(dt){
     S.wt+=dt;
     if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
+    // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は落とさない）。王を倒すと止まる
+    if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;
+      if(S.kingCallT<=0){S.kingCallT+=KING_CALL_EVERY;S.kingCallN=(S.kingCallN||0)+1;S.queue.push({type:S.kingCallN%3?'shade':'wisp',at:S.wt,m:1,free:true})}}
+    else S.kingCallT=null;
   }
   for(const e of S.enemies){
     if(e.dead)continue;
