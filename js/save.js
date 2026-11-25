@@ -58,8 +58,8 @@ let dmgOff=false; // ダメージの数字を出さない設定（設定メニ�
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let vibOff=false; // 振動させない設定（設定メニューで切りかえ）
 try{vibOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').vibOff}catch(e){}
-let sparkOff=false; // 未発見レシピの予感演出を出さない設定（設定メニューで切りかえ）
-try{sparkOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').sparkOff}catch(e){}
+let sparkOff=true; // 未発見レシピの予感演出を出さない設定（デフォルトはオフ。設定メニューで切りかえ）
+try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.sparkOff!==undefined)sparkOff=!!d.sparkOff}catch(e){}
 let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セーブに無いときは 100 として扱う
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
