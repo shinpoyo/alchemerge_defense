@@ -273,12 +273,13 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれ
   if(e.dead)return;
   const fs=famL(fam);
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
-  if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
+  if(weak){dmg*=moonArmor(e.def.armor);e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
   const syn=SYN.some(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)))?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
     *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
-  dmg*=(e.vul||1)*syn*amp*af;e.hp-=dmg;e.flash=.08;
+  dmg*=(e.vul||1)*syn*amp*af*moonM(fs); // 月の恵み（加護・赤い月）
+  e.hp-=dmg;e.flash=.08;
   if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1||af>1)e.dnS=1;else if(af<1)e.dnW=1}
   if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
 }
@@ -295,8 +296,9 @@ function pathNear(P,x,y){ // 道のうち (x,y) にいちばん近い所まで�
 const REW_CD=3,CONF_RES=4,CONF_SPD=.6; // 巻き戻し：同じ敵には REW_CD 秒に 1 回／惑わし：解けたあとの耐性秒数・逆に歩く速さ（ふだんの速さに対する割合） // 停止が解けたあとの耐性秒数／ボスに停止の代わりにかかる減速
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
+  d=moonLong(d); // 月の恵み：長い夜
   {const id=d.id; // 属性シナジーの状態：決まった元素の直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
-    for(const y of SYN)if(y.by.includes(id)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=bs?SYN_T/2:SYN_T;if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
+    for(const y of SYN)if(y.by.includes(id)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=moonSyn(bs?SYN_T/2:SYN_T);if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
   if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
   if(d.rust&&e.armor){e.armor=null;tag(e,'stRust',d.c)} // 錆：鎧の影の鎧がなくなる（この戦いの間ずっと）
   const isBoss=e.type==='boss'||/[主王]$/.test(e.name||'');
@@ -365,7 +367,7 @@ function kill(e){
   const gm=e.reward>0?goldAt(e.x,e.y):1;if(gm>1&&FX)floatText(e.x,e.y-e.r-14,'◆×'+gm,'#ffd24a',FS.f1);
   if(HIT&&!e.dead){const sd=ITEMS[HIT.it.id];if(sd&&sd.soul&&(HIT.it.souls||0)*sd.soul<sd.soulMax){HIT.it.souls=(HIT.it.souls||0)+1; // 魂集め：倒した塔へ魂が飛んでいく
     if(FX)P(e.x,e.y,(HIT.x-e.x)/.5,(HIT.y-e.y)/.5,.5,3.2,sd.c,{drag:0})}}
-  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm*moonGold();const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
@@ -466,7 +468,7 @@ function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージ�
 }
 function towerFire(sl,it,dt){
   HIT={it,x:sl.x,y:sl.y};
-  const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD:1)*enhM(it)*soulM(it),rm=b?1+b.buffR:1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
+  const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower(),rm=b?1+b.buffR*moonBuff():1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
   if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
@@ -579,8 +581,8 @@ function update(dt){
     if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
     const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1);
-    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
-    else e.d+=e.def.spd*(e.spdM||1)*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
+    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
+    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
@@ -595,9 +597,9 @@ function update(dt){
     const it=sl.item;if(!it)continue;
     if(it.hide>0||it.held||sl.bench){it.beamT.length=0;continue}
     if(sl.path){ // 罠：上を通る敵にかかり続ける
-      const d=ITEMS[it.id];
+      const d=ITEMS[it.id],tr=d.range*moonTrap(); // 月の恵み：深い罠
       if(d.boom){if(S.enemies.some(e=>!e.dead&&!e.def.fly&&(e.x-sl.x)**2+(e.y-sl.y)**2<(d.range+e.r*.5)**2))explode(sl,d);continue} // 火薬：踏まれたら爆ぜて消える
-      for(const e of S.enemies){if(!e.dead&&!e.def.fly){if((e.x-sl.x)**2+(e.y-sl.y)**2<(d.range+e.r*.5)**2)applyHit(e,d,enhM(it),d.c,sl);else if(e._mirSl===sl)e._mirSl=null}} // 飛ぶ敵は罠にかからない
+      for(const e of S.enemies){if(!e.dead&&!e.def.fly){if((e.x-sl.x)**2+(e.y-sl.y)**2<(tr+e.r*.5)**2)applyHit(e,d,enhM(it)*moonTrap(),d.c,sl);else if(e._mirSl===sl)e._mirSl=null}} // 飛ぶ敵は罠にかからない
       continue;
     }
     towerFire(sl,it,dt);HIT=null;
@@ -614,7 +616,7 @@ function update(dt){
   if(S.active&&!S.queue.length&&!S.enemies.length&&!S.over)endWave();
 }
 function endWave(){
-  S.active=false;S.warn=0;const bonus=12+3*S.wave;S.mana+=bonus;
+  S.active=false;S.warn=0;const bonus=Math.round((12+3*S.wave)*moonWave());S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
   else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
@@ -622,5 +624,5 @@ function endWave(){
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
-  if(S.wave===MAX_WAVE&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
+  if(S.wave===MAX_WAVE&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else{saveRun();if(moonOffer())saveRun()}
 }

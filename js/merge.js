@@ -47,6 +47,7 @@ function dropOn0(from,to){
   const rk=rkey(it.id,to.item.id); // to.item を null にする前にキーを作る
   if(RECIPE[rk]&&!madeR.has(rk)){madeR.add(rk);save()} // ★合成など、レシピ表にない組み合わせは記録しない
   from.item=null;to.item=null;dst.item=n;
+  if(moonHas('rest')){S.mana+=MOON_REST;floatText(dst.x,dst.y-52,'+'+MOON_REST,'#e8c36a',FS.f1)} // 月の恵み：錬成の余り
   S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
 }

@@ -162,7 +162,7 @@ function openStages(){
     const st=STAGES[RUN.stage],b=document.createElement('button');b.className='stg res';
     b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('resume')}</b><span>${sn(st)}${dParen(toDiff(RUN.night))}${RUN.daily?TT('dailyParen'):''}</span><span><em>${TT('resumeNote',RUN.wave+1,RUN.lives,RUN.mana)}</em></span></div>`;
     miniMap(b.querySelector('canvas'),st);
-    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2)};
+    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2);if(S.moon&&S.moon.pend)openMoon()};
     box.appendChild(b);
   }
   // 今日の挑戦：日付で決まるステージと難易度。開放の順に関係なく遊べる（ふつうの進行度には数えない）
@@ -374,7 +374,7 @@ $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
 // 一時停止：止まるだけ。開いている間は盤面にも一覧にも触れない。どこを押しても再開
-function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
+function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pMoon').textContent=moonGot().length?TT('moonNow',moonList()):'';$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
 $('#pause').onclick=()=>{sfx.ui();show(null)};
 addEventListener('keydown',e=>{if(e.code!=='Space'&&e.code!=='KeyP')return; // Space／P でも止める・再開する（Space で止めるのは startWave 側）
   if($('#pause').classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();sfx.ui();show(null)}else if(e.code==='KeyP'&&!$('.ov.on')&&S.active&&!S.over){e.preventDefault();openPause()}},true);
