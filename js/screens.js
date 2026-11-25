@@ -313,9 +313,11 @@ function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×8
   g.textAlign='center';g.textBaseline='middle';
   gr=g.createLinearGradient(0,560,0,640);gr.addColorStop(0,'#fff6d8');gr.addColorStop(.6,'#e8c36a');gr.addColorStop(1,'#8a6a2a');
   g.font=FONT(78,800);g.shadowColor='#8b5cf6';g.shadowBlur=30;g.fillStyle=gr;g.fillText(L.res||L.st,400,600);g.shadowBlur=0;
-  g.font=FONT(FS.f5,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,676);
-  g.font=FONT(FS.f4,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― ${TT('genre')}`,400,735);
-  g.font=FONT(FS.f3);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,770);
+  g.font=FONT(FS.f5,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,668);
+  const mv=kind!=='codex'&&mvpOf();
+  if(mv){g.font=FONT(FS.f3,800);g.fillStyle=ITEMS[mv.id].c;g.fillText(TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg)),400,702)}
+  g.font=FONT(FS.f4,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― ${TT('genre')}`,400,738);
+  g.font=FONT(FS.f3);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,772);
   return c;
 }
 async function share(btn,kind){

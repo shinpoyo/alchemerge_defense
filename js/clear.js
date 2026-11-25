@@ -13,7 +13,8 @@ function victory(){
   for(let i=0;i<7;i++)ring(W/2,300,FW[i],140+i*60,.8+i*.14,5,10);
   for(let i=0;i<160;i++)confetti(rnd(W),rnd(-260,0));
   setTimeout(()=>{if(!S.cleared)return;
-    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
+    const mv=mvpOf();
+    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+(mv?`<br><span style="color:${ITEMS[mv.id].c}">${TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg))}</span>`:'')+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
     if(S.newBase){shopShow(S.newBase);SHOP.dotT[1]=6}
     show('clear');
     if(S.newBase)baseGetOpen(S.newBase)},1500);
@@ -108,5 +109,5 @@ function gameOver(){
   save();
   sfx.over();burst(CORE.x,CORE.y,'#ff2a4a',70,320);sparks(CORE.x,CORE.y,'#ffd0d8',50,420);
   for(let i=0;i<4;i++)ring(CORE.x,CORE.y,'#ff2a4a',120+i*90,.6+i*.2,5);
-  setTimeout(()=>{if(!S.over)return;$('#overSub').textContent=TT('overSub',S.wave,curBest());show('over')},1300);
+  setTimeout(()=>{if(!S.over)return;const mv=mvpOf();$('#overSub').innerHTML=TT('overSub',S.wave,curBest())+(mv?`<br><span style="color:${ITEMS[mv.id].c}">${TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg))}</span>`:'');show('over')},1300);
 }

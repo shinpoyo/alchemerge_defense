@@ -94,7 +94,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},elDmg:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;dnums.length=0;sel=null;drag=null;UNDO=null;
