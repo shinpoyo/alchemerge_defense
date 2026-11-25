@@ -8,7 +8,7 @@ function victory(){
   if(!DAILY&&S.lives>=DIFF[NIGHT].lives)grantAch('flawless'); // 今日の挑戦のクリアは数えない（「はじめての夜明け」などと同じ扱い）
   let gotB=[];
   if(!DAILY&&S.chal){
-    const k=pkey(),r=prog[k]||(prog[k]={best:MAX_WAVE,clear:true});
+    const k=pkey(),r=prog[k]||(prog[k]={best:maxWave(),clear:true});
     const cur=new Set(Array.isArray(r.badges)?r.badges:[]);
     for(const b of BADGES)if(S.chal[b]&&!cur.has(b)){cur.add(b);gotB.push(b)}
     if(cur.size)r.badges=[...cur];
@@ -22,7 +22,7 @@ function victory(){
   for(let i=0;i<160;i++)confetti(rnd(W),rnd(-260,0));
   setTimeout(()=>{if(!S.cleared)return;
     const bTxt=gotB.length?`<br><span style="color:#ffe9a0">✦ ${TT('badgeGot',gotB.map(b=>TT('badge_'+b)).join('・'))}</span>`:'';
-    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',MAX_WAVE,disc.size,TOTAL)+bTxt+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
+    $('#t2').innerHTML=spanify(TT('dawn'));$('#clearSub').innerHTML=TT('clearSub',maxWave(),disc.size,TOTAL)+bTxt+(S.newBase?`<br><em class="nb" style="color:${ITEMS[S.newBase].c}">${TT('baseArrive',nm(ITEMS[S.newBase]))}</em>`:'');
     if(S.newBase){shopShow(S.newBase);SHOP.dotT[1]=6}
     show('clear');
     if(S.newBase)baseGetOpen(S.newBase)},1500);
