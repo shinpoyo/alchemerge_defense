@@ -358,8 +358,8 @@ function openMenu(){
   $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
   $('#mSec1').textContent=TT('mSec1');$('#mSec2').textContent=TT('mSec2');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
-  // スピーカーの絵：効果音の行はすべての音、音楽の行は音楽だけを消す（前の「音：オン／オフ」「音楽：オン／オフ」ボタンと同じはたらき）
-  $('#mSound').innerHTML=muted?SPK0:SPK;$('#mSound').setAttribute('aria-label',TT(muted?'mUnmuteBtn':'mMuteBtn')+': '+TT('mSeVol'));
+  // スピーカーの絵：効果音の行は効果音だけ、音楽の行は音楽だけを消す
+  $('#mSound').innerHTML=sfxOff?SPK0:SPK;$('#mSound').setAttribute('aria-label',TT(sfxOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mSeVol'));
   $('#mMusic').innerHTML=musicOff?SPK0:SPK;$('#mMusic').setAttribute('aria-label',TT(musicOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mBgmVol'));
   $('#lDmg').textContent=TT('mDmg');$('#mDmg').classList.toggle('on',!dmgOff);$('#mDmg').setAttribute('aria-pressed',!dmgOff);
   $('#lVib').textContent=TT('mVib');$('#mVib').classList.toggle('on',!vibOff);$('#mVib').setAttribute('aria-pressed',!vibOff);
@@ -367,10 +367,10 @@ function openMenu(){
   $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
-$('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
+$('#mSound').onclick=()=>{sfxOff=!sfxOff;save();audio();if(!sfxOff)sfx.ui();openMenu()};
 $('#mMusic').onclick=()=>{musicOff=!musicOff;save();audio();audioState();sfx.ui();openMenu()};
 // 音量のつまみ：動かしている間もその場で音量を変え、効果音は試しに鳴らす。離したときに保存する
-function volShow(){$('#nSe').textContent=seVol+'%';$('#nBgm').textContent=bgmVol+'%';$('#vSe').classList.toggle('off',muted);$('#vBgm').classList.toggle('off',muted||musicOff)}
+function volShow(){$('#nSe').textContent=seVol+'%';$('#nBgm').textContent=bgmVol+'%';$('#vSe').classList.toggle('off',sfxOff);$('#vBgm').classList.toggle('off',musicOff)}
 let volT=0;
 function volTest(gap){const n=performance.now();if(n-volT>gap){volT=n;sfx.ui()}}
 $('#rSe').oninput=e=>{seVol=volOf(+e.target.value);audio();applyVol();volShow();volTest(140)};
@@ -411,7 +411,7 @@ $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#w
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();
