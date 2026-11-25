@@ -230,7 +230,7 @@ function spawnEnemy(q){
   const armor=d.armor?armorFam(S.wave):null,sk=armor?'armored'+S.wave:q.type; // 鎧の影は、防ぐ系統が波ごとに変わるので、波ごとに紹介する
   if(!S.seen[sk]&&TX['e_'+q.type]){S.seen[sk]=1;if(FX)fx.push({ty:'text',x:W/2,y:96,txt:armor?TT('e_armored',TT('f_'+armor)):TT('e_'+q.type),color:armor?ELEM[armor].c:d.rim,size:13,t:0,dur:armor?4:3.2})} // 初めて出た種類は一言で紹介
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
-    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
+    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.call?S.budget*d.w/S.wsum*KING_CALL_MANA:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
     const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd*(final?KING_SPD:1);e.atkEvery=siegeEvery(e)*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
     if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
@@ -240,7 +240,7 @@ function spawnEnemy(q){
 }
 /* 主・王の段階：体力が半分を切ると怒り、足が速まり、入口から手下を呼ぶ。夜の王は 25% でさらに激昂し、灯への攻撃も早くなる。
    怒ると守りが甘くなり、受ける傷が同じ割合で増える（vul）。速くなったぶん早く倒れるので、倒れるまでに進む道のりはこれまでと変わらない */
-const KING_CALL_FIRST=2,KING_CALL_EVERY=2.5; // 夜の王がいる間に雑魚が湧く：最初の 1 体までの秒数／その後の間隔
+const KING_CALL_FIRST=2,KING_CALL_EVERY=2.5,KING_CALL_MANA=.2; // 夜の王がいる間に雑魚が湧く：最初の 1 体までの秒数／その後の間隔／落とす魔力（ふつうの雑魚の 2 割）
 const BOSS_BORN=.7,WARN_T=2.6,WARN_LEAD=2.4; // 現れるときにふくらむ秒数／警告を出している秒数／現れる何秒前から警告するか
 const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.25,spd:1.3,atk:.85,vul:1.3,call:6}]; // 3 段階目（体力 25%）は夜の王だけ
 function bossPhase(e){
@@ -367,6 +367,8 @@ function kill(e){
   if(HIT&&!e.dead){const sd=ITEMS[HIT.it.id];if(sd&&sd.soul&&(HIT.it.souls||0)*sd.soul<sd.soulMax){HIT.it.souls=(HIT.it.souls||0)+1; // 魂集め：倒した塔へ魂が飛んでいく
     if(FX)P(e.x,e.y,(HIT.x-e.x)/.5,(HIT.y-e.y)/.5,.5,3.2,sd.c,{drag:0})}}
   e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  if(e.final&&!S.enemies.some(o=>o.final&&!o.dead)){S.queue=[]; // 夜の王（2 体なら 2 体とも）を倒すと、残りの敵は消えて、その波は終わり（最後の波ならクリア）
+    for(const o of S.enemies)if(!o.dead){o.dead=true;if(FX){smoke(o.x,o.y,'#1a1230',6,o.r,9,.7,.7);burst(o.x,o.y,o.def.rim,8,90)}}}
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
@@ -563,9 +565,9 @@ function update(dt){
     S.wt+=dt;
     if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
-    // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は落とさない）。王を倒すと止まる
+    // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は少しだけ）。王を倒すと、残りの敵は消えて波が終わる
     if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;
-      if(S.kingCallT<=0){S.kingCallT+=KING_CALL_EVERY;S.kingCallN=(S.kingCallN||0)+1;S.queue.push({type:S.kingCallN%3?'shade':'wisp',at:S.wt,m:1,free:true})}}
+      if(S.kingCallT<=0){S.kingCallT+=KING_CALL_EVERY;S.kingCallN=(S.kingCallN||0)+1;S.queue.push({type:S.kingCallN%3?'shade':'wisp',at:S.wt,m:1,free:true,call:true})}}
     else S.kingCallT=null;
   }
   for(const e of S.enemies){
