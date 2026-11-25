@@ -217,7 +217,7 @@ function startWave(){
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
 function spawnEnemy(q){
-  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m,final=!!q.final;
+  const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m*(q.type==='boss'?1:mobHp(S.wave)),final=!!q.final;
   const pi=q.path??S.spawned++%PATHS.length;let P=PATHS[pi];
   // 門ごとの系統の敵：その門から出る敵のおよそ半分（交互）が門の系統になる。夜の主と、門が 3 つのステージの夜の王は系統なし
   const gs=STAGES[STAGE].gates;let gate=null;
@@ -230,9 +230,9 @@ function spawnEnemy(q){
   const armor=d.armor?armorFam(S.wave):null,sk=armor?'armored'+S.wave:q.type; // 鎧の影は、防ぐ系統が波ごとに変わるので、波ごとに紹介する
   if(!S.seen[sk]&&TX['e_'+q.type]){S.seen[sk]=1;if(FX)fx.push({ty:'text',x:W/2,y:96,txt:armor?TT('e_armored',TT('f_'+armor)):TT('e_'+q.type),color:armor?ELEM[armor].c:d.rim,size:13,t:0,dur:armor?4:3.2})} // 初めて出た種類は一言で紹介
   S.enemies.push({type:q.type,def:d,P,hp,max:hp,d:0,x:P.pts[0][0],y:P.pts[0][1],r:d.r*(q.m>1?1.25:1),
-    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
+    slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.call?S.budget*d.w/S.wsum*KING_CALL_MANA:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
-    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd;e.atkEvery=SIEGE_EVERY*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
+    const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd*(final?KING_SPD:1);e.atkEvery=siegeEvery(e)*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
     if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
@@ -240,12 +240,13 @@ function spawnEnemy(q){
 }
 /* 主・王の段階：体力が半分を切ると怒り、足が速まり、入口から手下を呼ぶ。夜の王は 25% でさらに激昂し、灯への攻撃も早くなる。
    怒ると守りが甘くなり、受ける傷が同じ割合で増える（vul）。速くなったぶん早く倒れるので、倒れるまでに進む道のりはこれまでと変わらない */
+const KING_CALL_FIRST=2,KING_CALL_EVERY=2.5,KING_CALL_MANA=.2; // 夜の王がいる間に雑魚が湧く：最初の 1 体までの秒数／その後の間隔／落とす魔力（ふつうの雑魚の 2 割）
 const BOSS_BORN=.7,WARN_T=2.6,WARN_LEAD=2.4; // 現れるときにふくらむ秒数／警告を出している秒数／現れる何秒前から警告するか
 const BOSS_PH=[{spd:1,atk:1,vul:1},{at:.5,spd:1.15,atk:1,vul:1.15,call:4},{at:.25,spd:1.3,atk:.85,vul:1.3,call:6}]; // 3 段階目（体力 25%）は夜の王だけ
 function bossPhase(e){
   const k=e.hp/e.max,np=e.final&&k<=BOSS_PH[2].at?3:k<=BOSS_PH[1].at?2:1;
   if(np<=e.phase)return;
-  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd;e.vul=ph.vul;e.atkEvery=SIEGE_EVERY*ph.atk;e.rageT=1;
+  const ph=BOSS_PH[np-1];e.phase=np;e.spdM=ph.spd; // 怒ったら、夜の王もゆっくり歩きをやめて元の速さで加速するe.vul=ph.vul;e.atkEvery=siegeEvery(e)*ph.atk;e.rageT=1;
   for(let i=0;i<ph.call;i++)S.queue.push({type:'mite',at:S.wt+.5+i*.28,m:1,free:true}); // 手下は入口から出る（魔力は落とさない）。主は波の最後に出るので、列はもう空いている
   if(!FX)return;
   const nm2=TT(e.final?'bossKing':'bossLord');
@@ -366,6 +367,8 @@ function kill(e){
   if(HIT&&!e.dead){const sd=ITEMS[HIT.it.id];if(sd&&sd.soul&&(HIT.it.souls||0)*sd.soul<sd.soulMax){HIT.it.souls=(HIT.it.souls||0)+1; // 魂集め：倒した塔へ魂が飛んでいく
     if(FX)P(e.x,e.y,(HIT.x-e.x)/.5,(HIT.y-e.y)/.5,.5,3.2,sd.c,{drag:0})}}
   e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  if(e.final&&!S.enemies.some(o=>o.final&&!o.dead)){S.queue=[]; // 夜の王（2 体なら 2 体とも）を倒すと、残りの敵は消えて、その波は終わり（最後の波ならクリア）
+    for(const o of S.enemies)if(!o.dead){o.dead=true;if(FX){smoke(o.x,o.y,'#1a1230',6,o.r,9,.7,.7);burst(o.x,o.y,o.def.rim,8,90)}}}
   if(!FX)return;
   const boss=e.type==='boss';
   if(e.dn>=1)dnumPop(e); // とどめの数字は、ためずにすぐ出す
@@ -382,12 +385,16 @@ function kill(e){
   const n=boss?12:Math.min(3,1+(e.reward/6|0));
   for(let i=0;i<n;i++)fx.push({ty:'mana',x:e.x,y:e.y,cx:e.x+rnd(-60,60),cy:e.y+rnd(-70,-20),t:-i*.05,dur:rnd(.5,.75)});
 }
-// 灯への攻撃：夜の王は 1 回で 2、主は 1。主は 8 回攻撃すると去る（これまでの「通すと 8 減る」と同じ上限）。王は倒すまで去らない
-const SIEGE_FIRST=1.4,SIEGE_EVERY=1.1,SIEGE_MAX=8;
+// 灯への攻撃：主は 1.1 秒ごとに 1。主は 8 回攻撃すると去る（これまでの「通すと 8 減る」と同じ上限）。
+// 夜の王はためが長く、3.5 秒ごとに 5 の重い一撃（2026-11-25。それまでは 1.1 秒ごとに 2）。王は倒すまで去らない
+const SIEGE_FIRST=1.4,SIEGE_EVERY=1.1,SIEGE_MAX=8,KING_SIEGE_FIRST=2.6,KING_SIEGE_EVERY=3.5,KING_SIEGE_DMG=5;
+const siegeEvery=e=>e.final?KING_SIEGE_EVERY:SIEGE_EVERY;
 function siegeHit(e){
-  const dmg=e.final?2:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
-  shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
-  burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',FS.f3);
+  const dmg=e.final?KING_SIEGE_DMG:1;S.lives-=dmg;S.coreHit=1;e.lunge=1;e.hits++;
+  if(e.final){shake(16);S.flash=.45;S.flashC='#ff2a4a';sfx.leak();sfx.boom();buzz([60,40,120]);hitStop(HS_BOSS);
+    burst(CORE.x,CORE.y,'#ff2a4a',40,280);ring(CORE.x,CORE.y,'#ff2a4a',130,.6,6);ring(CORE.x,CORE.y,'#ffe45c',70,.4,3);floatText(CORE.x-6,CORE.y-40,'−'+dmg,'#ff8a9a',FS.f5)}
+  else{shake(6);S.flash=.22;S.flashC='#ff2a4a';sfx.leak();buzz(40);
+  burst(CORE.x,CORE.y,'#ff2a4a',16,170);ring(CORE.x,CORE.y,'#ff2a4a',60,.4,4);floatText(CORE.x-6,CORE.y-34,'−'+dmg,'#ff8a9a',FS.f3)}
   if(S.lives<=0){S.lives=0;if(!S.over)gameOver();return} // 陥落したあとに重ねて攻撃されても、灯は 0 より下げない
   if(!e.final&&e.hits>=SIEGE_MAX){e.dead=true;if(FX){burst(e.x,e.y,e.def.rim,20,160);smoke(e.x,e.y,'#1a1230',8,20,10,.8,.7)}}
 }
@@ -558,6 +565,10 @@ function update(dt){
     S.wt+=dt;
     if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
+    // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は少しだけ）。王を倒すと、残りの敵は消えて波が終わる
+    if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;
+      if(S.kingCallT<=0){S.kingCallT+=KING_CALL_EVERY;S.kingCallN=(S.kingCallN||0)+1;S.queue.push({type:S.kingCallN%3?'shade':'wisp',at:S.wt,m:1,free:true,call:true})}}
+    else S.kingCallT=null;
   }
   for(const e of S.enemies){
     if(e.dead)continue;
@@ -584,9 +595,9 @@ function update(dt){
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
-      e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',FS.f2);sfx.wave(5)}}
+      e.d=e.P.len;if(!e.siege){e.siege=true;e.atk=e.final?KING_SIEGE_FIRST:SIEGE_FIRST;e.hits=0;if(FX){floatText(CORE.x-60,CORE.y-46,TT('siege'),'#ff8a9a',FS.f2);sfx.wave(5)}}
       if(!stopped)e.atk-=dt;if(e.lunge>0)e.lunge-=dt*4;
-      if(!stopped&&e.atk<=0){e.atk+=e.atkEvery||SIEGE_EVERY;siegeHit(e);if(e.dead)continue}
+      if(!stopped&&e.atk<=0){e.atk+=e.atkEvery||siegeEvery(e);siegeHit(e);if(e.dead)continue}
     }else e.siege=false;
     const p=pathPoint(e.P,e.d);e.x=p[0];e.y=p[1];
   }
@@ -617,10 +628,10 @@ function endWave(){
   S.active=false;S.warn=0;const bonus=12+3*S.wave;S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
-  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
+  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
   if(FX)checkAch();
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
-  if(S.wave===MAX_WAVE&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
+  if(S.wave>=maxWave()&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
 }

@@ -6,8 +6,8 @@ try{const d=JSON.parse(localStorage.getItem('yoiyami-alchemy-v1')||'{}');LANG=d.
 const TX={ // [日本語, English]。{0}{1}… に値が入る
   title:['アルケマージ・ディフェンス','Alchemerge Defense'],genre:['マージ × タワーディフェンス','Merge × Tower Defense'],
   docTitle:['アルケマージ・ディフェンス — 元素を重ねて守る、マージ×タワーディフェンス','Alchemerge Defense — Merge × Tower Defense'],
-  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>も、その戦いの間は呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
-       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you make</b> can be summoned for the rest of the battle</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>20 night waves</b> to see the dawn. {0} elements to find; ★ shows rank</li>'],
+  how:['<li><i>一</i>下の一覧から<b>火・水・土・風</b>を呼び出す。<b>作った元素</b>も、その戦いの間は呼び出せる</li><li><i>二</i><b>★の数が同じ</b>元素を<b>重ねる</b>と新しい元素に。<b>おなじもの同士</b>でも変わる（水＋水＝池）</li><li><i>三</i>できた元素を<b>魔法陣</b>に置くと塔になる。沼などの<b>罠は道の上</b>に置く</li><li><i>四</i><b>最後の夜波</b>（10〜20 波）を退ければ夜明け。元素は全 {0} 種、★はランク</li>',
+       '<li><i>1</i>Summon <b>Fire, Water, Earth, Wind</b> from the list below. Anything <b>you make</b> can be summoned for the rest of the battle</li><li><i>2</i><b>Stack</b> two elements <b>with the same ★</b> to make a new one. Even <b>two of the same</b> can change (Water + Water = Pond)</li><li><i>3</i>Place elements on <b>magic circles</b> to make towers. <b>Traps</b> like Swamp go <b>on the road</b></li><li><i>4</i>Survive <b>every night wave</b> (10–20) to see the dawn. {0} elements to find; ★ shows rank</li>'],
   start:['はじめる','Start'],langBtn:['English','日本語'],
   stages:['ステージ','Stages'],normal:['通常','Normal'],night:['悪夢','Nightmare'],abyss:['深淵','Abyss'],
   nightNote:['悪夢：敵の体力 {0} 倍・灯は {1}','Nightmare: enemy HP ×{0}, only {1} lives'],
@@ -90,6 +90,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   statsTitle:['統計','Stats'],stTotal:['これまでの記録','Totals'],stKills:['総撃破数','Shades defeated'],stBosses:['倒した主・王','Lords and kings defeated'],
   stMerges:['総合成回数（錬成）','Merges made'],stPlays:['プレイ回数','Battles played'],stTime:['総プレイ時間','Time played'],stWaves:['退けた夜波','Waves repelled'],
   stFound:['見つけた元素','Elements found'],stStage:['ステージ別ベスト','Best by stage'],stNone:['―','—'],
+  stLen:['（全 {0} 波）',' ({0} waves)'],
   stClearBest:['✦ クリア（最高 第 {0} 波）','✦ Cleared (best: wave {0})'],
   tHM:['{0} 時間 {1} 分','{0}h {1}m'],tMS:['{0} 分 {1} 秒','{0}m {1}s'],tS:['{0} 秒','{0}s'],
   // 実績（a_＝名前、ad_＝条件）
