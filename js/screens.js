@@ -353,7 +353,7 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
 }
 function openMenu(){
   $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
-  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');
+  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');$('#mSpark').textContent=TT(sparkOff?'mSparkOff':'mSparkOn');
   $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
   $('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
@@ -370,6 +370,7 @@ $('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow(
 $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
+$('#mSpark').onclick=()=>{sparkOff=!sparkOff;save();sfx.ui();openMenu()};
 $('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
@@ -384,7 +385,7 @@ $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#w
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();

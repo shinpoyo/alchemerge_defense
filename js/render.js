@@ -470,10 +470,19 @@ function render(dt){
     ctx.restore()};
   for(const s of slots){
     if(src&&s!==src){
-      let ok=false;
-      if(!s.item)ok=!!held&&fits(src.item.id,s);else{const r=tryCombine(src.item,s.item);ok=!r.fail&&disc.has(r.id)}
+      let ok=false,unk=false;
+      if(!s.item)ok=!!held&&fits(src.item.id,s);
+      else{const r=tryCombine(src.item,s.item);if(!r.fail){if(disc.has(r.id))ok=true;else if(!sparkOff)unk=true}}
       if(ok){const pu=.5+.5*Math.sin(T*7);ctx.strokeStyle=rgba(s.item?'#ffe9a0':'#8b5cf6',s.item?.5+pu*.5:.25+pu*.3);ctx.lineWidth=s.item?2.5:1.5;
         ctx.beginPath();ctx.arc(s.x,s.y,31+pu*2,0,TAU);ctx.stroke()}
+      else if(unk){ // 未発見レシピの予感：淡い金色の点線輪と回る星
+        const pu=.5+.5*Math.sin(T*6);
+        ctx.save();ctx.translate(s.x,s.y);
+        ctx.strokeStyle=rgba('#fff3cf',.45+pu*.45);ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*18;
+        ctx.beginPath();ctx.arc(0,0,32+pu*2.5,0,TAU);ctx.stroke();ctx.setLineDash([]);
+        for(let i=0;i<3;i++){const a=T*2.2+i*TAU/3,rx=Math.cos(a)*33,ry=Math.sin(a)*33,sz=2.4+pu*1.4;
+          ctx.fillStyle=i%2?'#ffe9a0':'#ffffff';ctx.beginPath();ctx.moveTo(rx,ry-sz*1.5);ctx.lineTo(rx+sz*.5,ry-sz*.5);ctx.lineTo(rx+sz*1.5,ry);ctx.lineTo(rx+sz*.5,ry+sz*.5);ctx.lineTo(rx,ry+sz*1.5);ctx.lineTo(rx-sz*.5,ry+sz*.5);ctx.lineTo(rx-sz*1.5,ry);ctx.lineTo(rx-sz*.5,ry-sz*.5);ctx.closePath();ctx.fill()}
+        ctx.restore()}
     }
     const it=s.item;if(!it)continue;
     // ばねで位置と大きさを追従させる

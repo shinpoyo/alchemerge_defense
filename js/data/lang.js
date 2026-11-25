@@ -60,6 +60,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   mSeVol:['効果音','SFX'],mBgmVol:['音楽','Music'],mSeVolFull:['効果音の音量','Sound effects volume'],mBgmVolFull:['音楽の音量','Music volume'],
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
   mVibOn:['振動：オン','Vibration: On'],mVibOff:['振動：オフ','Vibration: Off'],
+  mSparkOn:['未発見の予感：オン','Discovery hint: On'],mSparkOff:['未発見の予感：オフ','Discovery hint: Off'],
   mStages:['ステージ選択へ戻る','Back to stages'],
   mReset:['進捗を初期化する','Reset progress'],wipeTitle:['進捗を初期化しますか？','Reset all progress?'],
   wipeTxt:['図鑑・ステージのクリア・解放した元素・実績・統計・今日の挑戦の記録・途中の戦いを、すべて消して最初からにします。\n<b>消した進捗は元に戻せません。</b>\n音・言語・ダメージ数字の設定は残ります。',
