@@ -37,7 +37,7 @@ document.addEventListener('visibilitychange',audioState);
 const sndOK=()=>AC&&!muted&&FX;
 // 1 つの音：o.det=少しずらした 2 本目を重ねて厚く / o.a=立ち上がり / o.lp=こもらせる高さ / o.rev=残響の量 / o.dst=出力先
 function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
-  if(!sndOK())return;
+  if(!sndOK()||sfxOff&&o.dst!==MUS)return; // 効果音を消しても、音楽（出力先が MUS）は鳴らす
   const t=AC.currentTime+delay,g=AC.createGain(),a=o.a||.006;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);
   if(o.hold){g.gain.setValueAtTime(v,t+d-o.hold);g.gain.linearRampToValueAtTime(0,t+d)}else g.gain.exponentialRampToValueAtTime(.0001,t+d);
@@ -50,7 +50,7 @@ function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
   g.connect(o.dst||BUS);const rv=o.rev===undefined?.16:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(o.dst===MUS?REVM:REV)}
 }
 function noise(d,v=.1,freq=1200,delay=0,o={}){
-  if(!sndOK())return;
+  if(!sndOK()||sfxOff&&o.dst!==MUS)return;
   const t=AC.currentTime+delay,src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
   src.buffer=noiseBuf;f.type=o.type||'lowpass';f.Q.value=o.q||.7;f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(o.to||120,t+d);
   g.gain.setValueAtTime(o.a?0:v,t);if(o.a)g.gain.linearRampToValueAtTime(v,t+o.a);g.gain.exponentialRampToValueAtTime(.0001,t+d);
