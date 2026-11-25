@@ -270,17 +270,31 @@ function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ�
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
   return 1;
 }
-function synFx(e,y){ // 属性シナジー成立時の専用演出・SE（種別ごとに短い間隔で間引く）
+function synFx(e,y){ // 属性シナジー成立時の専用ビジュアル＆SE（状態異常の文字タグと混ざらないよう文字は出さず、反応エフェクトだけで表現）
   if(!FX)return;
-  const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.28)return;S.tagT[k]=S.time;
+  const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.26)return;S.tagT[k]=S.time;
   sfx.syn(y.k);
   const x=e.x,yy=e.y,r=e.r;
-  if(y.k==='wetT'){sparks(x,yy,'#8fe6ff',8,240);sparks(x,yy,'#ffffff',4,200);ring(x,yy,'#8fe6ff',r+22,.28,2.4)}
-  else if(y.k==='britT'){chunks(x,yy,'#e8f6ff',7,170);ring(x,yy,'#ffffff',r+20,.26,2.6)}
-  else if(y.k==='dryT'){drops(x,yy,'#6ab8ff',8,170);ring(x,yy,'#f0d08a',r+22,.3,2.2)}
-  else if(y.k==='tinderT'){flameP(x,yy,'#ff6a3d',8,14);ring(x,yy,'#ffb040',r+24,.32,2.5)}
-  else{FXP({ty:'slash',x,y:yy,a:rnd(TAU),color:'#a8f0c8',dur:.2});sparks(x,yy,'#a8f0c8',6,200);ring(x,yy,'#a8f0c8',r+20,.28,2)}
-  tag(e,'synHit_'+y.k,y.c);
+  if(y.k==='wetT'){ // 濡れ×雷・氷：周囲に走る稲妻＋水色の二重フラッシュ輪
+    const a0=rnd(TAU),pts=[];for(let i=0;i<4;i++){const a=a0+i*1.6,rad=r+10+i*5;pts.push([x+Math.cos(a)*rad,yy+Math.sin(a)*rad])}
+    FXP({ty:'zap',pts,color:'#8fe6ff',dur:.22,seed:rnd(99)});
+    sparks(x,yy,'#8fe6ff',10,260);sparks(x,yy,'#ffffff',6,220);
+    ring(x,yy,'#ffffff',r+18,.22,2.6);ring(x,yy,'#8fe6ff',r+30,.32,2.2);
+  }else if(y.k==='britT'){ // ひび割れ×土：砕け散る結晶片＋白い閃光輪
+    chunks(x,yy,'#e8f6ff',11,210);sparks(x,yy,'#ffffff',6,200);
+    P(x,yy,0,0,.18,r*2.4,'#ffffff');ring(x,yy,'#ffffff',r+28,.28,3.2);ring(x,yy,'#d8c8b0',r+18,.24,2);
+  }else if(y.k==='dryT'){ // 乾き×水：弾ける水しぶき＋二重の水紋リング
+    drops(x,yy,'#6ab8ff',12,210);drops(x,yy,'#f0d08a',5,160);
+    ring(x,yy,'#6ab8ff',r+30,.36,2.8);ring(x,yy,'#f0d08a',r+18,.28,2);
+  }else if(y.k==='tinderT'){ // 火種×炎：爆ぜる炎の輪＋白熱フラッシュ
+    flameP(x,yy,'#ff6a3d',12,18);sparks(x,yy,'#ffe9a0',8,240);
+    P(x,yy,0,0,.2,r*2.6,'#ffe9a0');ring(x,yy,'#ff6a3d',r+32,.34,3);ring(x,yy,'#ffe9a0',r+18,.24,2);
+  }else{ // よろめき×風：交差する翠のX字斬撃＋風火花
+    const a=rnd(TAU);
+    FXP({ty:'slash',x,y:yy,a,color:'#a8f0c8',dur:.22,big:1});
+    FXP({ty:'slash',x,y:yy,a:a+Math.PI/2,color:'#ffffff',dur:.2,big:1});
+    sparks(x,yy,'#a8f0c8',10,240);ring(x,yy,'#a8f0c8',r+28,.28,2.2);
+  }
 }
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
