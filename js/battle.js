@@ -269,12 +269,26 @@ function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ�
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
   return 1;
 }
+function synFx(e,y){ // 属性シナジー成立時の専用演出・SE（種別ごとに短い間隔で間引く）
+  if(!FX)return;
+  const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.28)return;S.tagT[k]=S.time;
+  sfx.syn(y.k);
+  const x=e.x,yy=e.y,r=e.r;
+  if(y.k==='wetT'){sparks(x,yy,'#8fe6ff',8,240);sparks(x,yy,'#ffffff',4,200);ring(x,yy,'#8fe6ff',r+22,.28,2.4)}
+  else if(y.k==='britT'){chunks(x,yy,'#e8f6ff',7,170);ring(x,yy,'#ffffff',r+20,.26,2.6)}
+  else if(y.k==='dryT'){drops(x,yy,'#6ab8ff',8,170);ring(x,yy,'#f0d08a',r+22,.3,2.2)}
+  else if(y.k==='tinderT'){flameP(x,yy,'#ff6a3d',8,14);ring(x,yy,'#ffb040',r+24,.32,2.5)}
+  else{FXP({ty:'slash',x,y:yy,a:rnd(TAU),color:'#a8f0c8',dur:.2});sparks(x,yy,'#a8f0c8',6,200);ring(x,yy,'#a8f0c8',r+20,.28,2)}
+  tag(e,'synHit_'+y.k,y.c);
+}
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
   const fs=famL(fam);
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
   if(weak){dmg*=e.def.armor;e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
-  const syn=SYN.some(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)))?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  const hitSyn=SYN.find(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)));
+  const syn=hitSyn?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  if(hitSyn)synFx(e,hitSyn);
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
     *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
