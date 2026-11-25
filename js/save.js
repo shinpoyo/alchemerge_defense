@@ -8,9 +8,9 @@ const runOK=r=>!!r&&typeof r==='object'&&ORDER.includes(r.stage)&&Array.isArray(
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isArray(d.disc)?d.disc:BASES).filter(i=>ITEMS[i])); // 前の仕組み（図鑑の数）ですでに開いた木・光・闇はそのまま残す
   if(Array.isArray(d.madeR))madeR=new Set(d.madeR.filter(k=>typeof k==='string'&&RECIPE[k])); // 実際に作った組み合わせ（rkey 形式）
   else if(Array.isArray(d.disc)){madeR=new Set();for(const k in RECIPE){const[a,b]=k.split('+');if(disc.has(a)&&disc.has(b))madeR.add(k)}} // madeR が無い古いセーブ（disc の記録があるもの）：材料が両方そろっているレシピを、作ったものとして引き継ぐ。初回・初期化直後は disc が無いので種まきしない
-  prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear}} // 形のおかしい記録は捨てる（そのままだと最高記録が更新されなくなる）
+  prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear||v.best>=maxWave(parseInt(k))}} // 形のおかしい記録。波数を減らす前に、いまの最後の波まで進んでいた記録はクリア扱いは捨てる（そのままだと最高記録が更新されなくなる）
   for(const k in prog)if(!ORDER.includes(parseInt(k)))delete prog[k]; // ボツにしたステージ（迷いの森）の記録は消す（ユーザー決定 2026-11-23）
-  TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=20};
+  TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=maxWave(0)};
   for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
 // 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
@@ -45,7 +45,7 @@ const curBest=()=>DAILY?(daily[DAILY]||{best:0}).best:rec().best; // いまの�
 function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
   const r=daily[DAILY]||(daily[DAILY]={best:0,clear:false,stage:STAGE,night:NIGHT});
   if(w<=r.best)return;
-  r.best=w;r.clear=r.clear||w>=MAX_WAVE;
+  r.best=w;r.clear=r.clear||w>=maxWave(r.stage);
   const ks=Object.keys(daily).sort();while(ks.length>DAILY_KEEP)delete daily[ks.shift()]; // 古い日付から消す
   save();
 }

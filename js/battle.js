@@ -617,10 +617,10 @@ function endWave(){
   S.active=false;S.warn=0;const bonus=12+3*S.wave;S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
-  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=MAX_WAVE};save()}
+  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
   if(FX)checkAch();
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();
   if(FX)for(let i=0;i<5;i++)fx.push({ty:'mana',x:W/2+rnd(-40,40),y:330,cx:W/2+rnd(-80,80),cy:200,t:-i*.06,dur:.7});
-  if(S.wave===MAX_WAVE&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
+  if(S.wave>=maxWave()&&!S.endless){clearRun();S.newBase=DAILY?null:checkUnlock();if(FX)save();victory()}else saveRun();
 }
