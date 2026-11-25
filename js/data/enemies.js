@@ -43,3 +43,15 @@ function buildWave(w){
     if(g&&g.length===2&&k.final){k.path=0;k.m*=KING2_M;q.push({...k,path:1})}}
   return q;
 }
+function wavePreview(w){ // 次の波の予告情報（特徴的な敵のバッジ一覧と総数）
+  const q=buildWave(w),cnt={};
+  for(const e of q)cnt[e.type]=(cnt[e.type]||0)+1;
+  const tags=[];
+  if(cnt.boss)tags.push({t:TT(w%20===0?'bossKing':'bossLord'),c:'#ff6a88'});
+  if(cnt.armored){const f=armorFam(w);tags.push({t:TT('pvArm',TT('f_'+f)),c:ELEM[f].c})}
+  if(cnt.flyer)tags.push({t:TT('pvFly'),c:'#6ad8ff'});
+  if(cnt.healer)tags.push({t:TT('pvHeal'),c:'#9affc8'});
+  if(cnt.splitter)tags.push({t:TT('pvSplit'),c:'#7ae08a'});
+  if(cnt.runner)tags.push({t:TT('pvRun'),c:'#ffd84a'});
+  return{total:q.length,tags};
+}
