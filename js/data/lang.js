@@ -119,6 +119,11 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   dailyNew:['まだ挑戦していない','Not played yet'],dailyLocked:['宵の回廊をクリアすると開く','Clear Dusk Corridor to unlock'],
   dailyBest:['今日の最高 第 {0} 波','Today’s best: wave {0}'],dailyClear:['✦ 今日はクリア（最高 第 {0} 波）','✦ Cleared today (best: wave {0})'],
   stDaily:['今日の挑戦の記録','Daily Challenge'],stDays:['挑戦した日数','Days played'],stDayWave:['第 {0} 波','Wave {0}'],stDayClear:['✦ 第 {0} 波','✦ Wave {0}'],
+  mod_power:['焔脈','PWR'],mod_range:['増幅','RNG'],mod_haste:['疾風','SPD'],mod_link:['共鳴','LNK'],
+  modD_power:['焔脈の陣：威力 +20%','Power Circle: +20% DMG'],
+  modD_range:['増幅の陣：射程 +20%','Range Circle: +20% Range'],
+  modD_haste:['疾風の陣：攻撃速度 +25%','Haste Circle: +25% Rate'],
+  modD_link:['共鳴の陣：対の陣と揃うと威力・速度 +15%','Resonance: +15% DMG & Rate when paired'],
 };
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明

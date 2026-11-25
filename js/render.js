@@ -47,12 +47,21 @@ function makeBg(){
   // 作業台
   gr=g.createLinearGradient(0,LY.top,0,LY.top+LY.panelH);gr.addColorStop(0,'#100c1f');gr.addColorStop(1,'#060510');g.fillStyle=gr;rr(g,5,LY.top,W-10,LY.panelH,14);g.fill();g.strokeStyle='#2a2440';g.lineWidth=1;g.stroke();
   g.fillStyle='rgba(232,195,106,.07)';g.fillRect(17,521,W-34,1);
+  // 共鳴陣ペアの結び線
+  for(const s of slots){
+    if(s.mod==='link'&&s.linkTo&&slots.indexOf(s)<slots.indexOf(s.linkTo)){
+      g.strokeStyle=rgba('#ffe9a0',.28);g.lineWidth=1.4;g.setLineDash([4,6]);
+      g.beginPath();g.moveTo(s.x,s.y);g.lineTo(s.linkTo.x,s.linkTo.y);g.stroke();g.setLineDash([]);
+    }
+  }
   for(const s of slots){
     if(s.field){
-      g.fillStyle=art?'rgba(12,9,22,.55)':'rgba(139,92,246,.06)';g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.fill(); // 絵の上では、柱や壁と重なっても読めるよう下を暗く
-      g.strokeStyle=rgba('#8b5cf6',.4);g.lineWidth=1.2;g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.stroke();
-      g.strokeStyle=rgba('#8b5cf6',.2);g.beginPath();g.arc(s.x,s.y,22,0,TAU);g.stroke();
+      const mc=s.mod?MOD_COL[s.mod]:'#8b5cf6';
+      g.fillStyle=art?'rgba(12,9,22,.58)':rgba(mc,s.mod?.12:.06);g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.fill(); // 絵の上では、柱や壁と重なっても読めるよう下を暗く
+      g.strokeStyle=rgba(mc,s.mod?.75:.4);g.lineWidth=s.mod?1.6:1.2;g.beginPath();g.arc(s.x,s.y,28,0,TAU);g.stroke();
+      g.strokeStyle=rgba(mc,s.mod?.38:.2);g.beginPath();g.arc(s.x,s.y,22,0,TAU);g.stroke();
       g.beginPath();for(let i=0;i<3;i++){const a=i/3*TAU-TAU/4;g[i?'lineTo':'moveTo'](s.x+Math.cos(a)*22,s.y+Math.sin(a)*22)}g.closePath();g.stroke();
+      if(s.mod){g.fillStyle=rgba(mc,.8);g.font=FONT(LANG==='ja'?9.5:7.5,800);g.textAlign='center';g.textBaseline='middle';g.fillText(TT('mod_'+s.mod),s.x,s.y+18)}
     }else if(s.path){
       g.strokeStyle=rgba('#e8c36a',.4);g.lineWidth=1.2;g.setLineDash([4,4]);
       g.beginPath();g.moveTo(s.x,s.y-15);g.lineTo(s.x+15,s.y);g.lineTo(s.x,s.y+15);g.lineTo(s.x-15,s.y);g.closePath();g.stroke();g.setLineDash([]);
@@ -492,8 +501,16 @@ function render(dt){
   if((held||sel)&&ITEMS[(held||sel).item?.id]?.kind==='relic'){ // 聖灰を持っている・選んでいる間は、使える砦を光らせる
     const pu=.5+.5*Math.sin(T*6),on=held&&nearCore(ptr.x,ptr.y-(held.touch?26:0));ctx.strokeStyle=rgba('#ffe9a0',on?.9:.35+pu*.35);ctx.lineWidth=on?3:2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*20;
     ctx.beginPath();ctx.arc(CORE.x,CORE.y,on?34:28+pu*4,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0}
+  // 共鳴陣が両方そろったときの光の結び線
+  for(const s of slots){
+    if(s.mod==='link'&&s.linkTo&&slots.indexOf(s)<slots.indexOf(s.linkTo)&&s.item&&s.linkTo.item&&!s.item.held&&!s.linkTo.item.held){
+      const pu=.5+.5*Math.sin(T*4);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=rgba('#ffe9a0',.32+.25*pu);ctx.lineWidth=2.4;
+      ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.linkTo.x,s.linkTo.y);ctx.stroke();ctx.restore();
+    }
+  }
   const rs=held?(slotAt(ptr.x,ptr.y-(held.touch?26:0))||null):sel;
-  if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range;
+  if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range*slotMod(rs).range;
     ctx.fillStyle=rgba(d.c,.07);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.beginPath();ctx.arc(rs.x,rs.y,R,0,TAU);ctx.fill();ctx.stroke()}
   if(sel&&sel.item){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*30;ctx.beginPath();ctx.arc(sel.x,sel.y,33,0,TAU);ctx.stroke();ctx.setLineDash([])}
   else if(sel)sel=null;
@@ -583,7 +600,9 @@ function render(dt){
   const inf=held?held.item:sel&&sel.item;
   INFO_R=inf&&!held?{x:40,y:50+iy,w:W-80,h:44,id:inf.id}:null; // 説明の帯（と下の一言）を押すと詳細を開く
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50+iy,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f2);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy,W-92);ctx.font=FONT(FS.f1);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84+iy)}
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f2);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy,W-92);ctx.font=FONT(FS.f1);
+    const ms=rs&&rs.field&&rs.mod;
+    ctx.fillStyle=ms?MOD_COL[rs.mod]:'#8d86a3';ctx.fillText(ms?TT('modD_'+rs.mod):TT('lpTip'),W/2,84+iy)}
   // 最高ランクを選んでいるときの強化ボタン（押すたびに +1。値段は段ごとに上がる）
   ENH_R=null;
   if(sel&&!held&&canEnh(sel.item)){const it=sel.item,cost=enhCost(it),can=S.mana>=cost,bw=132,bh=30,bx=clamp(sel.x-bw/2,6,W-bw-6),by=sel.bench?sel.y-36-bh-14:sel.y+40;
