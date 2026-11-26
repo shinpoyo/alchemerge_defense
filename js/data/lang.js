@@ -177,6 +177,10 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   modD_haste:['疾風の陣：攻撃速度 +25%','Haste Circle: +25% Rate'],
   modD_link:['共鳴の陣：対の陣と揃うと威力・速度 +15%','Resonance: +15% DMG & Rate when paired'],
   towerStat:['与ダメ {0} ・ 撃破 {1}','DMG {0} · Kills {1}'],mvpLine:['MVP：{0}（{1}）','MVP: {0} ({1})'],
+  eph_bloodMoon:['紅月','Blood Moon'],ephD_bloodMoon:['敵の速度 +20%・獲得魔力 +30%','Foes +20% speed · +30% mana'],
+  eph_denseFog:['濃霧','Dense Fog'],ephD_denseFog:['塔の射程 -15%・状態異常時間 +40%','Tower range -15% · Status duration +40%'],
+  eph_starfall:['星雨','Starfall'],ephD_starfall:['塔の攻撃速度 +20%・敵体力 +15%','Tower rate +20% · Foe HP +15%'],
+  eph_eclipse:['月蝕','Eclipse'],ephD_eclipse:['敵の回復強化・属性シナジー 2.0 倍','Stronger enemy heal · Synergy ×2.0'],
 };
 const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
   king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],

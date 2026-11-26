@@ -395,7 +395,7 @@ function drawHud(dt){
   // 波
   ctx.textAlign='center';ctx.font=FONT(FS.f2);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
   ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':maxWave()}`,W/2+12,23);
-  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const dm=dailyMut(),stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(dm?'・'+TT('mut_'+dm):DAILY?TT('dailyDot'):'');
+  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const dm=dailyMut(),ep=endlessPhase(),stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(dm?'・'+TT('mut_'+dm):DAILY?TT('dailyDot'):'')+(ep?'・'+TT('eph_'+ep):'');
   if(S.active){ // 戦闘中は、ステージ名の右に残りの敵の数を金色で出す
     const lt='　'+TT('left',S.queue.length+S.enemies.length),w1=ctx.measureText(stn).width,w2=ctx.measureText(lt).width,x0=W/2-(w1+w2)/2;
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';
@@ -465,6 +465,7 @@ function render(dt){
   if(S.shake>.2)ctx.translate(rnd(-S.shake,S.shake),rnd(-S.shake,S.shake));
   ctx.drawImage(bgCanvas,0,0,W,H);
   const t=S.time,T=performance.now()/1000;
+  {const ep=endlessPhase();if(ep){ctx.fillStyle=rgba(EPH_COL[ep],ep==='denseFog'?.11:.07);ctx.fillRect(0,46,W,472)}}
   if(S.dawn>0){ // 夜明け
     const g=ctx.createLinearGradient(0,40,0,520);g.addColorStop(0,rgba('#3a2a7a',.35*S.dawn));g.addColorStop(.55,rgba('#c0507a',.3*S.dawn));g.addColorStop(1,rgba('#ffc070',.5*S.dawn));
     ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(0,40,W,480);
@@ -519,7 +520,7 @@ function render(dt){
     }
   }
   const rs=held?(slotAt(ptr.x,ptr.y-(held.touch?26:0))||null):sel;
-  if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range*slotMod(rs).range;
+  if(rs&&!rs.bench&&(held||rs.item)&&fits((held?held.item:rs.item).id,rs)){const it=held?held.item:rs.item,d=ITEMS[it.id],R=d.range*slotMod(rs).range*(rs.field&&endlessPhase()==='denseFog'?.85:1);
     ctx.fillStyle=rgba(d.c,.07);ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.beginPath();ctx.arc(rs.x,rs.y,R,0,TAU);ctx.fill();ctx.stroke()}
   if(sel&&sel.item){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*30;ctx.beginPath();ctx.arc(sel.x,sel.y,33,0,TAU);ctx.stroke();ctx.setLineDash([])}
   else if(sel)sel=null;

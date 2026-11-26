@@ -221,6 +221,7 @@ function startWave(){
   S.queue=buildWave(S.wave);
   {const st=STAGES[STAGE];if(S.wave===1&&st.aff&&FX)fx.push({ty:'text',x:W/2,y:130,txt:affText(st),color:st.aff.c||'#6ab8ff',size:13,t:0,dur:5})} // 属性の地：最初の波で弱点を知らせる
   {const dm=dailyMut();if(S.wave===1&&dm&&FX)fx.push({ty:'text',x:W/2,y:152,txt:TT('mut_'+dm)+' ― '+TT('mutD_'+dm),color:'#ffe9a0',size:12.5,t:0,dur:5.5})}
+  {const ep=endlessPhase();if(ep&&(S.wave-maxWave()-1)%5===0&&FX)fx.push({ty:'text',x:W/2,y:140,txt:'✦ '+TT('eph_'+ep)+' ― '+TT('ephD_'+ep),color:EPH_COL[ep],size:13,t:0,dur:5.5})}
   S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
   const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
@@ -345,7 +346,7 @@ function hurt(e,dmg,fam,srcId,srcIt){ // fam：攻撃した元素の系統（配
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
   if(weak){dmg*=moonArmor(e.def.armor);e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
   const hitSyn=SYN.find(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)));
-  const syn=hitSyn?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  const syn=hitSyn?(endlessPhase()==='eclipse'?2:SYN_MUL):1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
   if(hitSyn)synFx(e,hitSyn);
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
@@ -371,9 +372,10 @@ const REW_CD=3,CONF_RES=4,CONF_SPD=.6; // 巻き戻し：同じ敵には REW_CD 
 function applyHit(e,d,m,color,sl){
   if(e.dead)return;
   d=moonLong(d); // 月の恵み：長い夜
+  const dmDur=endlessPhase()==='denseFog'?1.4:1;
   {const id=d.id; // 属性シナジーの状態：決まった元素の直接攻撃の命中で付与（毒・燃焼の tick では付けない）。延長のみ
-    for(const y of SYN)if(y.by.includes(id)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=moonSyn(bs?SYN_T/2:SYN_T);if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
-  if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil)}
+    for(const y of SYN)if(y.by.includes(id)){const bs=e.type==='boss'||/[主王]$/.test(e.name||''),T=moonSyn(bs?SYN_T/2:SYN_T)*dmDur;if(!(e[y.k]>0))tag(e,y.st,y.c);if(T>(e[y.k]||0))e[y.k]=T}}
+  if(d.sil){if(!(e.silT>0))tag(e,'stSil','#c4b0ff');e.silT=Math.max(e.silT||0,d.sil*dmDur)}
   if(d.rust&&e.armor){e.armor=null;tag(e,'stRust',d.c)} // 錆：鎧の影の鎧がなくなる（この戦いの間ずっと）
   const isBoss=e.type==='boss'||/[主王]$/.test(e.name||'');
   if(d.erase&&!isBoss&&e.hp<=e.max*d.erase){ // 無：体力の少ない敵を消し去る
@@ -392,7 +394,7 @@ function applyHit(e,d,m,color,sl){
   if(d.stop){
     if(isBoss){
       if(d.kind!=='trap'&&(!d.stopP||Math.random()<d.stopP)){
-        if(STOP_BOSS>=e.slow||e.slowT<=0){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=STOP_BOSS;e.slowT=Math.max(e.slowT||0,d.stop)}
+        if(STOP_BOSS>=e.slow||e.slowT<=0){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=STOP_BOSS;e.slowT=Math.max(e.slowT||0,d.stop*dmDur)}
       }
     }else if(!(e.stopT>0)&&!(e.stopRes>0)&&!(e.hazT>0)){
       if(!d.stopP||Math.random()<d.stopP){
@@ -422,10 +424,10 @@ function applyHit(e,d,m,color,sl){
     if(FX)ring(e.x,e.y,color,22,.35,2);
   }
   if(d.knock&&!isBoss&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
-  if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T;e.drainSrc=d.id;e.drainIt=HIT?HIT.it:(sl&&sl.item||null)} // 呪い：命を削る
+  if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T*dmDur;e.drainSrc=d.id;e.drainIt=HIT?HIT.it:(sl&&sl.item||null)} // 呪い：命を削る
   const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow;
-  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,d.slowT):d.slowT}
-  if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam;e.dotSrc=d.id;e.dotIt=HIT?HIT.it:(sl&&sl.item||null)}
+  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,d.slowT*dmDur):d.slowT*dmDur}
+  if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT*dmDur;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam;e.dotSrc=d.id;e.dotIt=HIT?HIT.it:(sl&&sl.item||null)}
   if(d.plague&&e.dotT>0&&e.dotK){if(!e.plague)tag(e,'stPlague','#c8f070');e.plague=d.plague} // 疫病：この影が毒のまま倒れると、まわりへうつる
 }
 function kill(e){
@@ -441,8 +443,8 @@ function kill(e){
   const gm=e.reward>0?goldAt(e.x,e.y):1;if(gm>1&&FX)floatText(e.x,e.y-e.r-14,'◆×'+gm,'#ffd24a',FS.f1);
   if(HIT&&!e.dead){const sd=ITEMS[HIT.it.id];if(sd&&sd.soul&&(HIT.it.souls||0)*sd.soul<sd.soulMax){HIT.it.souls=(HIT.it.souls||0)+1; // 魂集め：倒した塔へ魂が飛んでいく
     if(FX)P(e.x,e.y,(HIT.x-e.x)/.5,(HIT.y-e.y)/.5,.5,3.2,sd.c,{drag:0})}}
-  const dmB=dailyMut()==='swiftBounty'?1.4:1;
-  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm*moonGold()*dmB;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  const epM=endlessPhase()==='bloodMoon'?1.3:1,dmB=dailyMut()==='swiftBounty'?1.4:1;
+  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm*moonGold()*dmB*epM;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(e.final&&!S.enemies.some(o=>o.final&&!o.dead)){S.queue=[]; // 夜の王（2 体なら 2 体とも）を倒すと、残りの敵は消えて、その波は終わり（最後の波ならクリア）
     for(const o of S.enemies)if(!o.dead){o.dead=true;if(FX){smoke(o.x,o.y,'#1a1230',6,o.r,9,.7,.7);burst(o.x,o.y,o.def.rim,8,90)}}}
   if(!FX)return;
@@ -549,7 +551,7 @@ function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージ�
 }
 function towerFire(sl,it,dt){
   HIT={it,x:sl.x,y:sl.y};
-  const d=ITEMS[it.id],b=it.buff,sm=slotMod(sl),m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower()*(dailyMut()==='noSupport'?1.15:1)*sm.dmg,rm=(b?1+b.buffR*moonBuff():1)*sm.rate,R=d.range*sm.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援・月の恵み・日替わり変調・特殊魔法陣を含む）
+  const d=ITEMS[it.id],b=it.buff,sm=slotMod(sl),ep=endlessPhase(),m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower()*(dailyMut()==='noSupport'?1.15:1)*sm.dmg,rm=(b?1+b.buffR*moonBuff():1)*sm.rate*(ep==='starfall'?1.2:1),R=d.range*sm.range*(ep==='denseFog'?.85:1),x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援・月の恵み・日替わり変調・特殊魔法陣・夜相を含む）
   if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
@@ -659,15 +661,15 @@ function update(dt){
     if(e.dn>0){e.dnT=(e.dnT||0)-dt;if(e.dnT<=0)dnumPop(e)}
     if(e.block>0)e.block-=dt;if(e.healed>0)e.healed-=dt;if(e.pulse>0)e.pulse-=dt*1.6;
     if(e.def.heal&&!(e.silT>0)){e.healT-=dt; // 癒す影：まわりの傷ついた影を治す（沈黙中は回復しない）
-      if(e.healT<=0){e.healT=HEAL_EVERY;let n=0;
+      if(e.healT<=0){e.healT=HEAL_EVERY;let n=0;const hm=endlessPhase()==='eclipse'?1.4:1;
         for(const o of S.enemies){if(o===e||o.dead||o.def.heal||o.type==='boss'||o.hp>=o.max||(o.x-e.x)**2+(o.y-e.y)**2>HEAL_R*HEAL_R)continue;
-          o.hp=Math.min(o.max,o.hp+o.max*e.def.heal);o.healed=.6;n++}
+          o.hp=Math.min(o.max,o.hp+o.max*e.def.heal*hm);o.healed=.6;n++}
         e.pulse=n?1:.35;if(n&&FX)ring(e.x,e.y,'#9affc8',HEAL_R,.5,2,10)}}
     if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
-    const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1),dmS=dailyMut()==='swiftBounty'?1.25:1;
-    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*dmS*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
-    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*dmS*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
+    const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1),epS=(endlessPhase()==='bloodMoon'?1.2:1)*(dailyMut()==='swiftBounty'?1.25:1);
+    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*epS*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
+    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*epS*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
