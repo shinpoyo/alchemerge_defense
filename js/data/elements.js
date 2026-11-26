@@ -415,6 +415,10 @@ const BASES=['fire','water','earth','wind'];
 // 図鑑の発見数が増えると解放される基本元素（解放後は ◆10 で呼び出せる）
 const UNLOCK={wood:0,light:1,dark:14,sound:2,time:6,dream:11,soul:3,void:15}; // 基本元素は、このステージ（STAGES の番号。通常の難易度）をクリアすると届く。図鑑の数では開かない
 // 並び順では 宵の回廊→木、螺旋の庭→光、十字の辻→闇、双つの門→音、砂時計の峠→時、光の届かぬ森→夢、三叉の谷→魂、星降りの道→無。王の間と最果ての祭壇は空き
+// ★ごとの威力の倍率（2026-11-26）：★が上がるごとの強さの差をなだらかにする。攻撃する塔のダメージ（dmg）と燃やすダメージ（dot）だけにかける。射程・速さ・遅くする効果・値段は変えない
+// それまでは魔力あたりの威力が ★1〜3 でほぼ横ばい、★4 から急に強かった（雑魚が出口の近くで消えて、低い★を並べる意味がなかった）
+const TIER_POW={1:1.2,2:1.15,3:1.05,4:.85,5:.75,6:.55};
+for(const id in ITEMS){const d=ITEMS[id];if(['bolt','pulse','beam','chain','pierce'].includes(d.kind)){const m=TIER_POW[d.t]||1;if(d.dmg)d.dmg*=m;if(d.dot)d.dot*=m}}
 const BASE_COST=10,TOTAL=Object.keys(ITEMS).length;
 // 最高ランク（いまは★6）：これより上の錬成がない★。エンドレスでは盤面で選ぶと魔力で「+1」ずつ強化できる（上限なし）
 // +n の威力は (1+ENH_POW×n) 倍。+n から +n+1 への値段は ENH_COST+ENH_STEP×n（段ごとに少しずつ上がる）
