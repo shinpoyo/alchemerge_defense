@@ -171,6 +171,11 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   mut_noSupport:['孤高の塔','Lone Towers'],mutD_noSupport:['支援の塔無効・すべての攻撃塔の威力 +15%','Support buffs disabled · All attack towers +15% DMG'],
   pvNext:['次波','Next'],pvFoes:['{0}体','{0} foes'],pvFly:['飛行','Flyer'],pvHeal:['癒し','Mender'],pvArm:['鎧({0})','Armor({0})'],pvRun:['疾走','Runner'],pvSplit:['分裂','Splitter'],
   earlyBtn:['▶ 早呼び +◆{0}','▶ Early +◆{0}'],earlyBonus:['早呼びボーナス ◆+{0}','Early call +◆{0}'],
+  mod_power:['焔脈','PWR'],mod_range:['増幅','RNG'],mod_haste:['疾風','SPD'],mod_link:['共鳴','LNK'],
+  modD_power:['焔脈の陣：威力 +20%','Power Circle: +20% DMG'],
+  modD_range:['増幅の陣：射程 +20%','Range Circle: +20% Range'],
+  modD_haste:['疾風の陣：攻撃速度 +25%','Haste Circle: +25% Rate'],
+  modD_link:['共鳴の陣：対の陣と揃うと威力・速度 +15%','Resonance: +15% DMG & Rate when paired'],
 };
 const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
   king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],

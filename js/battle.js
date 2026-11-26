@@ -542,7 +542,7 @@ function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージ�
 }
 function towerFire(sl,it,dt){
   HIT={it,x:sl.x,y:sl.y};
-  const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower()*(dailyMut()==='noSupport'?1.15:1),rm=b?1+b.buffR*moonBuff():1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
+  const d=ITEMS[it.id],b=it.buff,sm=slotMod(sl),m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower()*(dailyMut()==='noSupport'?1.15:1)*sm.dmg,rm=(b?1+b.buffR*moonBuff():1)*sm.rate,R=d.range*sm.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援・月の恵み・日替わり変調・特殊魔法陣を含む）
   if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
