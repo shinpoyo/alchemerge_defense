@@ -284,12 +284,40 @@ function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ�
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
   return 1;
 }
+function synFx(e,y){ // 属性シナジー成立時の専用ビジュアル＆SE（状態異常の文字タグと混ざらないよう文字は出さず、反応エフェクトだけで表現）
+  if(!FX)return;
+  const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.26)return;S.tagT[k]=S.time;
+  sfx.syn(y.k);
+  const x=e.x,yy=e.y,r=e.r;
+  if(y.k==='wetT'){ // 濡れ×雷・氷：周囲に走る稲妻＋水色の二重フラッシュ輪
+    const a0=rnd(TAU),pts=[];for(let i=0;i<4;i++){const a=a0+i*1.6,rad=r+10+i*5;pts.push([x+Math.cos(a)*rad,yy+Math.sin(a)*rad])}
+    FXP({ty:'zap',pts,color:'#8fe6ff',dur:.22,seed:rnd(99)});
+    sparks(x,yy,'#8fe6ff',10,260);sparks(x,yy,'#ffffff',6,220);
+    ring(x,yy,'#ffffff',r+18,.22,2.6);ring(x,yy,'#8fe6ff',r+30,.32,2.2);
+  }else if(y.k==='britT'){ // ひび割れ×土：砕け散る結晶片＋白い閃光輪
+    chunks(x,yy,'#e8f6ff',11,210);sparks(x,yy,'#ffffff',6,200);
+    P(x,yy,0,0,.18,r*2.4,'#ffffff');ring(x,yy,'#ffffff',r+28,.28,3.2);ring(x,yy,'#d8c8b0',r+18,.24,2);
+  }else if(y.k==='dryT'){ // 乾き×水：弾ける水しぶき＋二重の水紋リング
+    drops(x,yy,'#6ab8ff',12,210);drops(x,yy,'#f0d08a',5,160);
+    ring(x,yy,'#6ab8ff',r+30,.36,2.8);ring(x,yy,'#f0d08a',r+18,.28,2);
+  }else if(y.k==='tinderT'){ // 火種×炎：爆ぜる炎の輪＋白熱フラッシュ
+    flameP(x,yy,'#ff6a3d',12,18);sparks(x,yy,'#ffe9a0',8,240);
+    P(x,yy,0,0,.2,r*2.6,'#ffe9a0');ring(x,yy,'#ff6a3d',r+32,.34,3);ring(x,yy,'#ffe9a0',r+18,.24,2);
+  }else{ // よろめき×風：交差する翠のX字斬撃＋風火花
+    const a=rnd(TAU);
+    FXP({ty:'slash',x,y:yy,a,color:'#a8f0c8',dur:.22,big:1});
+    FXP({ty:'slash',x,y:yy,a:a+Math.PI/2,color:'#ffffff',dur:.2,big:1});
+    sparks(x,yy,'#a8f0c8',10,240);ring(x,yy,'#a8f0c8',r+28,.28,2.2);
+  }
+}
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
   const fs=famL(fam);
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
   if(weak){dmg*=moonArmor(e.def.armor);e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
-  const syn=SYN.some(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)))?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  const hitSyn=SYN.find(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)));
+  const syn=hitSyn?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  if(hitSyn)synFx(e,hitSyn);
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
     *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
