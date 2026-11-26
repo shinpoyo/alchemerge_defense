@@ -386,7 +386,7 @@ function drawHud(dt){
   // 波
   ctx.textAlign='center';ctx.font=FONT(FS.f2);ctx.fillStyle='#8d86a3';ctx.fillText(TT('wave'),W/2-56,24);
   ctx.font=FONT(FS.f4,800);ctx.fillStyle='#e9e4f5';ctx.fillText(`${S.wave} / ${S.endless?'∞':maxWave()}`,W/2+12,23);
-  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(DAILY?TT('dailyDot'):'');
+  ctx.font=FONT(FS.f1,800);ctx.fillStyle=NIGHT===2?'#d9a8ff':NIGHT?'#ff8a9a':'#a9a2c0';const dm=dailyMut(),stn=sn(STAGES[STAGE])+(NIGHT===2?TT('abyssDot'):NIGHT?TT('nightDot'):'')+(dm?'・'+TT('mut_'+dm):DAILY?TT('dailyDot'):'');
   if(S.active){ // 戦闘中は、ステージ名の右に残りの敵の数を金色で出す
     const lt='　'+TT('left',S.queue.length+S.enemies.length),w1=ctx.measureText(stn).width,w2=ctx.measureText(lt).width,x0=W/2-(w1+w2)/2;
     ctx.textAlign='left';ctx.fillText(stn,x0,43);ctx.fillStyle='#ffe9a0';ctx.fillText(lt,x0+w1,43);ctx.textAlign='center';
@@ -470,10 +470,19 @@ function render(dt){
     ctx.restore()};
   for(const s of slots){
     if(src&&s!==src){
-      let ok=false;
-      if(!s.item)ok=!!held&&fits(src.item.id,s);else{const r=tryCombine(src.item,s.item);ok=!r.fail&&disc.has(r.id)}
+      let ok=false,unk=false;
+      if(!s.item)ok=!!held&&fits(src.item.id,s);
+      else{const r=tryCombine(src.item,s.item);if(!r.fail){if(disc.has(r.id))ok=true;else if(!sparkOff)unk=true}}
       if(ok){const pu=.5+.5*Math.sin(T*7);ctx.strokeStyle=rgba(s.item?'#ffe9a0':'#8b5cf6',s.item?.5+pu*.5:.25+pu*.3);ctx.lineWidth=s.item?2.5:1.5;
         ctx.beginPath();ctx.arc(s.x,s.y,31+pu*2,0,TAU);ctx.stroke()}
+      else if(unk){ // 未発見レシピの予感：淡い金色の点線輪と回る星
+        const pu=.5+.5*Math.sin(T*6);
+        ctx.save();ctx.translate(s.x,s.y);
+        ctx.strokeStyle=rgba('#fff3cf',.45+pu*.45);ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.lineDashOffset=-T*18;
+        ctx.beginPath();ctx.arc(0,0,32+pu*2.5,0,TAU);ctx.stroke();ctx.setLineDash([]);
+        for(let i=0;i<3;i++){const a=T*2.2+i*TAU/3,rx=Math.cos(a)*33,ry=Math.sin(a)*33,sz=2.4+pu*1.4;
+          ctx.fillStyle=i%2?'#ffe9a0':'#ffffff';ctx.beginPath();ctx.moveTo(rx,ry-sz*1.5);ctx.lineTo(rx+sz*.5,ry-sz*.5);ctx.lineTo(rx+sz*1.5,ry);ctx.lineTo(rx+sz*.5,ry+sz*.5);ctx.lineTo(rx,ry+sz*1.5);ctx.lineTo(rx-sz*.5,ry+sz*.5);ctx.lineTo(rx-sz*1.5,ry);ctx.lineTo(rx-sz*.5,ry-sz*.5);ctx.closePath();ctx.fill()}
+        ctx.restore()}
     }
     const it=s.item;if(!it)continue;
     // ばねで位置と大きさを追従させる

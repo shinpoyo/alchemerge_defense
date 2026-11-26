@@ -426,7 +426,7 @@ const MAX_T=Math.max(...Object.values(ITEMS).map(d=>d.t));
 let ENH_POW=.5,ENH_COST=10,ENH_STEP=40;
 const enhM=it=>1+ENH_POW*(it.lv||0),enhCost=it=>ENH_COST+ENH_STEP*(it.lv||0),enhSpent=it=>{const n=it.lv||0;return ENH_COST*n+ENH_STEP*n*(n-1)/2};
 const canEnh=it=>S.endless&&!!it&&ITEMS[it.id].t===MAX_T&&ITEMS[it.id].kind!=='relic'; // 強化はエンドレス（20波を退けた後）だけ。通常の20波の難しさは変えない
-const itemValue=it=>BASE_COST*2**(ITEMS[it.id].t-1)+(it.lv?enhSpent(it):0);
+const itemValue=it=>{const d=ITEMS[it.id],m=typeof dailyMut==='function'&&dailyMut()==='trapMaster'?(d.kind==='trap'?.5:d.kind==='relic'?1:1.3):1;return Math.round(BASE_COST*2**(d.t-1)*m)+(it.lv?enhSpent(it):0)};
 const isTrap=id=>ITEMS[id].kind==='trap',isSupport=id=>ITEMS[id].kind==='support',isBuffer=id=>ITEMS[id].buffD!=null; // 支援の塔のほか、攻撃しながらまわりを強める元素（天地鳴動）も強める側
 const noAtk=d=>d.kind==='support'||d.kind==='ward'||d.kind==='relic'; // 攻撃しない（支援・結界・砦で使うもの）
 // 置ける場所：魔法陣には塔、道の上には罠、作業台にはなんでも
