@@ -1,7 +1,7 @@
 'use strict';
 // 入力（タッチ・マウス）（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- 入力 ---------------- */
-let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null,ENH_R=null,ENH_R0p=0;
+let drag=null,sel=null,pressed=null,strip=null,ptr={x:0,y:0},lpT=null,INFO_R=null,ENH_R=null,ENH_R0p=0,EARLY_R=null;
 const LONG_MS=480; // これだけ押し続けると詳細を開く
 const lpClear=()=>{if(lpT){clearTimeout(lpT);lpT=null}};
 function pos(ev){const r=cv.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H}}
@@ -17,6 +17,7 @@ cv.addEventListener('pointerdown',ev=>{
   if(S.kingIntro){if(S.kingIntro.t>=.45)S.kingIntro.t=Math.max(S.kingIntro.t,S.kingIntro.dur-.3);return}
   if(S.banner&&S.banner.t>.4){S.banner.t=Math.max(S.banner.t,S.banner.dur-.25)}
   ring(p.x,p.y,'#8b5cf6',18,.3,1.5,2);
+  if(EARLY_R&&canEarlyCall()&&inBtn(EARLY_R,p.x,p.y)){buzz(12);earlyCall();return}
   if(INFO_R&&sel&&sel.item&&inBtn(INFO_R,p.x,p.y)){buzz(12);openDetail(INFO_R.id,'game');return}
   if(ENH_R&&sel&&canEnh(sel.item)&&inBtn(ENH_R,p.x,p.y)){ENH_R0p=1;undoable(()=>enhance(sel));return}
   const tb=p.y>=TABS[0].y-3&&p.y<TABS[0].y+TABS[0].h+2&&TABS.find(t=>p.x>=t.x-3&&p.x<=t.x+t.w+3);

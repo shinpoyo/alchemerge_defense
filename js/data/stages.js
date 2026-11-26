@@ -119,6 +119,16 @@ const WAVES_BY_TIER=[10,15,20];
 const maxWave=(i=STAGE)=>{const k=ORDER.indexOf(i);return k<0?20:WAVES_BY_TIER[Math.min(WAVES_BY_TIER.length-1,Math.floor(k/5))]};
 const isKingWave=w=>w%maxWave()===0; // エンドレスでも、波数の倍数ごとに夜の王
 const PATHS=[],CORE={x:0,y:0},slots=[];
+const MOD_COL={power:'#ff9a4a',range:'#6ad8ff',haste:'#7df0c0',link:'#ffe9a0'};
+function slotMod(sl){ // 特殊な魔法陣の補正（威力・攻撃速度・射程）
+  const o={dmg:1,rate:1,range:1,on:false};
+  if(!sl||!sl.field||!sl.mod)return o;
+  if(sl.mod==='power'){o.dmg=1.2;o.on=true}
+  else if(sl.mod==='range'){o.range=1.2;o.on=true}
+  else if(sl.mod==='haste'){o.rate=1.25;o.on=true}
+  else if(sl.mod==='link'&&sl.linkTo&&sl.linkTo.item&&!sl.linkTo.item.held&&!(sl.linkTo.item.hide>0)){o.dmg=1.15;o.rate=1.15;o.on=true}
+  return o;
+}
 function loadStage(i){
   STAGE=i;const st=STAGES[i];PATHS.length=0;
   for(const pts of st.paths){const seg=[];let len=0;
@@ -127,6 +137,15 @@ function loadStage(i){
   const end=st.paths[0][st.paths[0].length-1];CORE.x=end[0];CORE.y=end[1];
   slots.length=0;
   for(const[x,y]of st.field)slots.push({x,y,field:true,item:null});
+  // 各ステージに特殊魔法陣（地脈1つ＋共鳴陣ペア1組）を配置
+  const nf=st.field.length;
+  if(nf>=6){
+    const kinds=['power','range','haste'],k=kinds[i%3];
+    const p1=(i*3+1)%nf;slots[p1].mod=k;
+    let a=(p1+2)%nf,b=(p1+3)%nf;
+    if(a===p1)a=(a+1)%nf;if(b===p1||b===a)b=(b+1)%nf;
+    slots[a].mod='link';slots[b].mod='link';slots[a].linkTo=slots[b];slots[b].linkTo=slots[a];
+  }
   for(const[x,y]of st.traps)slots.push({x,y,path:true,item:null});
   for(let r=0;r<2;r++)for(let k=0;k<6;k++)slots.push({x:45+k*72,y:LY.benchY(r),bench:true,row:r,item:null});
   bgCanvas=null;

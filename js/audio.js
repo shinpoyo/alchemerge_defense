@@ -229,6 +229,14 @@ const sfx={
   },
   rage(){brass(N(-33),1.1,.09);brass(N(-27),1.1,.07,.08);drum(.24,0,70);drum(.2,.22,60);noise(.6,.1,900,0,{rev:.5})},                                                       // 主の怒り
   ach(){bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
+  syn(k){ // 属性シナジー発動：系統ごとの心地よいアクセント音
+    if(S.time-(S._synSfx??-9)<.18)return;S._synSfx=S.time;
+    if(k==='wetT'){tone(1040,.1,'square',.045,1560,0,{lp:3200,rev:.2});noise(.05,.05,5200,0,{type:'highpass',rev:.15})}
+    else if(k==='britT'){tone(220,.14,'triangle',.09,90,0,{rev:.2});noise(.08,.07,1800,0,{type:'bandpass',q:1.2,rev:.2})}
+    else if(k==='dryT'){tone(540,.14,'sine',.075,860,0,{rev:.25});noise(.07,.05,2200,0,{type:'bandpass',rev:.2})}
+    else if(k==='tinderT'){tone(360,.16,'sawtooth',.06,620,0,{lp:1800,rev:.25});noise(.1,.06,2400,0,{rev:.2})}
+    else{tone(720,.12,'sine',.065,1180,0,{rev:.25});noise(.07,.045,4200,0,{type:'highpass',rev:.2})}
+  },
   ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
 };
 const buzz=ms=>{try{if(FX&&!vibOff&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
