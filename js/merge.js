@@ -74,7 +74,6 @@ function mergeBurst(x,y,d){ // 戦闘中に盤面（魔法陣・罠マス）で�
     ring(x,y,'#ffe9a0',R,.42,3.5,12);ring(x,y,d.c,R*.82,.35,2.5,8);
     sparks(x,y,'#ffe9a0',12+d.t*3,240);shake(3+d.t*.8);
     tone(180+d.t*40,.22,'triangle',.12,80);noise(.14,.08,1600);
-    floatText(x,y-52,TT('mergeBurst'),'#ffe9a0',FS.f2);
   }
 }
 function enhance(sl){ // 選んでいる最高ランクを魔力で +1

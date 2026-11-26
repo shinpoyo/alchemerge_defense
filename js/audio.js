@@ -37,7 +37,7 @@ document.addEventListener('visibilitychange',audioState);
 const sndOK=()=>AC&&!muted&&FX;
 // 1 つの音：o.det=少しずらした 2 本目を重ねて厚く / o.a=立ち上がり / o.lp=こもらせる高さ / o.rev=残響の量 / o.dst=出力先
 function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
-  if(!sndOK())return;
+  if(!sndOK()||sfxOff&&o.dst!==MUS)return; // 効果音を消しても、音楽（出力先が MUS）は鳴らす
   const t=AC.currentTime+delay,g=AC.createGain(),a=o.a||.006;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);
   if(o.hold){g.gain.setValueAtTime(v,t+d-o.hold);g.gain.linearRampToValueAtTime(0,t+d)}else g.gain.exponentialRampToValueAtTime(.0001,t+d);
@@ -50,7 +50,7 @@ function tone(f,d,type='sine',v=.1,to=null,delay=0,o={}){
   g.connect(o.dst||BUS);const rv=o.rev===undefined?.16:o.rev;if(rv>0){const r=AC.createGain();r.gain.value=rv;g.connect(r).connect(o.dst===MUS?REVM:REV)}
 }
 function noise(d,v=.1,freq=1200,delay=0,o={}){
-  if(!sndOK())return;
+  if(!sndOK()||sfxOff&&o.dst!==MUS)return;
   const t=AC.currentTime+delay,src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
   src.buffer=noiseBuf;f.type=o.type||'lowpass';f.Q.value=o.q||.7;f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(o.to||120,t+d);
   g.gain.setValueAtTime(o.a?0:v,t);if(o.a)g.gain.linearRampToValueAtTime(v,t+o.a);g.gain.exponentialRampToValueAtTime(.0001,t+d);
@@ -161,6 +161,16 @@ const sfx={
     [0,4,7,11,14,19,23,26].forEach((n,i)=>bell(N(n-5),1.3,.06,.08+i*.075,.75));
     noise(1.4,.02,9000,.3,{type:'highpass',to:6000,a:.4,rev:.9});tone(73,1.2,'sine',.13,55,0,{a:.02,rev:.4});
   },
+  moonOpen(){ // 月の恵み：低い響きの上に、高い鐘がゆっくり降りてくる
+    [-15,-8,-3].forEach(n=>tone(N(n),2.6,'sine',.05,null,0,{a:.6,rev:.9,hold:1.2}));
+    [19,16,12,7,4].forEach((n,i)=>bell(N(n),1.6,.05,.15+i*.12,.85));noise(1.6,.015,8000,.1,{type:'highpass',a:.6,rev:.9});
+  },
+  moonDeal(i){bell(N(7+i*5),.7,.06,0,.6);noise(.08,.04,4000,0,{type:'bandpass',rev:.2})}, // 札が 1 枚ずつ開く
+  moonPick(bad){ // 札を選んだ：吸いこんで、明るい和音が開く（代償つきは少し暗い和音）
+    noise(.3,.05,500,0,{type:'bandpass',to:6000,q:2,a:.2,rev:.4});tone(110,.5,'sine',.18,44,.25,{rev:.4});
+    (bad?[0,3,7,10,15]:[0,4,7,11,16]).forEach((n,i)=>bell(N(n-3),1.6,.07,.3+i*.06,.8));
+    [-10,-3,2].forEach(n=>tone(N(n),1.8,'sawtooth',.025,null,.3,{det:9,a:.2,lp:900,lpTo:2600,rev:.8,hold:.6}));
+  },
   fail(){tone(150,.12,'square',.2,105,0,{lp:500,rev:.1});tone(120,.14,'square',.17,85,.1,{lp:420,rev:.1})},
   thud(){if(S.time-lastKill<.05)return;lastKill=S.time;tone(120,.24,'sine',.2,42,0,{rev:.3});noise(.1,.11,900,0,{rev:.2});tone(rnd(420,560),.1,'triangle',.07,160,0,{rev:.3})}, // 大型を倒した重い音
   kill(){if(S.time-lastKill<.05)return;lastKill=S.time;const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1})},
@@ -210,6 +220,13 @@ const sfx={
   },
   over(){[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
   warn(){for(let i=0;i<3;i++){tone(N(-17),.34,'sawtooth',.07,N(-12),i*.44,{det:6,lp:900,rev:.3});tone(N(-29),.34,'sine',.12,null,i*.44,{rev:.3});drum(.13,i*.44,70)}}, // 主が近づく警告
+  kingIntro(){ // 夜の王の降臨演出：DANGER 3連警報 → 地鳴り → 2.15s の顕現フラッシュで轟音と重厚な金管和音・鐘
+    for(let i=0;i<3;i++){tone(N(-17),.32,'sawtooth',.075,N(-12),i*.42,{det:6,lp:950,rev:.3});tone(N(-29),.32,'sine',.13,null,i*.42,{rev:.3});drum(.15,i*.42,68)}
+    tone(52,.85,'sine',.22,34,1.32,{rev:.5});noise(.75,.13,260,1.32,{rev:.5});drum(.24,1.35,62);
+    noise(.95,.24,1400,2.15,{rev:.8});tone(64,.95,'sine',.3,28,2.15,{rev:.65});drum(.3,2.15,58);drum(.24,2.38,50);
+    [-26,-19,-14,-11].forEach((n,i)=>brass(N(n),2.3,.075-i*.008,2.18+i*.05,.75));
+    bell(N(-14),2.6,.09,2.2,.95);bell(N(-2),2.2,.055,2.38,.9);
+  },
   rage(){brass(N(-33),1.1,.09);brass(N(-27),1.1,.07,.08);drum(.24,0,70);drum(.2,.22,60);noise(.6,.1,900,0,{rev:.5})},                                                       // 主の怒り
   ach(){bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
   ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},

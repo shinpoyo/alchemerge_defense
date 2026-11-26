@@ -60,25 +60,57 @@ function moonOffer(){ // 波を退けたあとに呼ぶ
   if(!S.moon.pend){const p=moonDeal();if(!p.length)return false;S.moon.pend=p}
   openMoon();return true;
 }
-function openMoon(){
-  const p=S.moon&&S.moon.pend;if(!p)return;
-  $('#hMoon').textContent=TT('moonT');$('#moonSub').textContent=TT('moonSub');
-  const box=$('#moonCards');box.innerHTML='';
-  for(const k of p){
-    const b=document.createElement('button'),bad=MOON.find(c=>c.id===moonBase(k)).bad,f=k.startsWith('kago:')&&ELEM[k.slice(5)];
-    b.className='mc'+(bad?' bad':'');if(f)b.style.setProperty('--fc',f.c);
-    b.innerHTML=`<b>${moonName(k)}</b><span>${moonDesc(k)}</span>`;
-    b.onclick=()=>moonPick(k);box.appendChild(b);
-  }
-  show('moon');shownAt=performance.now();
+// 札の色と絵。月の札（満ちる月・赤い月・欠けた月）は CSS で月を描き、ほかは元素の玉の絵を使う
+const MOON_ICON={deep:'bottomless',lantern:'lantern',rest:'gem',kindle:'seihai',night:'dark',drop:'hougyoku',crush:'sabi'};
+const MOON_PHASE={full:'#fff3c4',red:'#ff4a5a',wane:'#b9c8ff'};
+function moonColor(k){
+  const b=moonBase(k);if(b==='kago'){const f=k.slice(5);return ELEM[f]?ELEM[f].c:(ITEMS[f]&&ITEMS[f].c)||'#e8c36a'}
+  return MOON_PHASE[b]||(MOON.find(c=>c.id===b).bad?'#ff8a7a':'#e8c36a');
 }
-function moonPick(k){
-  if(!S.moon||!S.moon.pend||!S.moon.pend.includes(k))return;
-  S.moon.got.push(k);S.moon.pend=null;UNDO=null;show(null);sfx.disc();
+function moonIcon(k){
   const b=moonBase(k);
-  if(b==='kindle'){S.lives+=MOON_KINDLE;floatText(CORE.x-6,CORE.y-34,TT('livesUp',MOON_KINDLE),'#ffe9a0',FS.f3)}
+  if(MOON_PHASE[b])return `<i class="mi ph ${b}"></i>`;
+  const id=b==='kago'?(ELEM[k.slice(5)]?ELEM[k.slice(5)].icon:k.slice(5)):MOON_ICON[b];
+  return ITEMS[id]?`<i class="mi"><img alt="" src="${orb(id).toDataURL()}"></i>`:'<i class="mi ph full"></i>';
+}
+let moonBusy=false;
+function openMoon(){
+  const p=S.moon&&S.moon.pend;if(!p)return;moonBusy=false;
+  $('#hMoon').innerHTML=[...TT('moonT')].map((c,i)=>`<span style="--d:${i*.09}s">${c===' '?'&nbsp;':c}</span>`).join('');$('#moonSub').textContent=TT('moonSub');
+  const box=$('#moonCards');box.innerHTML='';
+  p.forEach((k,i)=>{
+    const b=document.createElement('button'),bad=MOON.find(c=>c.id===moonBase(k)).bad;
+    b.className='mc'+(bad?' bad':'');b.style.setProperty('--fc',moonColor(k));b.style.setProperty('--i',i);
+    b.innerHTML=`${moonIcon(k)}<div><b>${moonName(k)}</b>${bad?`<em>${TT('moonBad')}</em>`:''}<span>${moonDesc(k)}</span></div>`;
+    b.onclick=()=>moonPick(k,b);box.appendChild(b);
+  });
+  show('moon');shownAt=performance.now();
+  sfx.moonOpen();p.forEach((_,i)=>setTimeout(()=>{if($('#moon').classList.contains('on'))sfx.moonDeal(i)},700+i*160));
+}
+function moonPick(k,el){
+  if(moonBusy||!S.moon||!S.moon.pend||!S.moon.pend.includes(k))return;
+  moonBusy=true;sfx.moonPick(MOON.find(c=>c.id===moonBase(k)).bad);buzz(25);
+  for(const c of $('#moonCards').children)c.classList.add(c===el?'pick':'gone');
+  $('#moon').classList.add('chosen');
+  setTimeout(()=>moonApply(k),el?720:0);
+}
+function moonApply(k){
+  if(!S.moon||!S.moon.pend)return;
+  S.moon.got.push(k);S.moon.pend=null;UNDO=null;moonBusy=false;$('#moon').classList.remove('chosen');show(null);
+  const b=moonBase(k),c=moonColor(k),cx=W/2,cy=260;
+  if(b==='kindle')S.lives+=MOON_KINDLE;
   if(b==='red'){S.lives=Math.max(1,S.lives-MOON_RED_LIVES);S.coreHit=1}
-  if(FX){fx.push({ty:'text',x:W/2,y:200,txt:moonName(k),color:'#ffe9a0',size:16,t:0,dur:2.4});ring(W/2,200,'#ffe9a0',90,.5,3)}
+  if(FX){
+    fx.push({ty:'moonbeam',x:cx,y:cy,color:c,t:0,dur:1.6});
+    S.flash=.4;S.flashC=c;shake(b==='red'?9:5);
+    for(let i=0;i<3;i++)fx.push({ty:'ring',x:cx,y:cy,color:i?c:'#ffffff',r0:10,r1:120+i*60,dur:.7+i*.15,lw:4-i,t:-i*.12});
+    burst(cx,cy,c,36,260);sparks(cx,cy,'#ffffff',22,340);
+    for(let i=0;i<40;i++)P(rnd(20,W-20),rnd(-40,120),rnd(-10,10),rnd(60,160),rnd(1.2,2),rnd(1.6,3.2),i%3?c:'#fffbe8',{ty:'w',drag:.3});
+    fx.push({ty:'text',x:cx,y:cy-6,txt:moonName(k),color:c,size:24,t:0,dur:2.6});
+    if(b==='kindle'){for(let i=0;i<16;i++)P(cx,cy,(CORE.x-cx)/.7+rnd(-60,60),(CORE.y-cy)/.7+rnd(-60,60),.7,3,'#ffe9a0',{drag:0});
+      setTimeout(()=>{ring(CORE.x,CORE.y,'#ffe9a0',70,.5,4);floatText(CORE.x-6,CORE.y-34,TT('livesUp',MOON_KINDLE),'#ffe9a0',FS.f3)},650)}
+    if(b==='red')floatText(CORE.x-6,CORE.y-34,'−'+MOON_RED_LIVES,'#ff8a9a',FS.f3);
+  }
   saveRun();
 }
 const moonList=()=>moonGot().map(moonName).join('・');
