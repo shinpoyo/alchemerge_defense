@@ -20,12 +20,19 @@ function useRelic(sl){ // 聖灰：砦へ運ぶと消えて灯がもどる
   floatText(CORE.x-6,CORE.y-34,TT('livesUp',d.heal),'#ffe9a0',FS.f3);
   if(!S.active)saveRun();return true;
 }
+function noteChal(id,sl){ // 縛り試練の条件チェック
+  if(!S.chal||!ITEMS[id])return;
+  if(sl&&!sl.bench&&ITEMS[id].t>=5)S.chal.max4=false;
+  if(sl&&sl.path)S.chal.noTrap=false;
+  if(!BASE4_SET.has(id))S.chal.base4=false;
+}
 function dropOn0(from,to){
   const it=from.item;if(!it)return;
   if(!to||to===from){sfx.drop();return}
   if(!to.item){
     if(!fits(it.id,to)){it.shake=.35;sfx.fail();floatText(to.x,to.y-30,TT(ITEMS[it.id].kind==='relic'?'useOnCore':to.path?'onlyTrap':'trapOnPath'),'#b9b1d0',FS.f2);return}
     to.item=it;from.item=null;it.s=1.3;it.sv=-2;it.cd=Math.max(it.cd,.15);it.chg=0;it.chgT=0;it.chgB=0;
+    noteChal(it.id,to);
     sfx.drop();ring(to.x,to.y,ITEMS[it.id].c,38,.3,2);buzz(8);
     if(!to.bench)S.started=true;
     if(to.field&&S.tut<2)S.tut=2;
@@ -47,7 +54,7 @@ function dropOn0(from,to){
   else{n.hide=0;n.s=1;if(doBurst)mergeBurst(dst.x,dst.y,ITEMS[res.id])}
   const rk=rkey(it.id,to.item.id); // to.item を null にする前にキーを作る
   if(RECIPE[rk]&&!madeR.has(rk)){madeR.add(rk);save()} // ★合成など、レシピ表にない組み合わせは記録しない
-  from.item=null;to.item=null;dst.item=n;
+  from.item=null;to.item=null;dst.item=n;noteChal(res.id,dst);
   if(moonHas('rest')){S.mana+=MOON_REST;floatText(dst.x,dst.y-52,'+'+MOON_REST,'#e8c36a',FS.f1)} // 月の恵み：錬成の余り
   S.made.add(res.id); // 錬成した時点で「この戦いで作ったもの」に入れる（演出が終わるのを待つと、その前に取った途中保存に入らない）
   if(FX){stats.merges++;checkAch()}
@@ -67,7 +74,6 @@ function mergeBurst(x,y,d){ // 戦闘中に盤面（魔法陣・罠マス）で�
     ring(x,y,'#ffe9a0',R,.42,3.5,12);ring(x,y,d.c,R*.82,.35,2.5,8);
     sparks(x,y,'#ffe9a0',12+d.t*3,240);shake(3+d.t*.8);
     tone(180+d.t*40,.22,'triangle',.12,80);noise(.14,.08,1600);
-    floatText(x,y-52,TT('mergeBurst'),'#ffe9a0',FS.f2);
   }
 }
 function enhance(sl){ // 選んでいる最高ランクを魔力で +1
@@ -102,7 +108,7 @@ function spawnBase(id,b,to){ // 失敗したら理由（'full'／'mana'）を返
   if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,LY.top+14,TT('benchFull'),'#ff8a9a',FS.f2);return'full'}
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return'mana'}
   S.mana-=cost;
-  const it=mkItem(id,to?ptr.x:b?b.x+b.w/2:free.x,to?ptr.y:b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;
+  const it=mkItem(id,to?ptr.x:b?b.x+b.w/2:free.x,to?ptr.y:b?b.y+b.h/2:free.y);it.s=.4;it.sv=6;free.item=it;noteChal(id,free);
   if(S.tut===3)tutDone();
   if(to){if(!to.bench)S.started=true;if(to.field&&S.tut<2)S.tut=2}
   else it.fly=.55; // ボタンから作業台へ、光の尾を引いて飛ぶ
