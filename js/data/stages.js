@@ -129,6 +129,16 @@ function slotMod(sl){ // 特殊な魔法陣の補正（威力・攻撃速度・�
   else if(sl.mod==='link'&&sl.linkTo&&sl.linkTo.item&&!sl.linkTo.item.held&&!(sl.linkTo.item.hide>0)){o.dmg=1.15;o.rate=1.15;o.on=true}
   return o;
 }
+addLang({
+  mod_power:['焔脈','PWR'],mod_range:['増幅','RNG'],mod_haste:['疾風','SPD'],mod_link:['共鳴','LNK'],
+  modD_power:['焔脈の陣：威力 +20%','Power Circle: +20% DMG'],
+  modD_range:['増幅の陣：射程 +20%','Range Circle: +20% Range'],
+  modD_haste:['疾風の陣：攻撃速度 +25%','Haste Circle: +25% Rate'],
+  modD_link:['共鳴の陣：対の陣と揃うと威力・速度 +15%','Resonance: +15% DMG & Rate when paired'],
+});
+MODS.towerDmg.push(sl=>slotMod(sl).dmg);
+MODS.towerRate.push(sl=>slotMod(sl).rate);
+MODS.towerRange.push(sl=>slotMod(sl).range);
 function loadStage(i){
   STAGE=i;const st=STAGES[i];PATHS.length=0;
   for(const pts of st.paths){const seg=[];let len=0;
