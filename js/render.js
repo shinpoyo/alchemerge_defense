@@ -593,6 +593,31 @@ function render(dt){
   INFO_R=inf&&!held?{x:40,y:50+iy,w:W-80,h:44,id:inf.id}:null; // 説明の帯（と下の一言）を押すと詳細を開く
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50+iy,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f2);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy,W-92);ctx.font=FONT(FS.f1);ctx.fillStyle='#8d86a3';ctx.fillText(TT('lpTip'),W/2,84+iy)}
+  else if(!S.active&&!S.over&&!(S.cleared&&!S.endless)){ // 次の波の敵予告（波の待機中）
+    const nw=S.wave+1;
+    if(S._pvW!==nw||S._pvS!==STAGE||S._pvL!==LANG){S._pv=wavePreview(nw);S._pvW=nw;S._pvS=STAGE;S._pvL=LANG}
+    const pv=S._pv,py=52,ph=24;
+    ctx.save();ctx.font=FONT(FS.f1,800);ctx.textBaseline='middle';
+    const items=[{t:`${TT('pvNext')} ${nw} (${TT('pvFoes',pv.total)})`,c:'#cfc8e6'}].concat(pv.tags);
+    const gap=8,ws=items.map(o=>ctx.measureText(o.t).width);
+    const tot=ws.reduce((a,b)=>a+b,0)+gap*(items.length-1)+24,bw=Math.min(W-24,tot),bx=(W-bw)/2;
+    ctx.fillStyle='#07060dc8';rr(ctx,bx,py,bw,ph,12);ctx.fill();ctx.strokeStyle=rgba('#8b5cf6',.45);ctx.lineWidth=1;ctx.stroke();
+    let cx0=bx+12;ctx.textAlign='left';
+    items.forEach((o,i)=>{if(cx0+ws[i]>bx+bw-8)return;ctx.fillStyle=o.c;ctx.fillText(o.t,cx0,py+ph/2+.5);cx0+=ws[i]+gap});
+    ctx.restore();
+  }
+  // 早呼びチップ（敵が出切ったあと、次の波を前倒しで呼んでボーナス魔力）
+  EARLY_R=null;
+  if(canEarlyCall()){
+    const eb=earlyBonus(),bw=130,bh=28,bx=W-bw-10,by=LY.top-bh-8,pu=.5+.5*Math.sin(T*6);
+    EARLY_R={x:bx,y:by,w:bw,h:bh};
+    ctx.save();
+    ctx.fillStyle='#1a1408e6';rr(ctx,bx,by,bw,bh,14);ctx.fill();
+    ctx.strokeStyle=rgba('#e8c36a',.6+pu*.4);ctx.lineWidth=1.5;ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f1,800);ctx.fillStyle='#ffe9a0';
+    ctx.fillText(TT('earlyBtn',eb),bx+bw/2,by+bh/2+.5,bw-12);
+    ctx.restore();
+  }
   // 最高ランクを選んでいるときの強化ボタン（押すたびに +1。値段は段ごとに上がる）
   ENH_R=null;
   if(sel&&!held&&canEnh(sel.item)){const it=sel.item,cost=enhCost(it),can=S.mana>=cost,bw=132,bh=30,bx=clamp(sel.x-bw/2,6,W-bw-6),by=sel.bench?sel.y-36-bh-14:sel.y+40;

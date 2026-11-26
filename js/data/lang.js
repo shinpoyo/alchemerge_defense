@@ -169,6 +169,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   mut_swiftBounty:['疾風と豊穣','Swift & Bountiful'],mutD_swiftBounty:['敵の速度 1.25 倍・獲得魔力 1.4 倍','Foes 25% faster · +40% mana from kills'],
   mut_highMana:['魔力奔流','Mana Surge'],mutD_highMana:['初期魔力 100・波報酬 1.3 倍／敵体力 1.25 倍','Start with ◆100 & +30% wave bonus · Foe HP ×1.25'],
   mut_noSupport:['孤高の塔','Lone Towers'],mutD_noSupport:['支援の塔無効・すべての攻撃塔の威力 +15%','Support buffs disabled · All attack towers +15% DMG'],
+  pvNext:['次波','Next'],pvFoes:['{0}体','{0} foes'],pvFly:['飛行','Flyer'],pvHeal:['癒し','Mender'],pvArm:['鎧({0})','Armor({0})'],pvRun:['疾走','Runner'],pvSplit:['分裂','Splitter'],
+  earlyBtn:['▶ 早呼び +◆{0}','▶ Early +◆{0}'],earlyBonus:['早呼びボーナス ◆+{0}','Early call +◆{0}'],
 };
 const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
   king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],

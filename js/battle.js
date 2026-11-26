@@ -225,6 +225,30 @@ function startWave(){
   const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
 }
+function canEarlyCall(){
+  return S.active&&!S.over&&!(S.wave===maxWave()&&!S.endless)&&S.queue.length===0&&S.enemies.length>0;
+}
+function earlyBonus(){
+  return Math.min(35,6+S.enemies.length*2+Math.floor(S.wave*.6));
+}
+function earlyCall(){ // 敵が出切ったあとに次の波を前倒しで呼び、ボーナス魔力を得る
+  if(!canEarlyCall())return;
+  const eb=earlyBonus(),wb=12+3*S.wave;
+  S.mana+=wb+eb;S.manaBump=1;
+  if(FX)stats.waves++;
+  if(DAILY)dailyRecord(S.wave);
+  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
+  if(FX)checkAch();
+  S.wave++;S.wt=0;S.queue=buildWave(S.wave);
+  S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
+  const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
+  sfx.wave(S.wave);
+  if(FX){
+    fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
+    floatText(W/2,448,TT('earlyBonus',eb),'#ffe9a0',FS.f2);
+    for(let i=0;i<4;i++)fx.push({ty:'mana',x:W-70+rnd(-20,20),y:485,cx:W-90+rnd(-30,30),cy:240,t:-i*.05,dur:.65});
+  }
+}
 function spawnEnemy(q){
   const d=ENEMY[q.type],hp=d.hp*waveHp(S.wave)*q.m*(q.type==='boss'?1:mobHp(S.wave)),final=!!q.final;
   const pi=q.path??S.spawned++%PATHS.length;let P=PATHS[pi];
