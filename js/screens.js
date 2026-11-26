@@ -364,6 +364,7 @@ function openMenu(){
   $('#mMusic').innerHTML=musicOff?SPK0:SPK;$('#mMusic').setAttribute('aria-label',TT(musicOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mBgmVol'));
   $('#lDmg').textContent=TT('mDmg');$('#mDmg').classList.toggle('on',!dmgOff);$('#mDmg').setAttribute('aria-pressed',!dmgOff);
   $('#lVib').textContent=TT('mVib');$('#mVib').classList.toggle('on',!vibOff);$('#mVib').setAttribute('aria-pressed',!vibOff);
+  $('#lSpark').textContent=TT('mSpark');$('#mSpark').classList.toggle('on',!sparkOff);$('#mSpark').setAttribute('aria-pressed',!sparkOff);
   $('#lLang').textContent=TT('mLangL');$('#mJa').classList.toggle('on',LANG==='ja');$('#mEn').classList.toggle('on',LANG==='en');
   $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
@@ -379,6 +380,7 @@ $('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow(
 $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
+$('#mSpark').onclick=()=>{sparkOff=!sparkOff;save();sfx.ui();openMenu()};
 function setLang(l){if(LANG===l)return;LANG=l;save();applyLang();sfx.ui();openMenu()}
 $('#mJa').onclick=()=>setLang('ja');$('#mEn').onclick=()=>setLang('en');
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
@@ -412,7 +414,7 @@ $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#w
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();
