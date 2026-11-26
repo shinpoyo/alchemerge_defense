@@ -643,7 +643,7 @@ function endWave(){
   S.active=false;S.warn=0;const bonus=Math.round((12+3*S.wave)*moonWave());S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
-  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
+  else if(S.wave>rec().best){const prev=rec();prog[pkey()]=Object.assign({},prev,{best:S.wave,clear:prev.clear||S.wave>=maxWave()});save()}
   if(FX)checkAch();
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();

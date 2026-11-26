@@ -68,7 +68,7 @@ function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({di
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
 function saveRun(){
   if(!FX||S.over||(S.cleared&&!S.endless))return;
-  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,
+  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,chal:{...S.chal},
        items:slots.map((sl,i)=>sl.item?(sl.item.lv?[i,sl.item.id,sl.item.lv]:[i,sl.item.id]):null).filter(Boolean)};
   if(S.moon&&(S.moon.got.length||S.moon.pend))RUN.moon={got:[...S.moon.got],pend:S.moon.pend?[...S.moon.pend]:null}; // 月の恵み
   if(DAILY)RUN.daily=DAILY; // 今日の挑戦の途中なら、その日付も残す
@@ -82,9 +82,12 @@ function resumeRun(){
   r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
   S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
+  if(r.chal&&typeof r.chal==='object')S.chal={max4:!!r.chal.max4,noTrap:!!r.chal.noTrap,base4:!!r.chal.base4};
   const mok=k=>typeof k==='string'&&MOON.some(c=>c.id===moonBase(k))&&(!k.startsWith('kago:')||!!TX['f_'+k.slice(5)]);
   if(r.moon&&Array.isArray(r.moon.got)){const p=Array.isArray(r.moon.pend)?r.moon.pend.filter(mok):[];S.moon={got:r.moon.got.filter(mok),pend:p.length?p:null}}
 }
+const BADGES=['max4','noTrap','base4'];
+const BASE4_SET=(()=>{const s=new Set(BASES);let ch=true;while(ch){ch=false;for(const[a,b,r]of RECIPES)if(s.has(a)&&s.has(b)&&!s.has(r)){s.add(r);ch=true}}return s})();
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[],chg:0,chgT:0,chgB:0}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n===2?'a':n?'n':'');
 const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
@@ -97,7 +100,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},chal:{max4:true,noTrap:true,base4:true},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;dnums.length=0;sel=null;drag=null;UNDO=null;

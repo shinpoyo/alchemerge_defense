@@ -161,6 +161,8 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   kingIntroH:['―  夜 の 王  降 臨  ―','—  THE NIGHT KING DESCENDS  —'],
   kingIntroH2:['―  双 つ の 夜 の 王  降 臨  ―','—  TWIN NIGHT KINGS DESCEND  —'],
   tapSkip:['タップでスキップ','Tap to skip'],
+  badge_max4:['★4以下','≤★4'],badge_noTrap:['罠なし','No Traps'],badge_base4:['四元素のみ','4 Elements'],
+  badgeGot:['試練達成：{0}','Challenge cleared: {0}'],
 };
 const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
   king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],
