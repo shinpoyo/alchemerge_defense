@@ -61,7 +61,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   mDmgOn:['ダメージ数字：オン','Damage numbers: On'],mDmgOff:['ダメージ数字：オフ','Damage numbers: Off'],
   mVibOn:['振動：オン','Vibration: On'],mVibOff:['振動：オフ','Vibration: Off'],
   mSparkOn:['未発見の予感：オン','Discovery hint: On'],mSparkOff:['未発見の予感：オフ','Discovery hint: Off'],
-  mStages:['ステージ選択へ戻る','Back to stages'],
+  mStages:['ステージ選択へ戻る','Back to stages'],mMore:['作者のほかのゲーム','More games by the author'],
   mReset:['進捗を初期化する','Reset progress'],wipeTitle:['進捗を初期化しますか？','Reset all progress?'],
   wipeTxt:['図鑑・ステージのクリア・解放した元素・実績・統計・今日の挑戦の記録・途中の戦いを、すべて消して最初からにします。\n<b>消した進捗は元に戻せません。</b>\n音・言語・ダメージ数字の設定は残ります。',
     'This erases your codex, stage clears, unlocked elements, achievements, stats, daily records and any saved battle, and starts over.\n<b>This cannot be undone.</b>\nSound, language and damage number settings are kept.'],
