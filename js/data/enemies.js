@@ -30,7 +30,7 @@ let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上
 const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
 const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
 const ARMOR_FROM=13,ARMOR_AFF_FROM=7;
-const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp;
+const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(typeof dailyMut==='function'&&dailyMut()==='highMana'?1.25:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};

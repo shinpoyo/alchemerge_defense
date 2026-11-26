@@ -220,6 +220,7 @@ function startWave(){
   if(S.tut<3)S.tut=3;if(S.wave>=3&&S.tut<9)tutDone();
   S.queue=buildWave(S.wave);
   {const st=STAGES[STAGE];if(S.wave===1&&st.aff&&FX)fx.push({ty:'text',x:W/2,y:130,txt:affText(st),color:st.aff.c||'#6ab8ff',size:13,t:0,dur:5})} // 属性の地：最初の波で弱点を知らせる
+  {const dm=dailyMut();if(S.wave===1&&dm&&FX)fx.push({ty:'text',x:W/2,y:152,txt:TT('mut_'+dm)+' ― '+TT('mutD_'+dm),color:'#ffe9a0',size:12.5,t:0,dur:5.5})}
   S.wsum=S.queue.reduce((a,q)=>a+ENEMY[q.type].w,0);S.budget=26+9*S.wave;
   const bq=S.queue.find(q=>q.type==='boss');S.bossAt=bq?bq.at:null;S.warnFinal=!!(bq&&bq.final);S.warned=false;
   sfx.wave(S.wave);if(FX)fx.push({ty:'wave',t:0,dur:1.6,n:S.wave});
@@ -307,12 +308,40 @@ function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ�
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
   return 1;
 }
+function synFx(e,y){ // 属性シナジー成立時の専用ビジュアル＆SE（状態異常の文字タグと混ざらないよう文字は出さず、反応エフェクトだけで表現）
+  if(!FX)return;
+  const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.26)return;S.tagT[k]=S.time;
+  sfx.syn(y.k);
+  const x=e.x,yy=e.y,r=e.r;
+  if(y.k==='wetT'){ // 濡れ×雷・氷：周囲に走る稲妻＋水色の二重フラッシュ輪
+    const a0=rnd(TAU),pts=[];for(let i=0;i<4;i++){const a=a0+i*1.6,rad=r+10+i*5;pts.push([x+Math.cos(a)*rad,yy+Math.sin(a)*rad])}
+    FXP({ty:'zap',pts,color:'#8fe6ff',dur:.22,seed:rnd(99)});
+    sparks(x,yy,'#8fe6ff',10,260);sparks(x,yy,'#ffffff',6,220);
+    ring(x,yy,'#ffffff',r+18,.22,2.6);ring(x,yy,'#8fe6ff',r+30,.32,2.2);
+  }else if(y.k==='britT'){ // ひび割れ×土：砕け散る結晶片＋白い閃光輪
+    chunks(x,yy,'#e8f6ff',11,210);sparks(x,yy,'#ffffff',6,200);
+    P(x,yy,0,0,.18,r*2.4,'#ffffff');ring(x,yy,'#ffffff',r+28,.28,3.2);ring(x,yy,'#d8c8b0',r+18,.24,2);
+  }else if(y.k==='dryT'){ // 乾き×水：弾ける水しぶき＋二重の水紋リング
+    drops(x,yy,'#6ab8ff',12,210);drops(x,yy,'#f0d08a',5,160);
+    ring(x,yy,'#6ab8ff',r+30,.36,2.8);ring(x,yy,'#f0d08a',r+18,.28,2);
+  }else if(y.k==='tinderT'){ // 火種×炎：爆ぜる炎の輪＋白熱フラッシュ
+    flameP(x,yy,'#ff6a3d',12,18);sparks(x,yy,'#ffe9a0',8,240);
+    P(x,yy,0,0,.2,r*2.6,'#ffe9a0');ring(x,yy,'#ff6a3d',r+32,.34,3);ring(x,yy,'#ffe9a0',r+18,.24,2);
+  }else{ // よろめき×風：交差する翠のX字斬撃＋風火花
+    const a=rnd(TAU);
+    FXP({ty:'slash',x,y:yy,a,color:'#a8f0c8',dur:.22,big:1});
+    FXP({ty:'slash',x,y:yy,a:a+Math.PI/2,color:'#ffffff',dur:.2,big:1});
+    sparks(x,yy,'#a8f0c8',10,240);ring(x,yy,'#a8f0c8',r+28,.28,2.2);
+  }
+}
 function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
   const fs=famL(fam);
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
   if(weak){dmg*=moonArmor(e.def.armor);e.block=.3;tag(e,'stResist','#c4d2e6')} // 鎧の影：防ぐ系統の攻撃は 4 分の 1（沈黙中は軽減が働かない）
-  const syn=SYN.some(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)))?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  const hitSyn=SYN.find(y=>e[y.k]>0&&y.to.some(f=>fs.includes(f)));
+  const syn=hitSyn?SYN_MUL:1; // 属性シナジー：濡れ×雷・氷／ひび割れ×土／乾き×水／火種×炎／よろめき×風（いくつ重なっても 1 回だけ。呪い・vul とは別枠）
+  if(hitSyn)synFx(e,hitSyn);
   const amp=fs.length?ampAt(e,fs):1; // 系統の結界（シナジー・呪いとは掛け算）
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
     *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
@@ -405,7 +434,8 @@ function kill(e){
   const gm=e.reward>0?goldAt(e.x,e.y):1;if(gm>1&&FX)floatText(e.x,e.y-e.r-14,'◆×'+gm,'#ffd24a',FS.f1);
   if(HIT&&!e.dead){const sd=ITEMS[HIT.it.id];if(sd&&sd.soul&&(HIT.it.souls||0)*sd.soul<sd.soulMax){HIT.it.souls=(HIT.it.souls||0)+1; // 魂集め：倒した塔へ魂が飛んでいく
     if(FX)P(e.x,e.y,(HIT.x-e.x)/.5,(HIT.y-e.y)/.5,.5,3.2,sd.c,{drag:0})}}
-  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm*moonGold();const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
+  const dmB=dailyMut()==='swiftBounty'?1.4:1;
+  e.dead=true;S.manaFrac=(S.manaFrac||0)+e.reward*gm*moonGold()*dmB;const gain=Math.floor(S.manaFrac+1e-9);S.manaFrac-=gain;S.mana+=gain;
   if(e.final&&!S.enemies.some(o=>o.final&&!o.dead)){S.queue=[]; // 夜の王（2 体なら 2 体とも）を倒すと、残りの敵は消えて、その波は終わり（最後の波ならクリア）
     for(const o of S.enemies)if(!o.dead){o.dead=true;if(FX){smoke(o.x,o.y,'#1a1230',6,o.r,9,.7,.7);burst(o.x,o.y,o.def.rim,8,90)}}}
   if(!FX)return;
@@ -466,7 +496,7 @@ function goldAt(x,y){ // 竜の宝玉：その場所で倒した影の魔力の�
 }
 function calcBuffs(){
   const sup=[];for(const sl of slots){const it=sl.item;if(!it)continue;it.buff=null;if(sl.field&&isBuffer(it.id)&&!(it.hide>0)&&!it.held)sup.push(sl)}
-  if(!sup.length)return;
+  if(!sup.length||dailyMut()==='noSupport')return;
   for(const sl of slots){const it=sl.item;if(!it||!sl.field||isSupport(it.id))continue;
     for(const sp of sup){if(sp===sl)continue;const b=ITEMS[sp.item.id];if((sl.x-sp.x)**2+(sl.y-sp.y)**2<=b.range*b.range&&(!it.buff||b.buffD>it.buff.buffD))it.buff=b}}
 }
@@ -512,7 +542,7 @@ function useChg(it,d,rate){ // 攻撃を始める際、溜まったチャージ�
 }
 function towerFire(sl,it,dt){
   HIT={it,x:sl.x,y:sl.y};
-  const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower(),rm=b?1+b.buffR*moonBuff():1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
+  const d=ITEMS[it.id],b=it.buff,m=(b?1+b.buffD*moonBuff():1)*enhM(it)*soulM(it)*moonTower()*(dailyMut()==='noSupport'?1.15:1),rm=b?1+b.buffR*moonBuff():1,R=d.range,x=sl.x,y=sl.y; // m：ダメージの倍率、rm：攻撃速度の倍率（支援を受けているとき）
   if(noAtk(d)){it.beamT.length=0;return}
   if(d.kind==='beam'&&!d.rate){
     const ts=inRange(x,y,R,d.beams);it.beamT=ts;it.beamC=null;
@@ -628,9 +658,9 @@ function update(dt){
         e.pulse=n?1:.35;if(n&&FX)ring(e.x,e.y,'#9affc8',HEAL_R,.5,2,10)}}
     if(e.born>0)e.born-=dt;if(e.rageT>0)e.rageT-=dt;
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
-    const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1);
-    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
-    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
+    const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1),dmS=dailyMut()==='swiftBounty'?1.25:1;
+    if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*dmS*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
+    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*dmS*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
@@ -664,7 +694,7 @@ function update(dt){
   if(S.active&&!S.queue.length&&!S.enemies.length&&!S.over)endWave();
 }
 function endWave(){
-  S.active=false;S.warn=0;const bonus=Math.round((12+3*S.wave)*moonWave());S.mana+=bonus;
+  S.active=false;S.warn=0;const bonus=Math.round((12+3*S.wave)*moonWave()*(dailyMut()==='highMana'?1.3:1));S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
   else if(S.wave>rec().best){const prev=rec();prog[pkey()]=Object.assign({},prev,{best:S.wave,clear:prev.clear||S.wave>=maxWave()});save()}
