@@ -162,7 +162,7 @@ function openStages(){
     const st=STAGES[RUN.stage],b=document.createElement('button');b.className='stg res';
     b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('resume')}</b><span>${sn(st)}${dParen(toDiff(RUN.night))}${RUN.daily?TT('dailyParen'):''}</span><span><em>${TT('resumeNote',RUN.wave+1,RUN.lives,RUN.mana)}</em></span></div>`;
     miniMap(b.querySelector('canvas'),st);
-    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2)};
+    b.onclick=()=>{audio();resumeRun();show(null);sfx.merge(2);if(S.moon&&S.moon.pend)openMoon()};
     box.appendChild(b);
   }
   // 今日の挑戦：日付で決まるステージと難易度。開放の順に関係なく遊べる（ふつうの進行度には数えない）
@@ -182,13 +182,14 @@ function openStages(){
     b.className='stg';b.disabled=!open;
     const state=!open?TT(NIGHT===2?'needNight':NIGHT?'needNormal':'needPrev'):r.clear?`<em>${TT('cleared')}</em>`:r.best?TT('bestWave',r.best):TT('untried');
     const gift=!NIGHT&&Object.keys(UNLOCK).find(id=>UNLOCK[id]===i&&!disc.has(id)); // このステージのクリアで届く基本元素（まだ持っていないもの）
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}</span><span>${state}</span>${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
+    const bdg=Array.isArray(r.badges)&&r.badges.length?`<span class="gift" style="color:#ffe9a0">${r.badges.map(x=>'✦'+TT('badge_'+x)).join('　')}</span>`:'';
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${sn(st)}</b><span>${snote(st)}${TT('stLen',maxWave(i))}</span><span>${state}</span>${bdg}${gift?`<span class="gift" style="color:${ITEMS[gift].c}">${TT('stageReward',nm(ITEMS[gift]))}</span>`:''}${st.aff?`<span class="gift" style="color:${st.aff.c||'#6ab8ff'}">${affText(st)}</span>`:''}${st.gates?st.gates.map(f=>`<span class="gift" style="color:${ELEM[f].c}">${gateText(f)}</span>`).join(''):''}</div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();DAILY=null;STAGE=i;reset();show(null);sfx.merge(2)};
     box.appendChild(b);
   });
   if(!dayOpen)dayBtn();
-  $('#sStats').textContent=TT('statsTitle');$('#sAch').textContent=TT('achTitle');
+  $('#sStats').textContent=TT('statsTitle');$('#sAch').textContent=TT('achTitle');$('#sHelp').textContent=TT('helpBtn');
   show('stages');
 }
 /* ---------------- 実績 ----------------
@@ -282,7 +283,7 @@ function subBack(){if(subFrom==='stages')openStages();else if(subFrom==='menu')o
 function openStats(from){
   if(from)subFrom=from;
   const row=(k,v)=>`<span>${k}</span><b>${v}</b>`;
-  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>MAX_WAVE?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):diffOpen(i,n)?TT('untried'):TT('stNone')};
+  const best=(i,n)=>{const r=rec(i,n);return r.clear?`<em>${r.best>maxWave(i)?TT('stClearBest',r.best):TT('cleared')}</em>`:r.best?TT('bestWave',r.best):diffOpen(i,n)?TT('untried'):TT('stNone')};
   let h=`<div class="dsec">${TT('stTotal')}</div><div class="dst">`
     +row(TT('stKills'),fmtN(stats.kills))+row(TT('stBosses'),fmtN(stats.bosses))+row(TT('stMerges'),fmtN(stats.merges))
     +row(TT('stPlays'),fmtN(stats.plays))+row(TT('stTime'),fmtTime(stats.time))+row(TT('stWaves'),fmtN(stats.waves))
@@ -302,7 +303,7 @@ $('#sStats').onclick=()=>{audio();sfx.ui();openStats('stages')};
 const SITE='https://shinpoyo.com/alchemerge_defense/';
 function shareLines(kind){
   const st=sn(STAGES[STAGE])+dParen(NIGHT)+(DAILY?TT('dailyParen'):'');
-  const res=kind==='codex'?'':S.cleared?TT('shareClear',MAX_WAVE):TT('shareOver',S.wave);
+  const res=kind==='codex'?'':S.cleared?TT('shareClear',maxWave()):TT('shareOver',S.wave);
   return{title:TT('title'),st:kind==='codex'?TT('codexTitle'):st,res,found:TT('found',disc.size,TOTAL)};
 }
 function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×800）
@@ -346,23 +347,32 @@ function applyLang(){ // 画面の文言を、いまの言語に入れかえる
   const ja=LANG==='ja',set=(id,k,...a)=>{$(id).innerHTML=TT(k,...a)};
   document.documentElement.lang=LANG;document.title=TT('docTitle');$('#stage').classList.toggle('en',!ja);
   $('#t1').innerHTML=spanify(ja?'アルケマージ\nディフェンス':'ALCHEMERGE\nDEFENSE');
-  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
+  set('#how','how',TOTAL);set('#bStart','start');set('#bLang','langBtn');set('#bHelp0','helpBtn');set('#hStages','stages');set('#dNorm','normal');set('#dNight','night');set('#dAbyss','abyss');
   set('#hCodex','codexTitle');set('#bClose','close');set('#bShare3','shareCodex');set('#bShare1','shareResult');set('#bShare2','shareResult');
   set('#hOver','fallen');set('#bRetry','retry');set('#bStages1','toStages');set('#bAgain','toStages');set('#bEndless','endless');
   orbCache=new Map();bgCanvas=null;
 }
+const SPK='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>',
+      SPK0='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>';
 function openMenu(){
-  $('#hMenu').textContent=TT('menuTitle');$('#mSound').textContent=TT(muted?'mMute':'mSound');$('#mMusic').textContent=TT(musicOff?'mMusicOff':'mMusicOn');$('#mLang').textContent=TT('mLang');
-  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mDmg').textContent=TT(dmgOff?'mDmgOff':'mDmgOn');$('#mVib').textContent=TT(vibOff?'mVibOff':'mVibOn');$('#mSpark').textContent=TT(sparkOff?'mSparkOff':'mSparkOn');
-  $('#mStages').textContent=TT('mStages');$('#mClose').textContent=TT('mBack');$('#mReset').textContent=TT('mReset');
+  $('#hMenu').textContent=TT('menuTitle');$('#mClose').textContent=TT('mBack');$('#mHelp').textContent=TT('helpBtn');
+  $('#mStats').textContent=TT('statsTitle');$('#mAch').textContent=TT('achTitle');$('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
+  $('#mSec1').textContent=TT('mSec1');$('#mSec2').textContent=TT('mSec2');
   $('#lSe').textContent=TT('mSeVol');$('#lBgm').textContent=TT('mBgmVol');$('#rSe').setAttribute('aria-label',TT('mSeVolFull'));$('#rBgm').setAttribute('aria-label',TT('mBgmVolFull'));
-  $('#mCodex').textContent=`${TT('bCodex')}　${disc.size}/${TOTAL}`;
+  // スピーカーの絵：効果音の行は効果音だけ、音楽の行は音楽だけを消す
+  $('#mSound').innerHTML=sfxOff?SPK0:SPK;$('#mSound').setAttribute('aria-label',TT(sfxOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mSeVol'));
+  $('#mMusic').innerHTML=musicOff?SPK0:SPK;$('#mMusic').setAttribute('aria-label',TT(musicOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mBgmVol'));
+  $('#lDmg').textContent=TT('mDmg');$('#mDmg').classList.toggle('on',!dmgOff);$('#mDmg').setAttribute('aria-pressed',!dmgOff);
+  $('#lVib').textContent=TT('mVib');$('#mVib').classList.toggle('on',!vibOff);$('#mVib').setAttribute('aria-pressed',!vibOff);
+  $('#lSpark').textContent=TT('mSpark');$('#mSpark').classList.toggle('on',!sparkOff);$('#mSpark').setAttribute('aria-pressed',!sparkOff);
+  $('#lLang').textContent=TT('mLangL');$('#mJa').classList.toggle('on',LANG==='ja');$('#mEn').classList.toggle('on',LANG==='en');
+  $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
-$('#mSound').onclick=()=>{muted=!muted;save();if(!muted)audio();audioState();if(!muted)sfx.ui();openMenu()};
+$('#mSound').onclick=()=>{sfxOff=!sfxOff;save();audio();if(!sfxOff)sfx.ui();openMenu()};
 $('#mMusic').onclick=()=>{musicOff=!musicOff;save();audio();audioState();sfx.ui();openMenu()};
 // 音量のつまみ：動かしている間もその場で音量を変え、効果音は試しに鳴らす。離したときに保存する
-function volShow(){$('#nSe').textContent=seVol+'%';$('#nBgm').textContent=bgmVol+'%';$('#vSe').classList.toggle('off',muted);$('#vBgm').classList.toggle('off',muted||musicOff)}
+function volShow(){$('#nSe').textContent=seVol+'%';$('#nBgm').textContent=bgmVol+'%';$('#vSe').classList.toggle('off',sfxOff);$('#vBgm').classList.toggle('off',musicOff)}
 let volT=0;
 function volTest(gap){const n=performance.now();if(n-volT>gap){volT=n;sfx.ui()}}
 $('#rSe').oninput=e=>{seVol=volOf(+e.target.value);audio();applyVol();volShow();volTest(140)};
@@ -371,11 +381,30 @@ $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
 $('#mSpark').onclick=()=>{sparkOff=!sparkOff;save();sfx.ui();openMenu()};
-$('#mLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui();openMenu()};
+function setLang(l){if(LANG===l)return;LANG=l;save();applyLang();sfx.ui();openMenu()}
+$('#mJa').onclick=()=>setLang('ja');$('#mEn').onclick=()=>setLang('en');
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
 $('#mClose').onclick=()=>{sfx.ui();show(null)};
+/* ---------------- 遊び方 ---------------- */
+// 章は 8 つ。ルールと操作だけを書く（敵や札の中身など、遊んで知る楽しみは書かない）
+let helpCh=0,helpFrom=null;
+function openHelp(from,ch){
+  if(from!==undefined)helpFrom=from;if(ch!==undefined)helpCh=ch;
+  $('#hHelp').textContent=TT('helpT');$('#hPrev').textContent=TT('hPrev');$('#hNext').textContent=TT('hNext');$('#hClose').textContent=TT('close');
+  let t='';for(let i=0;i<8;i++)t+=`<button class="${i===helpCh?'on':''}" data-i="${i}">${TT('hc'+(i+1))}</button>`;
+  $('#hTabs').innerHTML=t;$('#hTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{sfx.ui();openHelp(undefined,+b.dataset.i)});
+  $('#hBody').innerHTML=`<h3>${TT('hc'+(helpCh+1))}</h3><ul>${TT('hb'+(helpCh+1))}</ul>`;$('#hBody').scrollTop=0;
+  $('#hPrev').disabled=helpCh===0;$('#hNext').disabled=helpCh===7;
+  if(!$('#help').classList.contains('on')){show('help');shownAt=performance.now()}
+}
+$('#hPrev').onclick=()=>{if(helpCh>0){sfx.ui();openHelp(undefined,helpCh-1)}};
+$('#hNext').onclick=()=>{if(helpCh<7){sfx.ui();openHelp(undefined,helpCh+1)}};
+$('#hClose').onclick=()=>{sfx.ui();if(helpFrom==='menu')openMenu();else if(helpFrom==='stages')openStages();else if(helpFrom==='title')show('title');else show(null)};
+$('#mHelp').onclick=()=>{sfx.ui();openHelp('menu',helpCh)};
+$('#sHelp').onclick=()=>{audio();sfx.ui();openHelp('stages',helpCh)};
+$('#bHelp0').onclick=()=>{audio();sfx.ui();openHelp('title',0)};
 // 一時停止：止まるだけ。開いている間は盤面にも一覧にも触れない。どこを押しても再開
-function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
+function openPause(){sfx.ui();$('#hPause').textContent=TT('pauseT');$('#pMoon').textContent=moonGot().length?TT('moonNow',moonList()):'';$('#pResume').textContent=TT('pResume');show('pause');shownAt=performance.now()}
 $('#pause').onclick=()=>{sfx.ui();show(null)};
 addEventListener('keydown',e=>{if(e.code!=='Space'&&e.code!=='KeyP')return; // Space／P でも止める・再開する（Space で止めるのは startWave 側）
   if($('#pause').classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();sfx.ui();show(null)}else if(e.code==='KeyP'&&!$('.ov.on')&&S.active&&!S.over){e.preventDefault();openPause()}},true);
@@ -385,7 +414,7 @@ $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#w
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({muted,musicOff,lang:LANG,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();

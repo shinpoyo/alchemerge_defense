@@ -31,7 +31,7 @@
       <li><i>四</i><b>20 の夜波</b>を退ければ夜明け。元素は全 54 種、★はランク</li>
     </ul>
     <button class="b" id="bStart">はじめる</button>
-    <button class="b s" id="bLang">English</button>
+    <div><button class="b s" id="bHelp0">遊び方</button><button class="b s" id="bLang">English</button></div>
   </div>
 
   <div class="ov" id="stages">
@@ -39,7 +39,7 @@
     <div class="diff"><button class="b s" id="dNorm">通常</button><button class="b s" id="dNight">悪夢</button><button class="b s" id="dAbyss">深淵</button></div>
     <div id="dNote"></div>
     <div id="slist"></div>
-    <div id="sNav"><button class="b s" id="sAch"></button><button class="b s" id="sStats"></button></div>
+    <div id="sNav"><button class="b s" id="sHelp"></button><button class="b s" id="sAch"></button><button class="b s" id="sStats"></button></div>
   </div>
 
   <div class="ov" id="ach">
@@ -61,20 +61,27 @@
   </div>
 
   <div class="ov" id="menu">
-    <h2 id="hMenu">設定</h2>
-    <button class="b s m" id="mCodex"></button>
-    <button class="b s m" id="mSound"></button>
-    <label class="vol" id="vSe"><span id="lSe"></span><input type="range" id="rSe" min="0" max="100" step="5"><b id="nSe"></b></label>
-    <button class="b s m" id="mMusic"></button>
-    <label class="vol" id="vBgm"><span id="lBgm"></span><input type="range" id="rBgm" min="0" max="100" step="5"><b id="nBgm"></b></label>
-    <button class="b s m" id="mDmg"></button>
-    <button class="b s m" id="mVib"></button>
-    <button class="b s m" id="mSpark"></button>
-    <button class="b s m" id="mLang"></button>
-    <div class="mrow"><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
-    <button class="b s m" id="mStages"></button>
+    <h2 id="hMenu">メニュー</h2>
     <button class="b m" id="mClose"></button>
-    <button class="lnk" id="mReset"></button>
+    <div class="mgrid"><button class="b s" id="mCodex"></button><button class="b s" id="mHelp"></button><button class="b s" id="mAch"></button><button class="b s" id="mStats"></button></div>
+    <div class="msec"><h4 id="mSec1"></h4>
+      <div class="vol" id="vSe"><button class="mu" id="mSound"></button><span id="lSe"></span><input type="range" id="rSe" min="0" max="100" step="5"><b id="nSe"></b></div>
+      <div class="vol" id="vBgm"><button class="mu" id="mMusic"></button><span id="lBgm"></span><input type="range" id="rBgm" min="0" max="100" step="5"><b id="nBgm"></b></div>
+    </div>
+    <div class="msec"><h4 id="mSec2"></h4>
+      <button class="tg" id="mDmg"><span id="lDmg"></span><i></i></button>
+      <button class="tg" id="mVib"><span id="lVib"></span><i></i></button>
+      <button class="tg" id="mSpark"><span id="lSpark"></span><i></i></button>
+      <div class="tg"><span id="lLang"></span><span class="seg"><button id="mJa">日本語</button><button id="mEn">English</button></span></div>
+    </div>
+    <div class="msec end"><button class="b s m" id="mStages"></button><button class="lnk" id="mReset"></button></div>
+  </div>
+
+  <div class="ov" id="help">
+    <h2 id="hHelp">遊び方</h2>
+    <div class="chips" id="hTabs"></div>
+    <div class="sbody" id="hBody"></div>
+    <div class="dnav"><button class="b s" id="hPrev"></button><button class="b s" id="hClose"></button><button class="b s" id="hNext"></button></div>
   </div>
 
   <div class="ov" id="flt"><div class="fp" id="fltP">
@@ -87,7 +94,8 @@
     <button class="tg" id="fOnly"><span id="fOnlyL"></span><i></i></button>
     <div class="ft"><button class="lnk" id="fReset"></button><button class="b s" id="fClose"></button></div>
   </div></div>
-  <div class="ov" id="pause"><h2 id="hPause"></h2><button class="b m" id="pResume"></button></div>
+  <div class="ov" id="pause"><h2 id="hPause"></h2><div id="pMoon"></div><button class="b m" id="pResume"></button></div>
+  <div class="ov" id="moon"><div class="orbM"></div><h2 id="hMoon"></h2><div id="moonSub"></div><div id="moonCards"></div></div>
   <div class="ov red" id="wipe">
     <h2 id="hWipe"></h2>
     <div class="wipeTxt" id="wipeTxt"></div>
@@ -140,6 +148,7 @@
 <script src="js/icons.js"></script>
 <script src="js/merge.js"></script>
 <script src="js/battle.js"></script>
+<script src="js/moon.js"></script>
 <script src="js/clear.js"></script>
 <script src="js/input.js"></script>
 <script src="js/screens.js"></script>
