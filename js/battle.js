@@ -308,6 +308,11 @@ function ampAt(e,fs){ // 影がいる場所の系統の結界の倍率（同じ�
   for(const a of S.amps)if(fs.includes(a.f)&&(e.x-a.x)**2+(e.y-a.y)**2<=a.r2)return AMP_MUL;
   return 1;
 }
+function mvpOf(){ // この戦いで最も与ダメージが大きかった元素を返す
+  let best=null;
+  for(const id in S.elDmg)if(ITEMS[id]&&S.elDmg[id]>0&&(!best||S.elDmg[id]>best.dmg))best={id,dmg:S.elDmg[id]};
+  return best;
+}
 function synFx(e,y){ // 属性シナジー成立時の専用ビジュアル＆SE（状態異常の文字タグと混ざらないよう文字は出さず、反応エフェクトだけで表現）
   if(!FX)return;
   const k='syn_'+y.k;if(S.time-(S.tagT[k]??-9)<.26)return;S.tagT[k]=S.time;
@@ -334,7 +339,7 @@ function synFx(e,y){ // 属性シナジー成立時の専用ビジュアル＆SE
     sparks(x,yy,'#a8f0c8',10,240);ring(x,yy,'#a8f0c8',r+28,.28,2.2);
   }
 }
-function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
+function hurt(e,dmg,fam,srcId,srcIt){ // fam：攻撃した元素の系統（配列。どれか 1 つが当てはまれば鎧・結界・シナジーが働く）
   if(e.dead)return;
   const fs=famL(fam);
   const weak=!!e.armor&&!(e.silT>0)&&fs.includes(e.armor);
@@ -346,9 +351,11 @@ function hurt(e,dmg,fam){ // fam：攻撃した元素の系統（配列。どれ
   const sa=STAGES[STAGE].aff,af=(sa&&fs.length?(sa.weak&&fs.includes(sa.weak)?AFF_WEAK:1)*(fs.includes(sa.resist)?AFF_RES:1):1) // 属性の地
     *(e.gate&&fs.length?(fs.includes(GATE_FAM[e.gate])?AFF_WEAK:1)*(fs.includes(e.gate)?AFF_RES:1):1); // 門ごとの系統の敵
   dmg*=(e.vul||1)*syn*amp*af*moonM(fs); // 月の恵み（加護・赤い月）
+  const dealt=Math.min(Math.max(0,e.hp),dmg),it=HIT?HIT.it:srcIt||null,sid=it?it.id:srcId||null;
+  if(dealt>0){if(it)it.dmg=(it.dmg||0)+dealt;if(sid)S.elDmg[sid]=(S.elDmg[sid]||0)+dealt}
   e.hp-=dmg;e.flash=.08;
   if(FX&&!dmgOff){e.dn=(e.dn||0)+dmg;if(weak)e.dnW=1;else if(syn>1||amp>1||af>1)e.dnS=1;else if(af<1)e.dnW=1}
-  if(e.hp<=0)kill(e);else if(e.phase)bossPhase(e);
+  if(e.hp<=0){if(it)it.kills=(it.kills||0)+1;kill(e)}else if(e.phase)bossPhase(e);
 }
 const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
 const STOP_RES=6,STOP_BOSS=.6;
@@ -415,10 +422,10 @@ function applyHit(e,d,m,color,sl){
     if(FX)ring(e.x,e.y,color,22,.35,2);
   }
   if(d.knock&&!isBoss&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
-  if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T} // 呪い：命を削る
+  if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T;e.drainSrc=d.id;e.drainIt=HIT?HIT.it:(sl&&sl.item||null)} // 呪い：命を削る
   const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow;
   if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,d.slowT):d.slowT}
-  if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam}
+  if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam;e.dotSrc=d.id;e.dotIt=HIT?HIT.it:(sl&&sl.item||null)}
   if(d.plague&&e.dotT>0&&e.dotK){if(!e.plague)tag(e,'stPlague','#c8f070');e.plague=d.plague} // 疫病：この影が毒のまま倒れると、まわりへうつる
 }
 function kill(e){
@@ -487,7 +494,7 @@ function wardTick(dt=1/30){ // 浄めの霧：広さの中にいる影は、ず�
     if(d.ward!=='sil'&&!(d.kind==='ward'&&d.slow))continue;
     for(const e of S.enemies){if(e.dead||(e.x-sl.x)**2+(e.y-sl.y)**2>d.range*d.range)continue;
       if(d.slow)applyHit(e,d,1,d.c); // 廃墟：広さの中の影はずっと遅くなる
-      if(d.ward!=='sil')continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3);if(d.dps)hurt(e,d.dps*enhM(it)*dt,d.fam)}}
+      if(d.ward!=='sil')continue;if(!(e.silT>0))tag(e,'stSil',d.c);e.silT=Math.max(e.silT||0,.3);if(d.dps)hurt(e,d.dps*enhM(it)*dt,d.fam,d.id,it)}}
 }
 function goldAt(x,y){ // 竜の宝玉：その場所で倒した影の魔力の倍率
   let g=1;for(const sl of slots){const it=sl.item;if(!it||!sl.field||it.hide>0||it.held)continue;const d=ITEMS[it.id];
@@ -644,9 +651,9 @@ function update(dt){
     if(e.knT>0)e.knT-=dt;if(e.kb>0)e.kb-=dt;if(e.rwT>0)e.rwT-=dt;if(e.cfT>0)e.cfT-=dt;if(e.cfRes>0)e.cfRes-=dt;if(e.lrT>0)e.lrT-=dt;if(e.lrRes>0)e.lrRes-=dt;if(e.mirT>0)e.mirT-=dt;if(e.hazT>0)e.hazT-=dt;
     if(e.stopT>0)e.stopT-=dt;if(e.stopRes>0)e.stopRes-=dt;
     if(e.slowT>0&&!(e.stopT>0))e.slowT-=dt; // 停止中は減速タイマーを進めない（停止明けに効く）
-    if(e.drainT>0){e.drainT-=dt;const bs=e.type==='boss'||/[主王]$/.test(e.name||'');hurt(e,e.max*e.drain*(bs?DRAIN_BOSS:1)*dt,null);if(e.dead)continue;e.flash=0} // 呪い：最大体力の割合で削るif(e.silT>0)e.silT-=dt;
+    if(e.drainT>0){e.drainT-=dt;const bs=e.type==='boss'||/[主王]$/.test(e.name||'');hurt(e,e.max*e.drain*(bs?DRAIN_BOSS:1)*dt,null,e.drainSrc,e.drainIt);if(e.dead)continue;e.flash=0} // 呪い：最大体力の割合で削るif(e.silT>0)e.silT-=dt;
     if(STAGES[STAGE].aff&&STAGES[STAGE].aff.wet)e.wetT=9;else if(e.wetT>0)e.wetT-=dt;for(const y of SYN)if(y.k!=='wetT'&&e[y.k]>0)e[y.k]-=dt; // 沈んだ都：影はいつも濡れている
-    if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF);if(e.dead)continue;e.flash=0;
+    if(e.dotT>0){e.dotT-=dt;hurt(e,e.dot*dt,e.dotF,e.dotSrc,e.dotIt);if(e.dead)continue;e.flash=0;
       if(FX&&Math.random()<dt*10){if(e.dotK)P(e.x+rnd(-e.r,e.r),e.y+rnd(-e.r,e.r)*.5,rnd(-6,6),rnd(-40,-20),.6,rnd(1.8,3),'#a8f06a',{ty:'w',g:-20,drag:.5});else flameP(e.x,e.y-e.r*.3,'#ff7a3a',1,e.r*.7)}}
     if(e.flash>0)e.flash-=dt;
     if(e.dn>0){e.dnT=(e.dnT||0)-dt;if(e.dnT<=0)dnumPop(e)}

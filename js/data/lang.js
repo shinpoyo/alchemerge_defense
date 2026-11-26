@@ -176,6 +176,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   modD_range:['増幅の陣：射程 +20%','Range Circle: +20% Range'],
   modD_haste:['疾風の陣：攻撃速度 +25%','Haste Circle: +25% Rate'],
   modD_link:['共鳴の陣：対の陣と揃うと威力・速度 +15%','Resonance: +15% DMG & Rate when paired'],
+  towerStat:['与ダメ {0} ・ 撃破 {1}','DMG {0} · Kills {1}'],mvpLine:['MVP：{0}（{1}）','MVP: {0} ({1})'],
 };
 const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
   king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],

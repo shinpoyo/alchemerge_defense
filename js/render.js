@@ -610,8 +610,9 @@ function render(dt){
   INFO_R=inf&&!held?{x:40,y:50+iy,w:W-80,h:44,id:inf.id}:null; // 説明の帯（と下の一言）を押すと詳細を開く
   if(inf){const d=ITEMS[inf.id];ctx.fillStyle='#07060dd0';rr(ctx,40,50+iy,W-80,26,13);ctx.fill();ctx.strokeStyle=rgba(d.c,.5);ctx.lineWidth=1;ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f2);ctx.fillStyle=d.c;ctx.fillText(`${nm(d)} ${'★'.repeat(d.t)} ― ${ds(d)}`,W/2,63.5+iy,W-92);ctx.font=FONT(FS.f1);
-    const ms=rs&&rs.field&&rs.mod;
-    ctx.fillStyle=ms?MOD_COL[rs.mod]:'#8d86a3';ctx.fillText(ms?TT('modD_'+rs.mod):TT('lpTip'),W/2,84+iy)}
+    const hasStat=inf.dmg>0,ms=rs&&rs.field&&rs.mod;
+    ctx.fillStyle=hasStat?'#ffe9a0':ms?MOD_COL[rs.mod]:'#8d86a3';
+    ctx.fillText(hasStat?(TT('towerStat',fmtD(inf.dmg),inf.kills||0)+(ms?' · '+TT('modD_'+rs.mod):'　('+TT('lpTip')+')')):(ms?TT('modD_'+rs.mod):TT('lpTip')),W/2,84+iy,W-24)}
   else if(!S.active&&!S.over&&!(S.cleared&&!S.endless)){ // 次の波の敵予告（波の待機中）
     const nw=S.wave+1;
     if(S._pvW!==nw||S._pvS!==STAGE||S._pvL!==LANG){S._pv=wavePreview(nw);S._pvW=nw;S._pvS=STAGE;S._pvL=LANG}
