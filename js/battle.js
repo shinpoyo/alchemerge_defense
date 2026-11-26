@@ -241,7 +241,12 @@ function spawnEnemy(q){
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.call?S.budget*d.w/S.wsum*KING_CALL_MANA:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
     const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd*(final?KING_SPD:1);e.atkEvery=siegeEvery(e)*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
-    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
+    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';
+      if(final){
+        const k=sprKey(e),c=(SPR_DEF[k]&&SPR_DEF[k].rim)||'#ff3b6b';
+        if(S.kingIntro&&S.kingIntro.t<.1){S.kingIntro.kings.push({key:k,c,e})}
+        else{S.kingIntro={kings:[{key:k,c,e}],t:0,dur:4.65,flashed:false,parts:[]};S.warn=0;sfx.kingIntro();buzz([50,60,50,60,80,100,140])}
+      }else{sfx.boom();buzz(30)}
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
   }
@@ -573,7 +578,7 @@ function update(dt){
   if(S.echoes&&S.echoes.length){for(const o of S.echoes){o.t-=dt;if(o.t>0)continue;o.done=true;HIT=o.src||null;for(const e of inRange(o.x,o.y,o.R)){applyHit(e,o.ad,o.m,o.ad.c);hurt(e,o.ad.dmg*o.m*ECHO_POW,o.ad.fam)}HIT=null;if(FX){pulseFx(VIS[o.ad.id],o.x,o.y,o.R*.85,o.ad);sfx.shoot(o.ad)}}S.echoes=S.echoes.filter(o=>!o.done)}
   if(S.active){
     S.wt+=dt;
-    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
+    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX&&!S.warnFinal){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 夜の主が現れる少し前に警告（夜の王は専用のDANGERカットインに統合）
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
     // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は少しだけ）。王を倒すと、残りの敵は消えて波が終わる
     if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;

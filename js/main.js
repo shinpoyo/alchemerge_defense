@@ -10,6 +10,7 @@ function frame(now){
     if(FX&&!(S.cleared&&!S.endless))stats.time+=dt; // 戦いの画面を開いている時間（重ね合わせの画面を開いている間は数えない）
     if(S.slowmo>0)S.slowmo-=dt;
     let sim=dt*S.speed*(S.slowmo>0?.2:1);
+    if(S.kingIntro)sim=0; // 夜の王の降臨演出中は戦いを止めて姿を見せる
     if(S.hitstop>0){S.hitstop-=dt;sim=0} // ヒットストップ中は戦いを進めない
     while(sim>0&&!S.over){const st=Math.min(sim,1/30);update(st);sim-=st} // 陥落したら、そのフレームの残りは進めない
     if(S.cleared&&!S.endless)celebrate(dt);

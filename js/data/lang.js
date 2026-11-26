@@ -156,7 +156,33 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
        '<li>Tap the round button at top right to switch speed <b>×1 · ×2 · ×3</b></li><li>On a computer, press <b>P</b> to pause</li><li>Use the <b>★ tabs</b> to switch ranks in the list, and <b>⇅</b> to filter and sort</li><li>Open the Codex, How to Play and settings from <b>☰</b> at bottom right</li>'],
   mSec1:['音','Sound'],mSec2:['表示・操作','Display'],mDmg:['ダメージ数字','Damage numbers'],mVib:['振動','Vibration'],mLangL:['言語','Language'],
   mMuteBtn:['音を消す','Mute'],mUnmuteBtn:['音を出す','Unmute'],
+  kingDanger:['夜の王 襲来','NIGHT KING APPROACHES'],
+  kingDanger2:['双つの夜の王 襲来','TWIN NIGHT KINGS APPROACH'],
+  kingIntroH:['―  夜 の 王  降 臨  ―','—  THE NIGHT KING DESCENDS  —'],
+  kingIntroH2:['―  双 つ の 夜 の 王  降 臨  ―','—  TWIN NIGHT KINGS DESCEND  —'],
+  tapSkip:['タップでスキップ','Tap to skip'],
 };
+const KING_INFO={ // 夜の王の固有名と二つ名 [日本語名, 日本語二つ名, English name, English title]
+  king_corridor:['宵闇の影王','宵の回廊の主','Umbra Sovereign','Lord of the Dusk Corridor'],
+  king_ice:['氷冠の凍王','凍てつく湖の王','Frostcrown Monarch','King of the Frozen Lake'],
+  king_garden:['茨花の妖王','螺旋の庭の王','Thornbloom Tyrant','King of the Spiral Garden'],
+  king_fire:['紅蓮の溶岩竜王','火の山の王','Cinderwing Wyrm','King of Fire Mountain'],
+  king_crossroads:['双頭の冥犬王','十字の辻の王','Twin-Headed Hellhound','King of the Crossroads'],
+  king_sunken:['深海の沈王','沈んだ都の王','Drowned Sea King','King of the Sunken City'],
+  king_gates_flame:['熾炎の炎獣王','双つの門・炎の王','Blazemane Beast','Twin Gates · Flame'],
+  king_gates_ice:['蒼氷の凍狼王','双つの門・氷の王','Frostfang Direwolf','Twin Gates · Ice'],
+  king_swamp:['毒泡の瘴気王','瘴気の沼の王','Blightmire Ooze','King of Miasma Marsh'],
+  king_hg_earth:['砂岩の巨神王','砂時計の峠・土の王','Sandstone Colossus','Hourglass Pass · Earth'],
+  king_hg_wind:['翠嵐の黒烏王','砂時計の峠・風の王','Galewing Raven','Hourglass Pass · Wind'],
+  king_forest:['深森の黒蜘蛛王','光の届かぬ森の王','Gloomweaver Arachnid','King of Lightless Wood'],
+  king_cathedral:['白夜の堕天使王','白夜の聖堂の王','Fallen Seraph','King of White Night'],
+  king_valley:['三首の災厄竜王','三叉の谷の王','Tri-Element Hydra','King of Three Forks'],
+  king_starfall:['星宿の大蛇王','星降りの道の王','Astral Serpent','King of Starfall Road'],
+  king_throne:['深紅の夜の王','王の間の覇者','Crimson Night King','Sovereign of the Throne'],
+  king_altar:['六腕の終焉魔神','最果ての祭壇の王','Six-Armed Endbringer',"King of World's End"],
+};
+const kingName=k=>{const o=KING_INFO[k];return o?o[LANG==='ja'?0:2]:TT('bossKing')};
+const kingSub=k=>{const o=KING_INFO[k];return o?o[LANG==='ja'?1:3]:''};
 const TT=(k,...a)=>TX[k][LANG==='ja'?0:1].replace(/\{(\d)\}/g,(_,i)=>a[i]);
 const EN={ // 英語の名前と説明
   fire:['Fire','Burns what it hits'],water:['Water','Slows what it hits'],earth:['Earth','Heavy shot with splash'],wind:['Wind','Weak but very fast'],
