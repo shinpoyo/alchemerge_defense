@@ -176,6 +176,14 @@ function drawShot(s){ // 飛んでいる弾
 }
 // 画面に一時的に出る演出（fx の種類ごと）。k は 0→1 の進み具合
 const FXD={
+  moonbeam(f,k){ // 月の恵み：空から差す月の光の柱と、足もとの光の輪
+    const a=k<.15?k/.15:(1-k)/.85,w=40+70*Math.min(1,k*3),g=ctx.createLinearGradient(0,0,0,f.y+90);
+    g.addColorStop(0,rgba(f.color,0));g.addColorStop(.25,rgba(f.color,.35*a));g.addColorStop(.72,rgba('#ffffff',.5*a));g.addColorStop(1,rgba('#ffffff',0));
+    ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(f.x-w*.35,0);ctx.lineTo(f.x+w*.35,0);ctx.lineTo(f.x+w,f.y+90);ctx.lineTo(f.x-w,f.y+90);ctx.closePath();ctx.fill();
+    const r=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,170);r.addColorStop(0,rgba('#ffffff',.5*a));r.addColorStop(.3,rgba(f.color,.3*a));r.addColorStop(1,rgba(f.color,0));
+    ctx.fillStyle=r;ctx.beginPath();ctx.ellipse(f.x,f.y,170,110,0,0,TAU);ctx.fill();
+    ctx.translate(f.x,f.y);ctx.rotate(k*1.2);ctx.strokeStyle=rgba(f.color,.6*a);ctx.lineWidth=1.5;
+    for(let i=0;i<12;i++){const t=i/12*TAU,L=60+k*90;ctx.beginPath();ctx.moveTo(Math.cos(t)*30,Math.sin(t)*30*.6);ctx.lineTo(Math.cos(t)*L,Math.sin(t)*L*.6);ctx.stroke()}},
   pool(f,k){ctx.globalCompositeOperation='source-over';ctx.fillStyle=rgba(f.color,(1-k)*.32);ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,TAU);ctx.fill()},
   slash(f,k){const L=(f.big?26:15)*(.5+k);ctx.translate(f.x,f.y);ctx.rotate(f.a);ctx.lineCap='round';ctx.strokeStyle=rgba('#ffffff',1-k);ctx.lineWidth=(f.big?5:3)*(1-k);
     ctx.beginPath();ctx.arc(0,L,L*1.4,-Math.PI/2-.7,-Math.PI/2+.7);ctx.stroke();ctx.strokeStyle=rgba(f.color,(1-k)*.7);ctx.lineWidth*=2.4;ctx.stroke()},
@@ -237,7 +245,7 @@ function spawnEnemy(q){
       if(final){
         const k=sprKey(e),c=(SPR_DEF[k]&&SPR_DEF[k].rim)||'#ff3b6b';
         if(S.kingIntro&&S.kingIntro.t<.1){S.kingIntro.kings.push({key:k,c,e})}
-        else{S.kingIntro={kings:[{key:k,c,e}],t:0,dur:2.85,flashed:false,parts:[]};S.warn=0;sfx.kingIntro();buzz([40,50,80,50,120])}
+        else{S.kingIntro={kings:[{key:k,c,e}],t:0,dur:4.65,flashed:false,parts:[]};S.warn=0;sfx.kingIntro();buzz([50,60,50,60,80,100,140])}
       }else{sfx.boom();buzz(30)}
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}

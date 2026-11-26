@@ -1,7 +1,7 @@
 'use strict';
 // 状態・保存・統計・今日の挑戦・途中保存（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- 状態 ---------------- */
-let S,UNDO=null,disc,madeR=new Set(),prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
+let S,UNDO=null,disc,madeR=new Set(),prog={},muted=false,musicOff=false,sfxOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
 // 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
 const runOK=r=>!!r&&typeof r==='object'&&ORDER.includes(r.stage)&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
@@ -11,7 +11,7 @@ try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isA
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear||v.best>=maxWave(parseInt(k))}} // 形のおかしい記録。波数を減らす前に、いまの最後の波まで進んでいた記録はクリア扱いは捨てる（そのままだと最高記録が更新されなくなる）
   for(const k in prog)if(!ORDER.includes(parseInt(k)))delete prog[k]; // ボツにしたステージ（迷いの森）の記録は消す（ユーザー決定 2026-11-23）
   TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=maxWave(0)};
-  for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
+  for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);musicOff=!!d.musicOff;sfxOff=!!d.sfxOff;if(d.muted){sfxOff=musicOff=true} /* 前の「音：オフ（すべて）」は、効果音と音楽の両方を消した状態に移す */}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
 // 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
 const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
@@ -62,7 +62,7 @@ let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セー�
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
 let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
-function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
+function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,sfxOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
