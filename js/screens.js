@@ -171,7 +171,7 @@ function openStages(){
   const dayBtn=()=>{
     const k=dayKey(),c=dailyNow(k),st=STAGES[c.stage],r=daily[k],b=document.createElement('button');b.className='stg day';b.disabled=!dayOpen;
     const date=new Date().toLocaleDateString(LANG==='ja'?'ja-JP':'en-US',{month:'short',day:'numeric'});
-    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${dParen(+c.night)}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span></div>`;
+    b.innerHTML=`<canvas width="192" height="200"></canvas><div><b>${TT('daily')}</b><span>${date}　${sn(st)}${dParen(+c.night)}</span><span>${!dayOpen?TT('dailyLocked'):r?`<em>${TT(r.clear?'dailyClear':'dailyBest',r.best)}</em>`:TT('dailyNew')}</span><span class="gift" style="color:#ffe9a0">✦ ${TT('mut_'+c.mut)}：${TT('mutD_'+c.mut)}</span></div>`;
     miniMap(b.querySelector('canvas'),st);
     b.onclick=()=>{audio();startDaily();show(null);sfx.merge(2)};
     box.appendChild(b);
@@ -314,9 +314,11 @@ function shareCard(kind){ // いまの盤面に結果を重ねた画像（800×8
   g.textAlign='center';g.textBaseline='middle';
   gr=g.createLinearGradient(0,560,0,640);gr.addColorStop(0,'#fff6d8');gr.addColorStop(.6,'#e8c36a');gr.addColorStop(1,'#8a6a2a');
   g.font=FONT(78,800);g.shadowColor='#8b5cf6';g.shadowBlur=30;g.fillStyle=gr;g.fillText(L.res||L.st,400,600);g.shadowBlur=0;
-  g.font=FONT(FS.f5,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,676);
-  g.font=FONT(FS.f4,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― ${TT('genre')}`,400,735);
-  g.font=FONT(FS.f3);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,770);
+  g.font=FONT(FS.f5,800);g.fillStyle='#e9e4f5';g.fillText(L.res?`${L.st}　${L.found}`:L.found,400,668);
+  const mv=kind!=='codex'&&mvpOf();
+  if(mv){g.font=FONT(FS.f3,800);g.fillStyle=ITEMS[mv.id].c;g.fillText(TT('mvpLine',nm(ITEMS[mv.id]),fmtD(mv.dmg)),400,702)}
+  g.font=FONT(FS.f4,800);g.fillStyle='#e8c36a';g.fillText(`${L.title} ― ${TT('genre')}`,400,738);
+  g.font=FONT(FS.f3);g.fillStyle='#8d86a3';g.fillText(SITE.replace('https://',''),400,772);
   return c;
 }
 async function share(btn,kind){
@@ -364,6 +366,7 @@ function openMenu(){
   $('#mMusic').innerHTML=musicOff?SPK0:SPK;$('#mMusic').setAttribute('aria-label',TT(musicOff?'mUnmuteBtn':'mMuteBtn')+': '+TT('mBgmVol'));
   $('#lDmg').textContent=TT('mDmg');$('#mDmg').classList.toggle('on',!dmgOff);$('#mDmg').setAttribute('aria-pressed',!dmgOff);
   $('#lVib').textContent=TT('mVib');$('#mVib').classList.toggle('on',!vibOff);$('#mVib').setAttribute('aria-pressed',!vibOff);
+  $('#lSpark').textContent=TT('mSpark');$('#mSpark').classList.toggle('on',!sparkOff);$('#mSpark').setAttribute('aria-pressed',!sparkOff);
   $('#lLang').textContent=TT('mLangL');$('#mJa').classList.toggle('on',LANG==='ja');$('#mEn').classList.toggle('on',LANG==='en');
   $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
@@ -379,6 +382,7 @@ $('#rBgm').oninput=e=>{bgmVol=volOf(+e.target.value);audio();applyVol();volShow(
 $('#rSe').onchange=()=>{save();volTest(60)};$('#rBgm').onchange=()=>save();
 $('#mDmg').onclick=()=>{dmgOff=!dmgOff;if(dmgOff)dnums.length=0;save();sfx.ui();openMenu()};
 $('#mVib').onclick=()=>{vibOff=!vibOff;save();sfx.ui();buzz(30);openMenu()}; // オンにしたときは試しに一度ふるわせる
+$('#mSpark').onclick=()=>{sparkOff=!sparkOff;save();sfx.ui();openMenu()};
 function setLang(l){if(LANG===l)return;LANG=l;save();applyLang();sfx.ui();openMenu()}
 $('#mJa').onclick=()=>setLang('ja');$('#mEn').onclick=()=>setLang('en');
 $('#mStages').onclick=()=>{sfx.ui();S.cleared=false;S.over=true;openStages()};
@@ -412,7 +416,7 @@ $('#mReset').onclick=()=>{sfx.ui();$('#hWipe').textContent=TT('wipeTitle');$('#w
   $('#wYes').textContent=TT('wipeYes');$('#wNo').textContent=TT('wipeNo');show('wipe');$('#wNo').focus()};
 $('#wNo').onclick=()=>{sfx.ui();openMenu()};
 $('#wYes').onclick=()=>{
-  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}
+  try{localStorage.setItem(SAVE,JSON.stringify({musicOff,sfxOff,lang:LANG,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}
   wiped=true;location.reload()};
 $('#bLang').onclick=()=>{LANG=LANG==='ja'?'en':'ja';save();applyLang();sfx.ui()};
 applyLang();

@@ -33,7 +33,7 @@ let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上
 const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
 const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
 const ARMOR_FROM=13,ARMOR_AFF_FROM=7;
-const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(endlessPhase(w)==='starfall'?1.15:1);
+const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(typeof dailyMut==='function'&&dailyMut()==='highMana'?1.25:1)*(endlessPhase(w)==='starfall'?1.15:1);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};
@@ -55,4 +55,16 @@ function buildWave(w){
   {const g=STAGES[STAGE].gates,k=q[q.length-1]; // 門が 2 つで系統の敵が出るステージ（双つの門・砂時計の峠）：夜の王は門ごとに 1 体ずつ、その門の系統で出る
     if(g&&g.length===2&&k.final){k.path=0;k.m*=KING2_M;q.push({...k,path:1})}}
   return q;
+}
+function wavePreview(w){ // 次の波の予告情報（特徴的な敵のバッジ一覧と総数）
+  const q=buildWave(w),cnt={};
+  for(const e of q)cnt[e.type]=(cnt[e.type]||0)+1;
+  const tags=[];
+  if(cnt.boss)tags.push({t:TT(isKingWave(w)?'bossKing':'bossLord'),c:'#ff6a88'});
+  if(cnt.armored){const f=armorFam(w);tags.push({t:TT('pvArm',TT('f_'+f)),c:ELEM[f].c})}
+  if(cnt.flyer)tags.push({t:TT('pvFly'),c:'#6ad8ff'});
+  if(cnt.healer)tags.push({t:TT('pvHeal'),c:'#9affc8'});
+  if(cnt.splitter)tags.push({t:TT('pvSplit'),c:'#7ae08a'});
+  if(cnt.runner)tags.push({t:TT('pvRun'),c:'#ffd84a'});
+  return{total:q.length,tags};
 }

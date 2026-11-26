@@ -10,7 +10,7 @@ function dropOn(from,to){dropOn0(from,to);if(!S.active)saveRun()}
 const nearCore=(x,y)=>(x-CORE.x)**2+(y-CORE.y)**2<=42*42;
 function explode(sl,d){ // 火薬：まわりの影すべてに大きな威力。罠は消える
   sl.item=null;
-  for(const e of S.enemies)if(!e.dead&&(e.x-sl.x)**2+(e.y-sl.y)**2<(d.splash+e.r)**2)hurt(e,d.boom,d.fam);
+  for(const e of S.enemies)if(!e.dead&&(e.x-sl.x)**2+(e.y-sl.y)**2<(d.splash+e.r)**2)hurt(e,d.boom,d.fam,d.id);
   if(FX){ring(sl.x,sl.y,'#ffe45c',d.splash,.45,4);ring(sl.x,sl.y,d.c,d.splash*.6,.35,3);burst(sl.x,sl.y,d.c,28,220);sparks(sl.x,sl.y,'#ffd27a',24,300);shake(6);sfx.boom();buzz(30);floatText(sl.x,sl.y-26,TT('stBoom'),'#ffd27a',FS.f2)}
 }
 function useRelic(sl){ // 聖灰：砦へ運ぶと消えて灯がもどる
