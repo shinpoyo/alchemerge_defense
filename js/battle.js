@@ -578,7 +578,7 @@ function update(dt){
   if(S.echoes&&S.echoes.length){for(const o of S.echoes){o.t-=dt;if(o.t>0)continue;o.done=true;HIT=o.src||null;for(const e of inRange(o.x,o.y,o.R)){applyHit(e,o.ad,o.m,o.ad.c);hurt(e,o.ad.dmg*o.m*ECHO_POW,o.ad.fam)}HIT=null;if(FX){pulseFx(VIS[o.ad.id],o.x,o.y,o.R*.85,o.ad);sfx.shoot(o.ad)}}S.echoes=S.echoes.filter(o=>!o.done)}
   if(S.active){
     S.wt+=dt;
-    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
+    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX&&!S.warnFinal){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 夜の主が現れる少し前に警告（夜の王は専用のDANGERカットインに統合）
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
     // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は少しだけ）。王を倒すと、残りの敵は消えて波が終わる
     if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;
