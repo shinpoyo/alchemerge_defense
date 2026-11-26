@@ -14,6 +14,7 @@ cv.addEventListener('pointerdown',ev=>{
   const p=pos(ev);ptr=p;
   try{cv.setPointerCapture(ev.pointerId)}catch(e){}
   if(S.over||(S.cleared&&!S.endless))return;
+  if(S.kingIntro){if(S.kingIntro.t>=.45)S.kingIntro.t=Math.max(S.kingIntro.t,S.kingIntro.dur-.3);return}
   if(S.banner&&S.banner.t>.4){S.banner.t=Math.max(S.banner.t,S.banner.dur-.25)}
   ring(p.x,p.y,'#8b5cf6',18,.3,1.5,2);
   if(EARLY_R&&canEarlyCall()&&inBtn(EARLY_R,p.x,p.y)){buzz(12);earlyCall();return}
@@ -80,7 +81,9 @@ cv.addEventListener('pointercancel',ev=>{if(!extraPtr(ev))release(null,true)});
 document.addEventListener('contextmenu',e=>e.preventDefault()); // 長押しの画像メニューを出さない
 cv.addEventListener('wheel',ev=>{const p=pos(ev);if(p.y>=TABS[0].y&&p.y<=SHOP.y+SHOP.h){ev.preventDefault();
   SHOP.scroll[SHOP.tab]=clamp(SHOP.scroll[SHOP.tab]+(Math.abs(ev.deltaX)>Math.abs(ev.deltaY)?ev.deltaX:ev.deltaY),0,shopMax(SHOP.tab))}},{passive:false});
-addEventListener('keydown',e=>{if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}
+addEventListener('keydown',e=>{
+  if(S&&S.kingIntro&&(e.code==='Space'||e.code==='Enter')){e.preventDefault();if(S.kingIntro.t>=.45)S.kingIntro.t=Math.max(S.kingIntro.t,S.kingIntro.dur-.3);return}
+  if(e.code==='Space'&&!$('.ov.on')){e.preventDefault();startWave()}
   if(e.code==='KeyZ'&&(e.ctrlKey||e.metaKey)&&!$('.ov.on')&&S&&!drag){e.preventDefault();undo()}});
 function press(b){
   if(b.id==='undo'){undo();return}
