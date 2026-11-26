@@ -176,6 +176,14 @@ function drawShot(s){ // 飛んでいる弾
 }
 // 画面に一時的に出る演出（fx の種類ごと）。k は 0→1 の進み具合
 const FXD={
+  moonbeam(f,k){ // 月の恵み：空から差す月の光の柱と、足もとの光の輪
+    const a=k<.15?k/.15:(1-k)/.85,w=40+70*Math.min(1,k*3),g=ctx.createLinearGradient(0,0,0,f.y+90);
+    g.addColorStop(0,rgba(f.color,0));g.addColorStop(.25,rgba(f.color,.35*a));g.addColorStop(.72,rgba('#ffffff',.5*a));g.addColorStop(1,rgba('#ffffff',0));
+    ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(f.x-w*.35,0);ctx.lineTo(f.x+w*.35,0);ctx.lineTo(f.x+w,f.y+90);ctx.lineTo(f.x-w,f.y+90);ctx.closePath();ctx.fill();
+    const r=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,170);r.addColorStop(0,rgba('#ffffff',.5*a));r.addColorStop(.3,rgba(f.color,.3*a));r.addColorStop(1,rgba(f.color,0));
+    ctx.fillStyle=r;ctx.beginPath();ctx.ellipse(f.x,f.y,170,110,0,0,TAU);ctx.fill();
+    ctx.translate(f.x,f.y);ctx.rotate(k*1.2);ctx.strokeStyle=rgba(f.color,.6*a);ctx.lineWidth=1.5;
+    for(let i=0;i<12;i++){const t=i/12*TAU,L=60+k*90;ctx.beginPath();ctx.moveTo(Math.cos(t)*30,Math.sin(t)*30*.6);ctx.lineTo(Math.cos(t)*L,Math.sin(t)*L*.6);ctx.stroke()}},
   pool(f,k){ctx.globalCompositeOperation='source-over';ctx.fillStyle=rgba(f.color,(1-k)*.32);ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,TAU);ctx.fill()},
   slash(f,k){const L=(f.big?26:15)*(.5+k);ctx.translate(f.x,f.y);ctx.rotate(f.a);ctx.lineCap='round';ctx.strokeStyle=rgba('#ffffff',1-k);ctx.lineWidth=(f.big?5:3)*(1-k);
     ctx.beginPath();ctx.arc(0,L,L*1.4,-Math.PI/2-.7,-Math.PI/2+.7);ctx.stroke();ctx.strokeStyle=rgba(f.color,(1-k)*.7);ctx.lineWidth*=2.4;ctx.stroke()},
@@ -233,7 +241,12 @@ function spawnEnemy(q){
     slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:q.call?S.budget*d.w/S.wsum*KING_CALL_MANA:q.free?0:S.budget*d.w/S.wsum,dead:false,final,armor,gate,healT:rnd(.5,HEAL_EVERY)});
   if(q.type==='boss'){ // 主・王の登場：入口から闇が噴き出し、体がふくらんで現れる
     const e=S.enemies[S.enemies.length-1];e.phase=1;e.spdM=BOSS_PH[0].spd*(final?KING_SPD:1);e.atkEvery=siegeEvery(e)*BOSS_PH[0].atk;e.born=BOSS_BORN;e.lag=1;S.bossA=0;
-    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';sfx.boom();buzz(final?[30,40,60]:30);
+    if(FX){const x=clamp(e.x,24,W-24),y=e.y;shake(final?10:7);S.flash=.28;S.flashC='#ff2a4a';
+      if(final){
+        const k=sprKey(e),c=(SPR_DEF[k]&&SPR_DEF[k].rim)||'#ff3b6b';
+        if(S.kingIntro&&S.kingIntro.t<.1){S.kingIntro.kings.push({key:k,c,e})}
+        else{S.kingIntro={kings:[{key:k,c,e}],t:0,dur:4.65,flashed:false,parts:[]};S.warn=0;sfx.kingIntro();buzz([50,60,50,60,80,100,140])}
+      }else{sfx.boom();buzz(30)}
       for(let i=0;i<3;i++)FXP({ty:'ring',x,y,color:i?'#ff3b6b':'#ffffff',r0:10,r1:90+i*40,dur:.6+i*.15,lw:5-i,t:-i*.12});
       smoke(x,y,'#1a0a14',14,30,16,1.2,.7);burst(x,y,'#ff3b6b',30,240);sparks(x,y,'#ffd0d8',20,320)}
   }
@@ -572,7 +585,7 @@ function update(dt){
   if(S.echoes&&S.echoes.length){for(const o of S.echoes){o.t-=dt;if(o.t>0)continue;o.done=true;HIT=o.src||null;for(const e of inRange(o.x,o.y,o.R)){applyHit(e,o.ad,o.m,o.ad.c);hurt(e,o.ad.dmg*o.m*ECHO_POW,o.ad.fam)}HIT=null;if(FX){pulseFx(VIS[o.ad.id],o.x,o.y,o.R*.85,o.ad);sfx.shoot(o.ad)}}S.echoes=S.echoes.filter(o=>!o.done)}
   if(S.active){
     S.wt+=dt;
-    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 主が現れる少し前に警告
+    if(S.bossAt!==null&&!S.warned&&S.wt>=S.bossAt-WARN_LEAD){S.warned=true;if(FX&&!S.warnFinal){S.warn=WARN_T;sfx.warn();buzz([60,80,60,80,60])}} // 夜の主が現れる少し前に警告（夜の王は専用のDANGERカットインに統合）
     while(S.queue.length&&S.queue[0].at<=S.wt)spawnEnemy(S.queue.shift());
     // 夜の王がいる間は、入口から雑魚が少しずつ湧きつづける（魔力は少しだけ）。王を倒すと、残りの敵は消えて波が終わる
     if(S.enemies.some(e=>e.final&&!e.dead)){S.kingCallT=(S.kingCallT??KING_CALL_FIRST)-dt;
@@ -637,7 +650,7 @@ function endWave(){
   S.active=false;S.warn=0;const bonus=Math.round((12+3*S.wave)*moonWave());S.mana+=bonus;
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
-  else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
+  else if(S.wave>rec().best){const prev=rec();prog[pkey()]=Object.assign({},prev,{best:S.wave,clear:prev.clear||S.wave>=maxWave()});save()}
   if(FX)checkAch();
   floatText(W/2,300,TT('waveDone',S.wave),'#ffe9a0',FS.f4);floatText(W/2,328,TT('manaPlus',bonus),'#e8c36a',FS.f2);
   sfx.waveEnd();

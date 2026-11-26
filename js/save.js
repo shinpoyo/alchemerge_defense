@@ -1,7 +1,7 @@
 'use strict';
 // 状態・保存・統計・今日の挑戦・途中保存（index.html から読みこむ。読みこむ順番に意味があるので、index.html の並びを変えないこと）
 /* ---------------- 状態 ---------------- */
-let S,UNDO=null,disc,madeR=new Set(),prog={},muted=false,musicOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
+let S,UNDO=null,disc,madeR=new Set(),prog={},muted=false,musicOff=false,sfxOff=false,FX=true,bgCanvas=null,TUT=0,RUN=null; // TUT：手引きを終えたら 9
 const SAVE='yoiyami-alchemy-v1';
 // 途中保存として読めるものだけ受けつける。項目が欠けていたり型がちがうものは捨てる（「つづきから」で止まったり、波や灯が NaN になったりしないように）
 const runOK=r=>!!r&&typeof r==='object'&&ORDER.includes(r.stage)&&Array.isArray(r.items)&&[r.wave,r.mana,r.lives].every(v=>typeof v==='number'&&isFinite(v)&&v>=0)&&r.lives>0;
@@ -11,7 +11,7 @@ try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');disc=new Set((Array.isA
   prog=d.prog&&typeof d.prog==='object'&&!Array.isArray(d.prog)?d.prog:{};for(const k in prog){const v=prog[k];if(!v||typeof v!=='object')delete prog[k];else{v.best=Math.max(0,Math.floor(+v.best)||0);v.clear=!!v.clear||v.best>=maxWave(parseInt(k))}} // 形のおかしい記録。波数を減らす前に、いまの最後の波まで進んでいた記録はクリア扱いは捨てる（そのままだと最高記録が更新されなくなる）
   for(const k in prog)if(!ORDER.includes(parseInt(k)))delete prog[k]; // ボツにしたステージ（迷いの森）の記録は消す（ユーザー決定 2026-11-23）
   TUT=d.tut?9:0;RUN=runOK(d.run)?d.run:null;if(d.best&&!prog['0'])prog['0']={best:d.best,clear:d.best>=maxWave(0)};
-  for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);muted=!!d.muted;musicOff=!!d.musicOff}catch(e){disc=new Set(BASES)}
+  for(const id in UNLOCK)if(!disc.has(id)&&(prog[String(UNLOCK[id])]||{}).clear)disc.add(id);musicOff=!!d.musicOff;sfxOff=!!d.sfxOff;if(d.muted){sfxOff=musicOff=true} /* 前の「音：オフ（すべて）」は、効果音と音楽の両方を消した状態に移す */}catch(e){disc=new Set(BASES)}
 BASES.forEach(b=>disc.add(b));
 // 統計：これまでの合計。保存は項目を足すだけで、これまでの項目（disc・prog・run など）の意味と形は変えない
 const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
@@ -62,13 +62,13 @@ let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セー�
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
 let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
-function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
+function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,sfxOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,seVol,bgmVol}))}catch(e){}}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
 function saveRun(){
   if(!FX||S.over||(S.cleared&&!S.endless))return;
-  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,
+  RUN={stage:STAGE,night:NIGHT,wave:S.wave,mana:Math.floor(S.mana),lives:S.lives,endless:S.endless,made:[...S.made],ws:S.ws,chal:{...S.chal},
        items:slots.map((sl,i)=>sl.item?(sl.item.lv?[i,sl.item.id,sl.item.lv]:[i,sl.item.id]):null).filter(Boolean)};
   if(S.moon&&(S.moon.got.length||S.moon.pend))RUN.moon={got:[...S.moon.got],pend:S.moon.pend?[...S.moon.pend]:null}; // 月の恵み
   if(DAILY)RUN.daily=DAILY; // 今日の挑戦の途中なら、その日付も残す
@@ -82,9 +82,12 @@ function resumeRun(){
   r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
   S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
+  if(r.chal&&typeof r.chal==='object')S.chal={max4:!!r.chal.max4,noTrap:!!r.chal.noTrap,base4:!!r.chal.base4};
   const mok=k=>typeof k==='string'&&MOON.some(c=>c.id===moonBase(k))&&(!k.startsWith('kago:')||!!TX['f_'+k.slice(5)]);
   if(r.moon&&Array.isArray(r.moon.got)){const p=Array.isArray(r.moon.pend)?r.moon.pend.filter(mok):[];S.moon={got:r.moon.got.filter(mok),pend:p.length?p:null}}
 }
+const BADGES=['max4','noTrap','base4'];
+const BASE4_SET=(()=>{const s=new Set(BASES);let ch=true;while(ch){ch=false;for(const[a,b,r]of RECIPES)if(s.has(a)&&s.has(b)&&!s.has(r)){s.add(r);ch=true}}return s})();
 function mkItem(id,x=W/2,y=H){return{id,cd:rnd(.3),rx:x,ry:y,s:1,sv:0,kick:0,hide:0,ph:rnd(TAU),held:false,shake:0,beamT:[],chg:0,chgT:0,chgB:0}}
 const pkey=(i=STAGE,n=NIGHT)=>i+(n===2?'a':n?'n':'');
 const rec=(i,n)=>prog[pkey(i,n)]||{best:0,clear:false};
@@ -97,7 +100,7 @@ function reset(){
   loadStage(STAGE);
   S={mana:40,manaShow:40,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
      enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},elDmg:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
+     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},chal:{max4:true,noTrap:true,base4:true},elDmg:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;dnums.length=0;sel=null;drag=null;UNDO=null;
