@@ -6,7 +6,7 @@ const ENEMY={
   wisp: {hp:.55, spd:82,r:8, w:.8, life:1,rim:'#e05ad8'},
   golem:{hp:3.6, spd:27,r:15,w:2.5,life:2,rim:'#e0913a',big:true}, // big：大型。倒したときに短いヒットストップと軽い揺れが入る
   mite: {hp:.28, spd:62,r:6, w:.35,life:1,rim:'#3ad6a0'},
-  boss: {hp:18,  spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
+  boss: {hp:14.4, spd:24,r:24,w:12, life:8,rim:'#ff3b6b'},
   // 通常の波に混ざる、くせのある敵
   runner:  {hp:1.1,spd:80,r:9, w:1.1,life:1,rim:'#ffd84a',res:.7},   // 駆ける影：減速が効きにくい（効き目が 3 割になる）
   flyer:   {hp:1.15,spd:53,r:10,w:1.2,life:1,rim:'#6ad8ff',fly:true}, // 飛ぶ影：道を無視して入口から灯へ一直線。罠にかからない
@@ -26,7 +26,9 @@ const endlessPhase=(w=S?S.wave:0)=>{const mw=maxWave();return w>mw?ENDLESS_PHASE
 let HP0=80;
 // 1 波ごとの敵の体力の伸び（GROW_BY）と夜の王の体力の倍率（FINAL_BY）。並びは WAVES_BY_TIER（10・15・20 波）と同じ。
 // 短いステージほど伸びを大きくして、後半にしっかり苦戦するようにする（2026-11-25。それまでは全ステージ 1.28・王 2 倍）
-let GROW_BY=[1.42,1.34,1.30],FINAL_BY=[4,5.5,3.5];
+// 夜の王が硬すぎて宵の回廊でも王の体力が 8 割以上残ったまま陥落したので、10 波・15 波の面の王を軽くした（2026-11-26。それまでは 4・5.5 倍。10 波の面は遊んでみて 2.5 → 3 倍）
+// ★ごとの威力をなだらかにして高い★が弱くなったので、主の体力を 18 → 14.4、王の倍率を 3・3.5・3.5 → 2.2・2.5・2.5 に下げた（2026-11-26。王は合わせて今の約 6 割）
+let GROW_BY=[1.42,1.34,1.30],FINAL_BY=[2.2,2.5,2.5];
 let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上乗せ（第 4 波から少しずつ、第 8 波で +25%）／夜の王の歩く速さの倍率（2026-11-25）
 const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
 const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
