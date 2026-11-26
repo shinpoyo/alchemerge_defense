@@ -20,9 +20,6 @@ const ELEM={flame:{c:'#ff6a3d',icon:'fire'},water:{c:'#4aa8ff',icon:'water'},ear
   ice:{c:'#8fe6ff',icon:'ice'},poison:{c:'#8be04a',icon:'venom'},dark:{c:'#9a7ad8',icon:'dark'},light:{c:'#fff2a0',icon:'light'},wood:{c:'#7ac85a',icon:'wood'}};
 const ARMOR_FAMS=Object.keys(ELEM);
 const armorFam=w=>STAGES[STAGE].aff?STAGES[STAGE].aff.resist:ARMOR_FAMS[mixH(w*31+STAGE*7+5)%ARMOR_FAMS.length]; // ステージと波で決まる（同じ波をやり直せば同じ系統）
-const ENDLESS_PHASES=['bloodMoon','denseFog','starfall','eclipse'];
-const EPH_COL={bloodMoon:'#ff6a88',denseFog:'#9ab8e8',starfall:'#ffe45c',eclipse:'#c490ff'};
-const endlessPhase=(w=S?S.wave:0)=>{const mw=maxWave();return w>mw?ENDLESS_PHASES[Math.floor((w-mw-1)/5)%ENDLESS_PHASES.length]:null};
 let HP0=80;
 // 1 波ごとの敵の体力の伸び（GROW_BY）と夜の王の体力の倍率（FINAL_BY）。並びは WAVES_BY_TIER（10・15・20 波）と同じ。
 // 短いステージほど伸びを大きくして、後半にしっかり苦戦するようにする（2026-11-25。それまでは全ステージ 1.28・王 2 倍）
@@ -33,7 +30,7 @@ let MOB_HP=.25;const KING_SPD=.75; // 雑魚（主・王以外）の体力の上
 const mobHp=w=>1+MOB_HP*clamp((w-3)/5,0,1);
 const waveTier=(i=STAGE)=>WAVES_BY_TIER.indexOf(maxWave(i));
 const ARMOR_FROM=13,ARMOR_AFF_FROM=7;
-const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*(typeof dailyMut==='function'&&dailyMut()==='highMana'?1.25:1)*(endlessPhase(w)==='starfall'?1.15:1);
+const waveHp=w=>HP0*GROW_BY[waveTier()]**(w-1)*STAGES[STAGE].hp*DIFF[NIGHT].hp*modMul('enemyHp',w);
 function buildWave(w){
   const q=[];let t=0;
   const add=(type,n,gap,m=1)=>{for(let i=0;i<n;i++){q.push({type,at:t,m});t+=gap}};

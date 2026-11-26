@@ -18,44 +18,6 @@ const stats={kills:0,bosses:0,kings:0,merges:0,plays:0,time:0,waves:0};
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.stats&&typeof d.stats==='object')for(const k in stats)if(d.stats[k]>0)stats[k]=+d.stats[k]||0}catch(e){}
 const ach={}; // 実績：解除したものの id → 解除した時刻（秒）。これも保存に足すだけの項目
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.ach&&typeof d.ach==='object')for(const k in d.ach)if(d.ach[k]>0)ach[k]=+d.ach[k]}catch(e){}
-/* デイリーチャレンジ（今日の挑戦）：日付で決まるステージと難易度を 1 つ出し、退けた波の自己ベストを日付ごとに残す。
-   ふつうのステージの進行度（prog）には書かない。保存は daily という項目を足すだけ */
-let DAILY=null;   // 今日の挑戦として遊んでいる間は、その日付（'2026-11-16'）
-const daily={};   // 日付 → {best:退けた波, clear, stage, night}
-const DAILY_KEEP=120,DAILY_GOAL=10;
-const dayKey=(t=new Date())=>`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-const mixH=h=>{h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;return h>>>0}; // 日付の並びが続いても散らばるよう混ぜる
-// 今日の挑戦に出るステージの組。ステージを足したり外したりするときは、組を書きかえず、明日以降の日付（from）で新しい組を足す。
-// こうすると、もう始まっている日の挑戦のステージが更新で入れかわらない（ステージの並び替え PR #42 で今日の分が変わってしまったため）
-const DAILY_POOLS=[{from:'',ids:ORDER}]; // 並び替え後の 15 ステージ（ボツの迷いの森は出さない）
-const DAILY_MUTS=['craftOnly','trapMaster','swiftBounty','highMana','noSupport'];
-function dailyOf(key){ // 3 日に 1 日ほどが悪夢。ステージは、前の日と同じものが続かないように決める
-  // 日付を 7 日ごとの組に分ける。組の 1 日目は組の番号だけで決め、2 日目からは「前の日のステージから 1〜L-1 だけ進める」ので、前の日と同じにならない。
-  // 組の最後の日は、前の日とも、次の組の 1 日目ともちがうステージから選ぶ（組の境目でも続かない）。
-  // 前の日を「ずらす前の値」で見ていたころは、前の日もずれていたときに同じステージが続くことがあった
-  const pool=DAILY_POOLS.filter(q=>q.from<=key).pop().ids,L=pool.length,B=7,h=x=>mixH(hsh('alchemerge:'+x)),[y,mo,d]=key.split('-'),n=Math.round(Date.UTC(+y,mo-1,+d)/864e5),b=Math.floor(n/B),first=g=>h('w'+g)%L;
-  let s=first(b);
-  for(let j=1;j<=n-b*B;j++){const r=h('d'+(b*B+j));
-    if(j<B-1)s=(s+1+r%(L-1))%L;
-    else{const nx=first(b+1),c=pool.map((_,i)=>i).filter(i=>i!==s&&i!==nx);s=c[r%c.length]}}
-  return{stage:pool[s],night:(h(key)>>>8)%3===0,mut:DAILY_MUTS[h(key+':mut')%DAILY_MUTS.length]}; // 悪夢になる日は、これまでと同じ
-}
-try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');if(d.daily&&typeof d.daily==='object')for(const k in d.daily){const v=d.daily[k];
-  if(/^\d{4}-\d\d-\d\d$/.test(k)&&v&&v.best>0&&ORDER.includes(v.stage))daily[k]={best:Math.floor(v.best),clear:!!v.clear,stage:STAGES[v.stage]?v.stage:0,night:!!v.night}}}catch(e){}
-const curBest=()=>DAILY?(daily[DAILY]||{best:0}).best:rec().best; // いまの戦いの、これまでの最高到達波
-function dailyRecord(w){ // 今日の挑戦で波を退けたときに呼ぶ
-  const r=daily[DAILY]||(daily[DAILY]={best:0,clear:false,stage:STAGE,night:NIGHT});
-  if(w<=r.best)return;
-  r.best=w;r.clear=r.clear||w>=maxWave(r.stage);
-  const ks=Object.keys(daily).sort();while(ks.length>DAILY_KEEP)delete daily[ks.shift()]; // 古い日付から消す
-  save();
-}
-let nightSel=null; // 今日の挑戦に入る前に、ステージ選択で選んでいた難易度。ステージ選択へ戻ったときに戻す（挑戦の難易度を、ふつうのステージの選択に持ちこまない）
-// 実際に出す今日の挑戦。そのステージの悪夢がまだ開いていなければ、悪夢の日でも通常にする。
-// その日の記録がすでにあれば、記録と同じステージ・難易度のままにする（途中で悪夢が開いても、同じ日の記録に通常と悪夢がまざらない）
-function dailyNow(k=dayKey()){const r=daily[k],c=dailyOf(k);if(r)return{stage:r.stage,night:r.night,mut:c.mut};return{stage:c.stage,night:c.night&&nightOpen(c.stage),mut:c.mut}}
-const dailyMut=()=>DAILY?dailyOf(DAILY).mut:null;
-function startDaily(){const k=dayKey(),c=dailyNow(k);if(nightSel===null)nightSel=NIGHT;DAILY=k;STAGE=c.stage;NIGHT=+c.night;reset()}
 let dmgOff=false; // ダメージの数字を出さない設定（設定メニューで切りかえ）
 try{dmgOff=!!JSON.parse(localStorage.getItem(SAVE)||'{}').dmgOff}catch(e){}
 let vibOff=false; // 振動させない設定（設定メニューで切りかえ）
@@ -66,7 +28,18 @@ let seVol=100,bgmVol=100; // 効果音と音楽の音量（0〜100）。セー�
 const volOf=x=>typeof x!=='number'||!isFinite(x)?100:Math.max(0,Math.min(100,Math.round(x)));
 try{const d=JSON.parse(localStorage.getItem(SAVE)||'{}');seVol=volOf(d.seVol);bgmVol=volOf(d.bgmVol)}catch(e){}
 let wiped=false; // 初期化したあと、読みこみ直すまでの間に古い進捗を書き戻さないように
-function save(){if(wiped)return;try{localStorage.setItem(SAVE,JSON.stringify({disc:[...disc],madeR:[...madeR],prog,muted,musicOff,sfxOff,lang:LANG,tut:TUT>=9?1:0,run:RUN,stats:{...stats,time:Math.round(stats.time)},ach,daily,dmgOff,vibOff,sparkOff,seVol,bgmVol}))}catch(e){}}
+function save(){
+  if(wiped)return;
+  try{
+    localStorage.setItem(SAVE,JSON.stringify({
+      disc:[...disc],madeR:[...madeR],prog,run:RUN,
+      stats:{...stats,time:Math.round(stats.time)},ach,daily,
+      muted,musicOff,sfxOff,seVol,bgmVol,
+      lang:LANG,tut:TUT>=9?1:0,
+      dmgOff,vibOff,sparkOff,
+    }));
+  }catch(e){}
+}
 // 途中保存：進行中の戦い（ステージ・波・魔力・灯・置いてある元素）を端末に残す。
 // 取るのは「波を呼ぶ直前」「波を退けた直後」「敵がいないときに盤面を変えたとき」。
 // 戦闘の途中で閉じた場合は、その波を呼ぶ直前の状態から再開になる
@@ -103,9 +76,17 @@ const diffOpen=(i,n)=>n===2?abyssOpen(i):n?nightOpen(i):stageOpen(i);
 function reset(){
   loadStage(STAGE);
   const m0=dailyMut()==='highMana'?100:40;
-  S={mana:m0,manaShow:m0,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
-     enemies:[],shots:[],time:0,speed:1,over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
-     tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,made:new Set(),ws:1,seen:{},leaks:{},chal:{max4:true,noTrap:true,base4:true},elDmg:{},bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0};
+  S={
+    mana:m0,manaShow:m0,manaBump:0,manaErr:0,lives:DIFF[NIGHT].lives,
+    spawned:0,wave:0,active:false,queue:[],wt:0,budget:0,wsum:1,
+    enemies:[],shots:[],time:0,speed:1,
+    over:false,cleared:false,endless:false,dawn:0,cele:0,rocketT:0,
+    tagT:{},shake:0,flash:0,flashC:'#fff',slowmo:0,banner:null,info:null,
+    coreHit:0,benchShake:0,started:false,hintT:0,tut:TUT,
+    made:new Set(),ws:1,seen:{},leaks:{},
+    chal:{max4:true,noTrap:true,base4:true},elDmg:{},
+    bossAt:null,warned:false,warn:0,warnFinal:false,bossLag:1,bossA:0,hitstop:0,
+  };
   const bench=slots.filter(s=>s.bench);
   BASES.forEach((id,i)=>{const it=mkItem(id,bench[i].x,bench[i].y);it.s=.01;it.hide=.25+i*.12;bench[i].item=it});
   parts.length=0;fx.length=0;dnums.length=0;sel=null;drag=null;UNDO=null;
