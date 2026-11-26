@@ -100,26 +100,93 @@ button.b.danger{border-color:#d0375a;color:#ffd0d0;background:linear-gradient(18
 #pause{background:#05040999;cursor:pointer} /* 一時停止：盤面が透けて見えるよう薄く暗くする */
 #pause h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 #pMoon{margin:0 0 calc(var(--u)*16);max-width:calc(var(--u)*380);color:var(--dim);font-size:calc(var(--u)*var(--f1));line-height:1.7}
-/* 月の恵み：3 枚の札から 1 枚えらぶ */
-#moon{background:radial-gradient(ellipse at 50% 30%,#1a1430f0 0%,#050409f5 70%)}
-#moon h2{margin:0 0 calc(var(--u)*4);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
-#moonSub{color:var(--dim);margin-bottom:calc(var(--u)*16)}
-#moonCards{display:flex;flex-direction:column;gap:calc(var(--u)*12);width:100%;max-width:calc(var(--u)*360)}
-#moonCards .mc{--fc:var(--gold);display:flex;flex-direction:column;gap:calc(var(--u)*4);text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);
-  padding:calc(var(--u)*12) calc(var(--u)*16);min-height:44px;border-radius:calc(var(--u)*12);border:1px solid #4a4070;border-left:calc(var(--u)*4) solid var(--fc);
-  background:linear-gradient(180deg,#221a44,#110c24);font-size:calc(var(--u)*var(--f1));line-height:1.6}
-#moonCards .mc b{font-size:calc(var(--u)*var(--f3));color:var(--fc);font-weight:700}
-#moonCards .mc.bad{--fc:#ff8a7a}
-#moonCards .mc:hover,#moonCards .mc:focus-visible{border-color:var(--fc);outline:none;box-shadow:0 0 calc(var(--u)*14) #8b5cf655}
-#menu h2{margin:0 0 calc(var(--u)*18);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
-#menu .m{width:calc(var(--u)*270);margin:calc(var(--u)*7)}
-#menu #mClose{margin-top:calc(var(--u)*22)}
-#menu .vol{display:flex;align-items:center;gap:calc(var(--u)*10);width:calc(var(--u)*270);margin:0 calc(var(--u)*7) calc(var(--u)*5);
-  padding:0 calc(var(--u)*10);box-sizing:border-box;font-size:calc(var(--u)*var(--f1));line-height:1.4;color:var(--dim);transition:opacity .2s}
-#menu .vol.off{opacity:.4}
-#menu .vol span{flex:none;min-width:calc(var(--u)*44);text-align:left;letter-spacing:.08em}
-#menu .vol b{flex:none;width:calc(var(--u)*40);text-align:right;color:var(--gold);font-variant-numeric:tabular-nums}
+/* 月の恵み：月が昇り、3 枚の札が 1 枚ずつ開く。選んだ札は光って、ほかは沈む */
+#moon{background:radial-gradient(ellipse at 50% 18%,#2a2050f2 0%,#0b0818f5 45%,#050409fa 80%);overflow:hidden;justify-content:flex-start;padding-top:calc(var(--u)*40)}
+#moon::before{content:'';position:absolute;left:50%;top:calc(var(--u)*-160);width:calc(var(--u)*700);height:calc(var(--u)*700);margin-left:calc(var(--u)*-350);pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,#fff6d00f 0deg 4deg,transparent 4deg 15deg);border-radius:50%;
+  -webkit-mask:radial-gradient(circle,#000 0%,transparent 60%);mask:radial-gradient(circle,#000 0%,transparent 60%);animation:moonRays 40s linear infinite,fade 1.6s ease both}
+#moon .orbM{position:relative;width:calc(var(--u)*92);height:calc(var(--u)*92);border-radius:50%;margin-bottom:calc(var(--u)*10);flex:none;
+  background:radial-gradient(circle at 38% 34%,#fffdf2 0%,#f4e6b8 45%,#c9b27a 100%);
+  box-shadow:0 0 calc(var(--u)*30) #fff1c0aa,0 0 calc(var(--u)*90) #e8c36a66,inset calc(var(--u)*-10) calc(var(--u)*-8) calc(var(--u)*18) #8a7444aa;
+  animation:moonRise 1.1s cubic-bezier(.2,.9,.3,1) both,moonGlow 3.2s ease-in-out 1.1s infinite}
+#moon .orbM::before,#moon .orbM::after{content:'';position:absolute;border-radius:50%;background:#b39b6455}
+#moon .orbM::before{width:22%;height:22%;left:56%;top:24%}
+#moon .orbM::after{width:14%;height:14%;left:30%;top:60%;box-shadow:calc(var(--u)*30) calc(var(--u)*4) 0 calc(var(--u)*-1) #b39b6444}
+#moon h2{margin:0 0 calc(var(--u)*4);font-size:calc(var(--u)*var(--f5));letter-spacing:.35em;color:var(--gold);text-shadow:0 0 calc(var(--u)*18) #e8c36a88}
+#moon h2 span{display:inline-block;animation:rise .9s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(.35s + var(--d,0s))}
+#moonSub{color:var(--dim);margin-bottom:calc(var(--u)*18);animation:bgUp .6s ease .7s both}
+#moonCards{display:flex;flex-direction:column;gap:calc(var(--u)*12);width:100%;max-width:calc(var(--u)*370);perspective:calc(var(--u)*900)}
+#moonCards .mc{--fc:var(--gold);position:relative;overflow:hidden;display:flex;align-items:center;gap:calc(var(--u)*12);text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);
+  padding:calc(var(--u)*12) calc(var(--u)*14);min-height:44px;border-radius:calc(var(--u)*14);border:1px solid color-mix(in srgb,var(--fc) 45%,#2a2448);
+  background:radial-gradient(ellipse at 0% 50%,color-mix(in srgb,var(--fc) 22%,transparent) 0%,transparent 55%),linear-gradient(180deg,#231b46,#100b22);
+  box-shadow:0 calc(var(--u)*6) calc(var(--u)*18) #0008,inset 0 1px 0 #ffffff14;font-size:calc(var(--u)*var(--f1));line-height:1.6;
+  animation:dealIn .7s cubic-bezier(.2,1.1,.35,1) both;animation-delay:calc(.7s + var(--i)*.16s);transition:transform .15s,box-shadow .15s}
+#moonCards .mc::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,#ffffff22 48%,transparent 60%);
+  transform:translateX(-120%);animation:sheen 3.6s ease-in-out infinite;animation-delay:calc(1.6s + var(--i)*.3s)}
+#moonCards .mc>div{display:flex;flex-direction:column;gap:calc(var(--u)*2);min-width:0}
+#moonCards .mc b{font-size:calc(var(--u)*var(--f3));color:var(--fc);font-weight:800;text-shadow:0 0 calc(var(--u)*10) color-mix(in srgb,var(--fc) 50%,transparent)}
+#moonCards .mc em{align-self:flex-start;font-style:normal;font-size:calc(var(--u)*11);letter-spacing:.1em;color:#ffb4a8;border:1px solid #ff8a7a88;border-radius:calc(var(--u)*6);padding:0 calc(var(--u)*6);line-height:1.6}
+#moonCards .mi{flex:none;width:calc(var(--u)*52);height:calc(var(--u)*52);display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--fc) 30%,transparent) 0%,transparent 70%)}
+#moonCards .mi img{width:100%;height:100%}
+#moonCards .mi.ph{width:calc(var(--u)*40);height:calc(var(--u)*40);margin:calc(var(--u)*6);background:radial-gradient(circle at 38% 34%,#fff,var(--fc) 55%,color-mix(in srgb,var(--fc) 50%,#000) 100%);
+  box-shadow:0 0 calc(var(--u)*16) var(--fc)}
+#moonCards .mi.ph.wane{-webkit-mask:radial-gradient(circle at 72% 40%,transparent 45%,#000 47%);mask:radial-gradient(circle at 72% 40%,transparent 45%,#000 47%)}
+#moonCards .mc.bad{border-color:#ff8a7a66}
+#moonCards .mc:hover,#moonCards .mc:focus-visible{border-color:var(--fc);outline:none;transform:translateY(calc(var(--u)*-2));box-shadow:0 0 calc(var(--u)*22) color-mix(in srgb,var(--fc) 45%,transparent),0 calc(var(--u)*6) calc(var(--u)*18) #0008}
+#moonCards .mc.pick{animation:pickGlow .72s ease both;border-color:var(--fc);z-index:1}
+#moonCards .mc.gone{animation:sinkAway .5s ease-in both;pointer-events:none}
+#moon.chosen .orbM{animation:moonFlash .72s ease both}
+#moon.chosen h2,#moon.chosen #moonSub{transition:opacity .4s;opacity:.25}
+@keyframes moonRise{from{opacity:0;transform:translateY(calc(var(--u)*70)) scale(.6);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes moonGlow{50%{box-shadow:0 0 calc(var(--u)*40) #fff1c0dd,0 0 calc(var(--u)*120) #e8c36a88,inset calc(var(--u)*-10) calc(var(--u)*-8) calc(var(--u)*18) #8a7444aa}}
+@keyframes moonRays{to{transform:rotate(360deg)}}
+@keyframes moonFlash{40%{transform:scale(1.25);box-shadow:0 0 calc(var(--u)*80) #fff,0 0 calc(var(--u)*200) #fff1c0}100%{transform:scale(1.1);opacity:.6}}
+@keyframes dealIn{from{opacity:0;transform:translateY(calc(var(--u)*40)) rotateX(70deg) scale(.9)}to{opacity:1;transform:none}}
+@keyframes sheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes pickGlow{0%{transform:none}30%{transform:scale(1.07);box-shadow:0 0 calc(var(--u)*40) var(--fc),0 0 calc(var(--u)*90) var(--fc);background:color-mix(in srgb,var(--fc) 35%,#1a1336)}
+  100%{transform:scale(1.02) translateY(calc(var(--u)*-60));opacity:0;filter:brightness(2) blur(2px)}}
+@keyframes sinkAway{to{opacity:0;transform:translateY(calc(var(--u)*40)) scale(.92);filter:blur(3px)}}
+/* メニュー：つづける／行き先（2×2）／音／表示・操作／ステージ選択と初期化 */
+#menu{justify-content:flex-start;padding-top:calc(var(--u)*30);overflow-y:auto;touch-action:pan-y}
+#menu h2{margin:0 0 calc(var(--u)*12);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
+#menu .m{width:calc(var(--u)*300);margin:calc(var(--u)*6) 0}
+#menu .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*8);width:calc(var(--u)*300);margin-top:calc(var(--u)*8)}
+#menu .mgrid .b{margin:0;padding-left:calc(var(--u)*6);padding-right:calc(var(--u)*6);letter-spacing:.1em}
+#menu .msec{width:calc(var(--u)*300);margin-top:calc(var(--u)*12);padding-top:calc(var(--u)*6);border-top:1px solid #2c2640;text-align:left}
+#menu .msec.end{display:flex;flex-direction:column;align-items:center}
+#menu .msec h4{margin:0;font-size:calc(var(--u)*var(--f1));color:var(--dim);letter-spacing:.3em;font-weight:700}
+#menu .vol{display:flex;align-items:center;gap:calc(var(--u)*8);min-height:44px;font-size:calc(var(--u)*var(--f2));line-height:1.4;transition:opacity .2s}
+#menu .vol.off span,#menu .vol.off input,#menu .vol.off b{opacity:.4}
+#menu .vol span{flex:none;min-width:calc(var(--u)*50);letter-spacing:.08em}
+#menu .vol b{flex:none;width:calc(var(--u)*42);text-align:right;color:var(--gold);font-variant-numeric:tabular-nums;font-size:calc(var(--u)*var(--f1))}
 #menu .vol input{flex:1 1 0;min-width:0;height:calc(var(--u)*26);margin:0;accent-color:#e8c36a;cursor:pointer;touch-action:none}
+#menu .mu{flex:none;width:44px;height:44px;margin-left:calc(var(--u)*-8);border:0;background:none;cursor:pointer;display:grid;place-items:center;padding:0}
+#menu .mu svg{width:calc(var(--u)*22);height:calc(var(--u)*22);stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#menu .vol.off .mu svg{stroke:var(--dim)}
+#menu .tg{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:44px;padding:0;background:none;border:0;
+  font-family:inherit;font-size:calc(var(--u)*var(--f2));color:var(--ink);cursor:pointer;text-align:left;letter-spacing:.08em}
+#menu .tg i{flex:none;width:calc(var(--u)*44);height:calc(var(--u)*26);border-radius:calc(var(--u)*13);background:#2c2640;position:relative;transition:background .15s}
+#menu .tg i:after{content:"";position:absolute;left:calc(var(--u)*3);top:calc(var(--u)*3);width:calc(var(--u)*20);height:calc(var(--u)*20);border-radius:50%;background:#8a82ad;transition:left .15s}
+#menu .tg.on i{background:#8a6f2e}#menu .tg.on i:after{left:calc(var(--u)*21);background:#ffe9a0}
+#menu .seg{display:flex;border:1px solid #4a4070;border-radius:calc(var(--u)*18);overflow:hidden}
+#menu .seg button{font-family:inherit;font-size:calc(var(--u)*var(--f1));color:var(--ink);background:none;border:0;min-height:36px;padding:0 calc(var(--u)*14);cursor:pointer}
+#menu .seg button.on{background:#8a6f2e;color:#fff3cf}
+/* 遊び方：章のチップ／本文（スクロール）／前へ・とじる・次へ */
+#help{justify-content:flex-start;padding-top:calc(var(--u)*18);padding-bottom:calc(var(--u)*10)}
+#help h2{margin:0 0 calc(var(--u)*8);font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
+#help .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--u)*6);margin-bottom:calc(var(--u)*10);max-width:calc(var(--u)*400)}
+#help .chips button{font-family:inherit;font-weight:700;font-size:calc(var(--u)*var(--f1));color:#cfc8e6;background:#100d1c;border:1px solid #5a4f86;border-radius:calc(var(--u)*18);
+  min-height:36px;padding:0 calc(var(--u)*11);cursor:pointer}
+#help .chips button.on{background:#3a2f63;border-color:var(--gold);color:#ffe9a0}
+#help .sbody{max-width:calc(var(--u)*400)}
+#help .sbody h3{margin:calc(var(--u)*4) 0 calc(var(--u)*6);color:var(--gold);font-size:calc(var(--u)*var(--f3));letter-spacing:.1em}
+#help .sbody ul{margin:0;padding-left:1.2em;line-height:1.8}
+#help .sbody li{margin-bottom:calc(var(--u)*8)}
+#help .sbody b{color:var(--gold)}
+#help .dnav{display:flex;gap:calc(var(--u)*8);align-items:center}
+#help .dnav .b{margin-left:0;margin-right:0;padding-left:calc(var(--u)*14);padding-right:calc(var(--u)*14)}
+#help .dnav .b:disabled{opacity:.35;cursor:default}
 #codex h2,#stages h2{margin:0;font-size:calc(var(--u)*var(--f4));letter-spacing:.3em;color:var(--gold)}
 #cnt small{font-size:inherit}
 #cnt{color:var(--dim);font-size:calc(var(--u)*var(--f1));margin-bottom:calc(var(--u)*6);line-height:1.6}
