@@ -56,9 +56,11 @@ button.b.done{border-color:#7df0c0;color:#7df0c0}
 button.b.s{font-size:calc(var(--u)*var(--f2));padding:calc(var(--u)*9) calc(var(--u)*24);min-height:44px;border-color:#4a4070;color:var(--ink);box-shadow:none}
 .big{font-size:calc(var(--u)*58)}
 /* 進捗の初期化：設定メニューの下に小さく置き、押すと確認の画面を出す */
-button.lnk{font-family:inherit;background:none;border:0;color:var(--dim);text-decoration:underline;cursor:pointer;
+button.lnk,a.lnk{font-family:inherit;background:none;border:0;color:var(--dim);text-decoration:underline;cursor:pointer;
   font-size:calc(var(--u)*var(--f1));margin-top:calc(var(--u)*10);min-height:44px;padding:0 calc(var(--u)*12)}
-button.lnk:hover{color:#ff9aa8}
+a.lnk{display:inline-flex;align-items:center}
+a.lnk[hidden]{display:none}
+button.lnk:hover,a.lnk:hover{color:#ff9aa8}
 #wipe h2{color:#ff9aa8}
 .wipeTxt{max-width:calc(var(--u)*330);text-align:left;margin:0 0 calc(var(--u)*16);line-height:1.7;white-space:pre-line}
 .wipeTxt b{color:#ff9aa8}

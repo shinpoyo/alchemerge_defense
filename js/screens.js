@@ -369,6 +369,8 @@ function openMenu(){
   $('#lSpark').textContent=TT('mSpark');$('#mSpark').classList.toggle('on',!sparkOff);$('#mSpark').setAttribute('aria-pressed',!sparkOff);
   $('#lLang').textContent=TT('mLangL');$('#mJa').classList.toggle('on',LANG==='ja');$('#mEn').classList.toggle('on',LANG==='en');
   $('#mStages').textContent=TT('mStages');$('#mReset').textContent=TT('mReset');
+  // 作者のサイトで遊んでいるときだけ、ほかのゲームへのリンクを出す（よそで公開した版には出さない）
+  $('#mMore').textContent=TT('mMore');$('#mMore').hidden=!/(^|\.)shinpoyo\.(com|github\.io)$/.test(location.hostname);
   $('#rSe').value=seVol;$('#rBgm').value=bgmVol;volShow();show('menu');
 }
 $('#mSound').onclick=()=>{sfxOff=!sfxOff;save();audio();if(!sfxOff)sfx.ui();openMenu()};
