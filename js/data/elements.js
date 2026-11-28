@@ -32,16 +32,16 @@ const ITEMS={
   leaves:  {name:'木の葉',  t:2,c:'#8ad86a',kind:'bolt', dmg:3.5,rate:4.5, range:125,                           desc:'木の葉を連射する'},
   flash:   {name:'閃光',    t:2,c:'#fff8c8',kind:'beam', dmg:22,           range:120,beams:1,                   desc:'光を当て続ける'},
   ray:     {name:'光線',    t:2,c:'#ffe08a',kind:'pierce',dmg:20,rate:1,   range:145,rico:2,                    desc:'一直線の光が2回跳弾する'},
-  rainbow: {name:'虹',      t:2,c:'#ff9ae8',kind:'pulse',dmg:9,  rate:1,   range:100,slow:.25,slowT:1,desc:'七色の光で惑わす'},
+  rainbow: {name:'虹',      t:2,c:'#ff9ae8',kind:'pulse',dmg:9,  rate:1,   range:100,desc:'七色の光で照らす'}, // 名前に合わない効き目を外した（2026-11-29）
   gem:     {name:'宝石',    t:2,c:'#7af0e8',kind:'bolt', dmg:45, rate:.45, range:170,fast:1,rico:1,             desc:'遠くを撃ち抜き、跳弾する'},
-  aurora:  {name:'オーロラ',t:2,c:'#8af8c8',kind:'pulse',dmg:11, rate:1,   range:110,slow:.3,slowT:1,           desc:'光の帯で包みこむ'},
+  aurora:  {name:'オーロラ',t:2,c:'#8af8c8',kind:'pulse',dmg:11, rate:1,   range:110,           desc:'光の帯で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
   firefly: {name:'蛍',      t:2,c:'#d8ff7a',kind:'chain',dmg:10, rate:1.3, range:125,chain:3,                   desc:'光が3体に飛び移る'},
   shadow:  {name:'影',      t:2,c:'#8a6ac8',kind:'bolt', dmg:7,  rate:1.3, range:120,desc:'影を落として撃つ'},
   blackflame:{name:'黒炎',  t:2,c:'#c05aff',kind:'bolt', dmg:8,  rate:1.1, range:115,dot:12,dotT:3,             desc:'消えにくい黒い炎'},
   venom:   {name:'毒',      t:2,c:'#8be04a',kind:'bolt', dmg:4,  rate:1.2, range:115,dot:10,dotT:4,             desc:'じわじわ効く毒'},
   tomb:    {name:'墓',      t:2,c:'#a8a0c0',kind:'pulse',dmg:9,  rate:.9,  range:85, curse:1.25,                desc:'まわりの敵を呪う'},
   bat:     {name:'蝙蝠',    t:2,c:'#b07ad8',kind:'bolt', dmg:5,  rate:3,   range:130,                           desc:'群れで飛びかかる'},
-  twilight:{name:'黄昏',    t:2,c:'#ffa87a',kind:'pulse',dmg:7,  rate:1,   range:105,slow:.3,slowT:1,desc:'薄闇で遅くする'},
+  twilight:{name:'黄昏',    t:2,c:'#ffa87a',kind:'pulse',dmg:7,  rate:1,   range:105,desc:'薄闇で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
   thorn:   {name:'茨',      t:2,c:'#6aa84a',kind:'trap',                   range:34, dot:12,dotT:2,             desc:'罠：踏んだ敵を刺し続ける'},
   hai:     {name:'灰',      t:2,c:'#9a958c',kind:'bolt', dmg:18, rate:1,   range:110,                           desc:'燃え尽きたもの'},
   // ★3
@@ -69,12 +69,12 @@ const ITEMS={
   spore:   {name:'胞子',    t:3,c:'#c8e06a',kind:'bolt', dmg:6,  rate:1,   range:125,splash:50,dot:12,dotT:4,   desc:'毒の胞子をまき散らす'},
   heat:    {name:'熱風',    t:3,c:'#ff9a5a',kind:'pierce',dmg:32,rate:1,   range:140,dot:8,dotT:2,              desc:'一直線に焼く風'},
   frost:   {name:'氷床',    t:3,c:'#a8ecff',kind:'trap',                   range:36, slow:.7,slowT:.3,          desc:'罠：凍った道で動けなくする'},
-  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'pulse',dmg:20, rate:1,   range:105,slow:.4,slowT:1.2,dot:8,dotT:3,desc:'絡みつく密林'},
+  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'pulse',dmg:20, rate:1,   range:105,slow:.4,slowT:1.2,desc:'絡みつく密林'}, // 名前に合わない効き目を外した（2026-11-29）
   diamond: {name:'金剛石',  t:3,c:'#d8f8ff',kind:'bolt', dmg:170,rate:.35, range:195,fast:1,rico:3,             desc:'最も硬い一撃。3回跳弾する'},
   holylight:{name:'聖光',   t:3,c:'#fff4b8',kind:'pulse',dmg:26, rate:1,   range:110,desc:'まわりを清める光'},
   laser:   {name:'レーザー',t:3,c:'#ff7a9a',kind:'beam', dmg:55,           range:150,beams:1,                   desc:'焼き切る光線'},
-  nightfall:{name:'闇夜',   t:3,c:'#7a5ac8',kind:'pulse',dmg:14, rate:1,   range:120,slow:.35,slowT:1.2,sil:2.5,desc:'闇で包み、力を封じる'},
-  vampire: {name:'吸血鬼',  t:3,c:'#e05a7a',kind:'bolt', dmg:20, rate:1.6, range:135,dot:14,dotT:3,curse:1.3,   desc:'血を吸い、呪う'},
+  nightfall:{name:'闇夜',   t:3,c:'#7a5ac8',kind:'pulse',dmg:14, rate:1,   range:120,sil:2.5,desc:'闇で包み、力を封じる'}, // 名前に合わない効き目を外した（2026-11-29）
+  vampire: {name:'吸血鬼',  t:3,c:'#e05a7a',kind:'bolt', dmg:20, rate:1.6, range:135,curse:1.3,   desc:'血を吸い、呪う'}, // 名前に合わない効き目を外した（2026-11-29）
   toxin:   {name:'猛毒',    t:3,c:'#a8f04a',kind:'bolt', dmg:6,  rate:1.2, range:125,dot:22,dotT:4,             desc:'強い毒で倒す'},
   thornwall:{name:'荊棘',   t:3,c:'#5a9a3a',kind:'trap',                   range:38, slow:.4,slowT:.3,dot:30,dotT:2,desc:'罠：棘が絡みつく'},
   hotaru:  {name:'蛍火',    t:3,c:'#e8ff8a',kind:'chain',dmg:22, rate:1.4, range:140,chain:5,                   desc:'光が5体に飛び移る'},
@@ -95,7 +95,7 @@ const ITEMS={
   cement:  {name:'セメント',t:3,c:'#a4acb4',kind:'trap',                   range:36, slow:.5,slowT:.3,          desc:'罠：踏むと固まって遅くなる'},
   // ★4
   tank:    {name:'戦車',    t:4,c:'#a8b070',kind:'bolt', dmg:130,rate:.8,  range:150,splash:50,                 desc:'砲撃で吹き飛ばす'},
-  wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,dot:25,dotT:4,   desc:'呪いと祟りでむしばむ'},
+  wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,   desc:'呪いと祟りでむしばむ'}, // 名前に合わない効き目を外した（2026-11-29）
   forest:  {name:'原生林',      t:4,c:'#6ad86a',kind:'pulse',dmg:20, rate:1,   range:125,dot:30,dotT:4,slow:.3,slowT:1.2,desc:'胞子と根で絡めとる'},
   iceage:  {name:'氷河期',  t:4,c:'#d0f4ff',kind:'pulse',dmg:45, rate:.8,  range:120,slow:.6,slowT:1.5,stop:1,stopP:.3,desc:'まわりを凍りつかせる'},
   eruption:{name:'噴火',    t:4,c:'#ff5a2a',kind:'bolt', dmg:170,rate:.6,  range:150,splash:70,dot:30,dotT:3,   desc:'大噴火で広く焼く'},
@@ -108,15 +108,15 @@ const ITEMS={
   foxfire: {name:'狐火',    t:4,c:'#5af0c8',kind:'bolt', dmg:30, rate:1.6, range:150,dot:40,dotT:3,             desc:'妖しい火がまとわりつく'},
   bottomless:{name:'底なし沼',t:4,c:'#8a7a4a',kind:'trap',                range:40, slow:.7,slowT:.3,desc:'罠：沈めて遅くする'},
   seaserpent:{name:'海蛇',  t:4,c:'#4ab8c8',kind:'chain',dmg:55, rate:1.2, range:140,chain:6,slow:.35,slowT:1, desc:'6体に巻きついてしびれさせる'},
-  shinso:  {name:'真祖',    t:4,c:'#ff4a6a',kind:'bolt', dmg:60, rate:1.6, range:150,dot:35,dotT:3,curse:1.5,   desc:'吸血鬼の祖'},
+  shinso:  {name:'真祖',    t:4,c:'#ff4a6a',kind:'bolt', dmg:60, rate:1.6, range:150,curse:1.5,   desc:'吸血鬼の祖'}, // 名前に合わない効き目を外した（2026-11-29）
   tenkou:  {name:'天光',    t:4,c:'#fff8d0',kind:'beam', dmg:120,          range:175,beams:2,                   desc:'天から降る二筋の光'},
-  jukai:   {name:'樹海',    t:4,c:'#3ab85a',kind:'pulse',dmg:35, rate:1,   range:135,slow:.5,slowT:1.5,dot:30,dotT:3,desc:'迷わせて閉じこめる'},
+  jukai:   {name:'樹海',    t:4,c:'#3ab85a',kind:'pulse',dmg:35, rate:1,   range:135,slow:.5,slowT:1.5,desc:'迷わせて閉じこめる'}, // 名前に合わない効き目を外した（2026-11-29）
   mire:    {name:'腐海',    t:4,c:'#7ad63a',kind:'trap',                   range:38, slow:.45,slowT:.3,dot:60,dotT:2.5,desc:'罠：猛毒で蝕み、遅くする'},
   antlion: {name:'蟻地獄',  t:4,c:'#e8a850',kind:'trap',                   range:38, slow:.75,slowT:.3,knock:8,   desc:'罠：引きずり戻し、大きく遅くする'},
   purgatory:{name:'煉獄',   t:4,c:'#ff5a1a',kind:'trap',                   range:38, dot:110,dotT:2.5,          desc:'罠：踏んだ敵を激しく焼く'},
   permafrost:{name:'永久凍土',t:4,c:'#c8f4ff',kind:'trap',                 range:40, slow:.8,slowT:.3,          desc:'罠：ほとんど進めなくする'},
   railgun: {name:'電磁砲',  t:4,c:'#8ad8ff',kind:'pierce',dmg:300,rate:.5, range:230,chg:5,                     desc:'蓄電し、画面の端まで貫く'},
-  reaper:  {name:'死神',    t:4,c:'#b8a0ff',kind:'bolt', dmg:90, rate:1,   range:150,curse:1.6,dot:30,dotT:4,   desc:'呪い、命を削る'},
+  reaper:  {name:'死神',    t:4,c:'#b8a0ff',kind:'bolt', dmg:90, rate:1,   range:150,curse:1.6,   desc:'呪い、命を削る'}, // 名前に合わない効き目を外した（2026-11-29）
   colossus:{name:'巨像',    t:4,c:'#e0b888',kind:'pulse',dmg:190,rate:.6,  range:85, knock:18,                  desc:'近くの敵をまとめて叩き返す'},
   sun:     {name:'太陽',    t:4,c:'#ffc23c',kind:'pulse',dmg:60, rate:1,   range:130,dot:40,dotT:3,             desc:'広くまわりを灼く'},
   tsunami: {name:'津波',    t:4,c:'#4a9cff',kind:'pierce',dmg:130,rate:.8, range:170,slow:.5,slowT:2,           desc:'一直線に押し流す'},
@@ -137,7 +137,7 @@ const ITEMS={
   fortress:{name:'要塞',    t:5,c:'#c8a870',kind:'bolt', dmg:400,rate:1.1, range:185,splash:75,                 desc:'砲台が一斉に火を噴く'},
   thunderlord:{name:'雷神', t:5,c:'#fff08a',kind:'chain',dmg:250,rate:1.3, range:180,chain:12,                 desc:'12体を雷で撃つ'},
   hyakki:  {name:'百鬼夜行',t:5,c:'#c88aff',kind:'pulse',dmg:70, rate:1,   range:140,dot:80,dotT:4,curse:1.5,   desc:'妖が群れをなして襲う'},
-  yggdrasil:{name:'世界樹', t:5,c:'#8af08a',kind:'pulse',dmg:110,rate:1,   range:150,dot:60,dotT:3,slow:.35,slowT:1.2,desc:'根で縛り、命を吸う'},
+  yggdrasil:{name:'世界樹', t:5,c:'#8af08a',kind:'pulse',dmg:110,rate:1,   range:150,slow:.35,slowT:1.2,desc:'根で縛りつける'}, // 名前に合わない効き目を外した（2026-11-29）
   holysword:{name:'聖剣',   t:5,c:'#fff2b0',kind:'pierce',dmg:620,rate:1.1,range:210,                          desc:'光の刃で貫く'},
   galaxy:  {name:'銀河',    t:5,c:'#c8a8ff',kind:'beam', dmg:260,          range:200,beams:3,                   desc:'星の帯で焼き払う'},
   poseidon:{name:'海神',    t:5,c:'#3a9cff',kind:'pierce',dmg:560,rate:1,  range:205,slow:.5,slowT:2,           desc:'大波で一直線に押し流す'},
@@ -149,20 +149,20 @@ const ITEMS={
   ninetails:{name:'九尾',   t:5,c:'#7af8d8',kind:'bolt', dmg:140,rate:1.8, range:180,dot:90,dotT:3,curse:1.4,   desc:'九つの狐火で呪い焼く'},
   photon:  {name:'光子砲',  t:5,c:'#ffb0f8',kind:'beam', dmg:320,          range:220,beams:2,                   desc:'二筋の光で貫く'},
   naraku:  {name:'奈落',    t:5,c:'#6a5aa8',kind:'trap',                   range:42, slow:.8,slowT:.3,dot:150,dotT:2.5,curse:1.4,desc:'罠：底へ引きずりこむ'},
-  paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'pulse',dmg:150,rate:1,   range:160,slow:.4,slowT:1.2,dot:50,dotT:3,desc:'花と水で包みこむ'},
+  paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'pulse',dmg:150,rate:1,   range:160,desc:'花と水で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
   hellmouth:{name:'地獄門', t:5,c:'#ff3a2a',kind:'trap',                   range:40, dot:300,dotT:2.5,curse:1.5,desc:'罠：業火で焼き、呪う'},
   stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,stop:2,knock:8, desc:'罠：時がほとんど止まる'},
-  stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,slow:.3,slowT:1,sil:3,desc:'すべてを照らし、敵の力を封じる'},
+  stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,sil:3,desc:'すべてを照らし、敵の力を封じる'}, // 名前に合わない効き目を外した（2026-11-29）
   ragnarok:{name:'終焉',    t:5,c:'#ff5a7a',kind:'bolt', dmg:420,rate:1.3, range:190,splash:80,dot:60,dotT:3,   desc:'夜ごと焼きつくす'},
   phoenix: {name:'不死鳥',  t:5,c:'#ff9a3c',kind:'bolt', dmg:260,rate:2,   range:180,splash:50,dot:80,dotT:3,   desc:'炎の羽を降らせる'},
-  dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,slow:.4,slowT:2,           desc:'すべてを貫く息吹'},
+  dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,           desc:'すべてを貫く息吹'}, // 名前に合わない効き目を外した（2026-11-29）
   moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   kaleidoscope:{name:'万華鏡',t:5,c:'#ffb0e8',kind:'beam',dmg:260,rate:1.2,range:190,splash:38,kaleido:1,       desc:'撃つたび属性が変わる虹の光'},
   mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:90, slow:.4,slowT:.3,warp:120,warpP:.5,warpCd:3,desc:'罠：熱気で遅くし、幻に惑わせて後戻りさせる'}, // 陽炎（★4）の広さと減速を受け継ぎ、後戻りを強めた
   shabondama:{name:'泡の檻',t:5,c:'#a8f0ff',kind:'trap',               range:60, slow:.6,slowT:.3,stun:1.5,stunP:.4,stunCd:3,desc:'罠：包んだ敵を止める'}, // 材料の泡（★4）や陽炎（★4）より弱かったので強めた
   // ★6
   myth:    {name:'神話',    t:6,c:'#ffe0a0',kind:'bolt', dmg:900,rate:1.4, range:220,splash:90,dot:80,dotT:3,   desc:'神々の一撃'},
-  eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,curse:1.5,slow:.3,slowT:1,desc:'終わらない雷と呪い'},
+  eternity:{name:'永劫',    t:6,c:'#d8b0ff',kind:'chain',dmg:600,rate:1.4, range:210,chain:16,desc:'終わらない雷'}, // 名前に合わない効き目を外した（2026-11-29）
   cosmos:  {name:'宇宙',    t:6,c:'#c0b0ff',kind:'beam', dmg:820,          range:230,beams:5,                   desc:'星々の光で焼きつくす'},
   kamikaze:{name:'神嵐',    t:6,c:'#c8fff0',kind:'chain',dmg:700,rate:1.4, range:220,chain:18,slow:.4,slowT:1,  desc:'神の嵐が18体を撃つ'},
   rinne:   {name:'輪廻',    t:6,c:'#ffa060',kind:'bolt', dmg:850,rate:1.6, range:210,splash:70,dot:150,dotT:3, desc:'焼かれては蘇る炎'},
@@ -193,7 +193,7 @@ const ITEMS={
   darkward:{name:'闇の結界',t:4,c:'#9a7ad8',kind:'ward',range:170,amp:'dark',desc:'輪の中の影は、闇の系統の攻撃を 1.2 倍受ける'},
   lightward:{name:'光の結界',t:4,c:'#fff2a0',kind:'ward',range:170,amp:'light',desc:'輪の中の影は、光の系統の攻撃を 1.2 倍受ける'},
   woodward:{name:'木の結界',t:4,c:'#7ac85a',kind:'ward',range:170,amp:'wood',desc:'輪の中の影は、木の系統の攻撃を 1.2 倍受ける'},
-  genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,slow:.4,slowT:1,desc:'夜そのものを終わらせる'},
+  genesis: {name:'創世',    t:6,c:'#fff6d8',kind:'beam', dmg:700,          range:210,beams:6,desc:'夜そのものを終わらせる'}, // 名前に合わない効き目を外した（2026-11-29）
   // 音（三叉の谷をクリアすると届く基本元素）と、音から作る元素
   sound:   {name:'音',      t:1,c:'#ff8ec8',kind:'pulse',dmg:3,  rate:1,   range:90, stop:.3,stopP:.25,         desc:'範囲の敵全員に当たる波。少しひるませる'},
   hanabi:  {name:'花火',    t:2,c:'#ff9a8a',kind:'pulse',dmg:11, rate:1,   range:85, dot:4,dotT:2,             desc:'周りで弾けて小さな範囲ダメージ'},
@@ -201,7 +201,7 @@ const ITEMS={
   jibiki:  {name:'地響き',  t:2,c:'#d8a070',kind:'pulse',dmg:9,  rate:.9,  range:80, stop:.4,stopP:.3,         desc:'周りの敵を一瞬ひるませる'},
   fue:     {name:'笛',      t:2,c:'#a8f0d0',kind:'bolt', dmg:4,  rate:2.2, range:140,                          desc:'遠くまで届く、速い音の弾'},
   koto:    {name:'琴',      t:2,c:'#c8e08a',kind:'support',                range:120,buffD:0,buffR:.15,        desc:'近くの塔の攻撃速度を上げる'},
-  suzu:    {name:'鈴',      t:2,c:'#ffe090',kind:'pulse',dmg:6,  rate:1,   range:90, slow:.2,slowT:1,desc:'鳴るたびに周りの敵を遅くする'},
+  suzu:    {name:'鈴',      t:2,c:'#ffe090',kind:'pulse',dmg:6,  rate:1,   range:90, desc:'鳴るたびに周りの敵を打つ'}, // 名前に合わない効き目を外した（2026-11-29）
   juka:    {name:'呪歌',    t:2,c:'#c890ff',kind:'chain',dmg:9,  rate:1,   range:120,chain:3,curse:1.2,        desc:'当てた敵を呪いながら跳ねる'},
   wakon:   {name:'和音',    t:2,c:'#ffa8d8',kind:'support',                range:120,buffD:.12,buffR:0,        desc:'近くの塔のダメージを上げる'},
   shakudama:{name:'尺玉',   t:3,c:'#ff8aa0',kind:'pulse',dmg:26, rate:.9,  range:105,dot:12,dotT:3,            desc:'大きな花火で広い範囲を焼く'},
@@ -219,7 +219,7 @@ const ITEMS={
   matsuribayashi:{name:'祭囃子',t:4,c:'#ff7a6a',kind:'support',            range:150,buffD:.22,buffR:.22,      desc:'範囲内の塔を大きく強める'},
   siren:   {name:'セイレーン',t:4,c:'#6ac8d8',kind:'pulse',dmg:30, rate:.9, range:130,slow:.5,slowT:1.5,knock:14,desc:'歌で敵を足止めし、引き寄せる'},
   kyoumei: {name:'共鳴',    t:4,c:'#c8e8ff',kind:'chain',dmg:55, rate:1.2, range:145,chain:7,                 desc:'当てたダメージが近くの敵にも広がる'},
-  soukyoku:{name:'葬送曲',  t:4,c:'#a090c8',kind:'pulse',dmg:30, rate:1,   range:125,slow:.4,slowT:1,desc:'範囲の敵を大きく遅くする'},
+  soukyoku:{name:'葬送曲',  t:4,c:'#a090c8',kind:'pulse',dmg:30, rate:1,   range:125,desc:'重い調べで範囲の敵を打つ'}, // 名前に合わない効き目を外した（2026-11-29）
   shukufuku:{name:'祝福の鐘',t:4,c:'#ffe090',kind:'support',              range:155,buffD:.28,buffR:.18,      desc:'強い支援。ダメージと速度の両方'},
   shirabe: {name:'風の調べ',t:4,c:'#9af0d0',kind:'chain',dmg:45, rate:2,   range:150,chain:6,                 desc:'とても速い連鎖'},
   tengaku: {name:'天楽',    t:5,c:'#fff0c8',kind:'support',                range:175,buffD:.45,buffR:.30,      desc:'広い範囲の塔をすべて強める'},
@@ -229,7 +229,7 @@ const ITEMS={
   // 時（砂時計の峠をクリアすると届く基本元素）と、時から作る元素。rew：巻き戻し（その秒数ぶん前にいた場所へ戻す）
   time:    {name:'時',      t:1,c:'#c8d4ff',kind:'pulse',dmg:3,  rate:.8,  range:90, rew:.6,                   desc:'周りの敵を少し前の場所へ戻す'},
   shio:    {name:'潮',      t:2,c:'#8ab8ff',kind:'pulse',dmg:5,  rate:1,   range:95, slow:.35,slowT:1.5,       desc:'満ち引きで周りの敵を遅くする'},
-  fossil:  {name:'化石',    t:2,c:'#c8b090',kind:'bolt', dmg:16, rate:.7,  range:110,stop:.6,stopP:.25,        desc:'当てた敵をときどき石のように止める'},
+  fossil:  {name:'化石',    t:2,c:'#c8b090',kind:'bolt', dmg:16, rate:.7,  range:110,        desc:'硬い化石をぶつける'}, // 名前に合わない効き目を外した（2026-11-29）
   fuka:    {name:'風化',    t:2,c:'#b8b0a0',kind:'pulse',dmg:6,  rate:1,   range:90, desc:'周りの敵にひびを入れる'},
   nenrin:  {name:'年輪',    t:2,c:'#c8a070',kind:'support',                range:120,buffD:.12,buffR:0,        desc:'近くの塔のダメージを上げる'},
   hidokei: {name:'日時計',  t:2,c:'#ffe8a0',kind:'beam', dmg:14,           range:120,beams:1,slow:.2,slowT:1,  desc:'影の針がのびて敵を焼き、遅くする'},
@@ -302,7 +302,7 @@ const ITEMS={
   seijaku: {name:'静寂',    t:2,c:'#c8c8e8',kind:'pulse',dmg:5,  rate:.9,  range:100,sil:2,                    desc:'音が消える。周りの敵を沈黙させ、守りや癒しを封じる'},
   kanbatsu:{name:'干ばつ',  t:2,c:'#e8c080',kind:'pulse',dmg:6,  rate:1,   range:95, dot:5,dotT:3,             desc:'水がない。周りの敵をじわじわ弱らせる'},
   ana:     {name:'穴',      t:2,c:'#a09080',kind:'trap',                   range:34, slow:.5,slowT:.3,stop:.8,  desc:'罠：落ちた敵が少し止まる'},
-  nukegara:{name:'抜け殻',  t:2,c:'#d8c8a8',kind:'bolt', dmg:10, rate:1,   range:115,slow:.3,slowT:1,desc:'魂の抜けた器。打たれた敵を遅くする'},
+  nukegara:{name:'抜け殻',  t:2,c:'#d8c8a8',kind:'bolt', dmg:10, rate:1,   range:115,desc:'魂の抜けた器。敵に打ちつける'}, // 名前に合わない効き目を外した（2026-11-29）
   kuukyo:  {name:'空虚',    t:2,c:'#b8b8d0',kind:'pulse',dmg:6,  rate:.9,  range:95, erase:.1,                 desc:'何もない。周りの体力の少ない敵を消し去る'},
   shinkuuha:{name:'真空刃', t:3,c:'#b0f0e0',kind:'pierce',dmg:34,rate:1,   range:150,                          desc:'風の刃で一直線に切り裂く'},
   doukutsu:{name:'洞窟',    t:3,c:'#9a8a78',kind:'trap',                   range:38, slow:.65,slowT:.3,         desc:'罠：迷いこんだ敵が大きく遅くなる'},
