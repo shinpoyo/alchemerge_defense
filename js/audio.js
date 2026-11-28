@@ -23,6 +23,7 @@ function buildAudio(ctx){
   for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<len;i++){const t=i/len,k=.08+.5*(1-t);lp+=((Math.random()*2-1)-lp)*k;d[i]=lp*(1-t)**2.6*(i<sr*.012?i/(sr*.012):1)}}
   const cv2=AC.createConvolver(),rg=AC.createGain();cv2.buffer=ir;rg.gain.value=.55;REV=AC.createGain();REV.connect(cv2).connect(rg).connect(comp);REVM=AC.createGain();REVM.connect(cv2);applyVol();
   noiseBuf=AC.createBuffer(1,sr*1.2,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  loadSfx();
 }
 function audio(){
   if(AC||muted)return;
@@ -146,67 +147,106 @@ const MULTI={blackflame:['flame','dark'],wisp:['flame','dark'],plasma:['volt','f
 for(const k in ITEMS){const d=ITEMS[k];d.fam=MULTI[k]||(FAMOF[k]?[FAMOF[k]]:[]);d.tone=d.fam[0]||TONE[k]} // fam：系統の配列（灰・鋼・竜の元素は空＝無系統）。音色のほか、鎧の影が防ぐ攻撃の判定にも使う
 const famL=f=>Array.isArray(f)?f:f&&f!=='none'?[f]:[]; // 系統を配列にそろえる（万華鏡の 1 発などは文字列）
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
+// 外部効果音ローダー（sfx/<key>.mp3 があればそちらを再生、未読込・欠損時は自動で従来の Web Audio 合成へフォールバック）
+const SFX_KEYS=['ui','pick','drop','spawn','fail','merge_1','merge_2','merge_3','disc','moon_open','moon_pick','kill','thud','boom','warn','king_intro','wave','wave_boss','wave_end','clear','over','ach','leak'];
+const SFX_BUF={};
+let sfxLoading=false,killCombo=0,lastKillAt=0;
+function loadSfx(){
+  if(sfxLoading||!AC||typeof fetch!=='function')return;
+  sfxLoading=true;
+  for(const k of SFX_KEYS){
+    fetch(`sfx/${k}.mp3`).then(r=>r.ok?r.arrayBuffer():null).then(b=>b&&AC?AC.decodeAudioData(b):null)
+      .then(buf=>{if(buf)SFX_BUF[k]=buf}).catch(()=>{});
+  }
+}
+function playSfx(key,v=.75,rate=1,pan=0){
+  if(!sndOK()||sfxOff)return true; // 消音・効果音オフ時はフォールバックも鳴らさない
+  const buf=SFX_BUF[key];if(!buf)return false;
+  const src=AC.createBufferSource(),g=AC.createGain();
+  src.buffer=buf;src.playbackRate.value=clamp(rate,.5,2);g.gain.value=v;
+  if(pan&&AC.createStereoPanner){const p=AC.createStereoPanner();p.pan.value=clamp(pan,-1,1);src.connect(g).connect(p).connect(BUS)}
+  else src.connect(g).connect(BUS);
+  src.start(AC.currentTime);
+  return true;
+}
 const sfx={
-  pick(){tone(560,.1,'triangle',.17,880,0,{rev:.25});noise(.03,.06,5000,0,{type:'highpass',rev:0})},
-  drop(){tone(190,.16,'sine',.3,85,0,{rev:.25});noise(.07,.1,700,0,{rev:.1})},
-  spawn(i){const f=N(i*2-7);bell(f,.55,.15,0,.45);tone(f/2,.14,'sine',.14,f,0,{rev:.2})},
+  pick(){if(playSfx('pick',.68,rnd(.96,1.04)))return;tone(560,.1,'triangle',.17,880,0,{rev:.25});noise(.03,.06,5000,0,{type:'highpass',rev:0})},
+  drop(){if(playSfx('drop',.72,rnd(.96,1.04)))return;tone(190,.16,'sine',.3,85,0,{rev:.25});noise(.07,.1,700,0,{rev:.1})},
+  spawn(i){if(playSfx('spawn',.68,2**((i*2-9)/12)))return;const f=N(i*2-7);bell(f,.55,.15,0,.45);tone(f/2,.14,'sine',.14,f,0,{rev:.2})},
   merge(t){ // 吸いこむ音 → 低い一打 → 鐘の和音が開く。ランクが高いほど音が増え、長く響く
+    if(playSfx(t>=4?'merge_3':t>=2?'merge_2':'merge_1',.82,2**((t-1)*.025)))return;
     noise(.22,.05,600,0,{type:'bandpass',to:5200,q:2.5,a:.15,rev:.3});
     tone(120,.3,'sine',.16+t*.02,48,.02,{rev:.3});
     [0,4,7,12,16,19].slice(0,3+Math.min(t,3)).forEach((n,i)=>bell(N(n+t*2-10),.9+t*.15,.07,.04+i*.05,.6));
     if(t>=3)tone(N(t*2-22),1.4,'sawtooth',.035,null,.05,{det:8,a:.2,lp:500,rev:.7,hold:.6});
   },
   disc(){ // 新発見：和音がふくらみ、鐘が駆け上がって、きらめきが残る
+    if(playSfx('disc',.85))return;
     [-10,-3,2,6].forEach(n=>tone(N(n),2.2,'sawtooth',.03,null,0,{det:9,a:.25,lp:700,lpTo:2400,rev:.8,hold:.9}));
     [0,4,7,11,14,19,23,26].forEach((n,i)=>bell(N(n-5),1.3,.06,.08+i*.075,.75));
     noise(1.4,.02,9000,.3,{type:'highpass',to:6000,a:.4,rev:.9});tone(73,1.2,'sine',.13,55,0,{a:.02,rev:.4});
   },
   moonOpen(){ // 月の恵み：低い響きの上に、高い鐘がゆっくり降りてくる
+    if(playSfx('moon_open',.82))return;
     [-15,-8,-3].forEach(n=>tone(N(n),2.6,'sine',.05,null,0,{a:.6,rev:.9,hold:1.2}));
     [19,16,12,7,4].forEach((n,i)=>bell(N(n),1.6,.05,.15+i*.12,.85));noise(1.6,.015,8000,.1,{type:'highpass',a:.6,rev:.9});
   },
   moonDeal(i){bell(N(7+i*5),.7,.06,0,.6);noise(.08,.04,4000,0,{type:'bandpass',rev:.2})}, // 札が 1 枚ずつ開く
   moonPick(bad){ // 札を選んだ：吸いこんで、明るい和音が開く（代償つきは少し暗い和音）
+    if(playSfx('moon_pick',.82,bad?.92:1))return;
     noise(.3,.05,500,0,{type:'bandpass',to:6000,q:2,a:.2,rev:.4});tone(110,.5,'sine',.18,44,.25,{rev:.4});
     (bad?[0,3,7,10,15]:[0,4,7,11,16]).forEach((n,i)=>bell(N(n-3),1.6,.07,.3+i*.06,.8));
     [-10,-3,2].forEach(n=>tone(N(n),1.8,'sawtooth',.025,null,.3,{det:9,a:.2,lp:900,lpTo:2600,rev:.8,hold:.6}));
   },
-  fail(){tone(150,.12,'square',.2,105,0,{lp:500,rev:.1});tone(120,.14,'square',.17,85,.1,{lp:420,rev:.1})},
-  thud(){if(S.time-lastKill<.05)return;lastKill=S.time;tone(120,.24,'sine',.2,42,0,{rev:.3});noise(.1,.11,900,0,{rev:.2});tone(rnd(420,560),.1,'triangle',.07,160,0,{rev:.3})}, // 大型を倒した重い音
-  kill(){if(S.time-lastKill<.05)return;lastKill=S.time;const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1})},
-  shoot(d){ // アイテムごとの発射音：系統×攻撃タイプ×ティアで合成する
-    if(S.time-lastShot<.05)return;lastShot=S.time;
+  fail(){if(playSfx('fail',.68))return;tone(150,.12,'square',.2,105,0,{lp:500,rev:.1});tone(120,.14,'square',.17,85,.1,{lp:420,rev:.1})},
+  thud(){ // 大型を倒した重い音（実時間ベースで間引き、倍速時も濁らない）
+    const now=AC?AC.currentTime:S.time;if(now-lastKill<.05)return;lastKill=now;
+    if(playSfx('thud',.78,rnd(.93,1.07)))return;
+    tone(120,.24,'sine',.2,42,0,{rev:.3});noise(.1,.11,900,0,{rev:.2});tone(rnd(420,560),.1,'triangle',.07,160,0,{rev:.3});
+  },
+  kill(){ // 連続撃破時は五音音階で少しずつ音程を上げて爽快感を出す（実時間ベース間引き）
+    const now=AC?AC.currentTime:S.time;if(now-lastKill<.055)return;lastKill=now;
+    killCombo=now-lastKillAt<.45?Math.min(killCombo+1,SCALE.length-1):0;lastKillAt=now;
+    const rate=2**((SCALE[killCombo]-SCALE[0])/12);
+    if(playSfx('kill',.52,rate*rnd(.98,1.02)))return;
+    const f=rnd(520,900);tone(f,.1,'triangle',.11,f*.3,0,{rev:.3});noise(.04,.05,3500,0,{rev:.1});
+  },
+  shoot(d){ // アイテムごとの発射音：系統×攻撃タイプ×ティアで合成する（実時間ベースで間引き、倍速時も耳に刺さらない）
+    const now=AC?AC.currentTime:S.time;if(now-lastShot<.055)return;lastShot=now;
     const F=FAM[d.tone||famL(d.fam)[0]]||FAM.earth,t=d.t;
-    const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12),v=Math.min(.13,.055+t*.013);
+    const f=F.f*2**(((hsh(d.id)%7)-3-(t-1)*1.5)/12)*rnd(.96,1.04),v=Math.min(.13,.055+t*.013);
     if(t>=4)tone(f/2,.16,'sine',v*.7,f/3); // 高ティアは低音の芯を足す
     if(famL(d.fam).includes('sound')&&d.kind!=='chain'&&d.kind!=='pierce'){bell(f*1.5,.35,v*1.1,0,.4);return} // 音の元素：鐘のような音
+    const lp=(F.w==='sawtooth'||F.w==='square')?{lp:Math.min(3600,f*4.5)}:{};
     switch(d.kind){
-      case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.6,f*.5);break;
+      case 'chain':for(let i=0;i<3;i++)noise(.03,v*1.1,F.nf,i*.028);tone(f*2,.07,'square',v*.55,f*.5,0,{lp:3200});break;
       case 'pulse':tone(f*.9,.22,'sine',v*1.7,f*.3);noise(.18,v*.8,F.nf);break;
       case 'beam':tone(f,.08,'sine',v*.8);tone(f*1.5,.08,'sine',v*.45);if(t>=5)tone(f*2,.1,'sine',v*.3);break;
-      case 'pierce':noise(.11,v,F.nf);tone(f*.7,.1,F.w,v,f*1.9);break;
+      case 'pierce':noise(.11,v,F.nf);tone(f*.7,.1,F.w,v,f*1.9,0,lp);break;
       case 'mirror':bell(f*1.5,.18,v*.8,0,.35);tone(f*2,.1,'sine',v*.5,f*1.2);break;
-      default:tone(f*1.35,.09,F.w,v,f*.75);noise(.05,v*.6,F.nf);
+      default:tone(f*1.35,.09,F.w,v,f*.75,0,lp);noise(.05,v*.6,F.nf);
         if(d.splash){noise(.16,v*1.2,420);tone(f*.5,.18,'sine',v*1.1,f*.22)}
     }
   },
-  hit(d){ // 範囲攻撃の着弾音
-    if(S.time-lastHit<.07)return;lastHit=S.time;
+  hit(d){ // 範囲攻撃の着弾音（実時間ベースで間引き）
+    const now=AC?AC.currentTime:S.time;if(now-lastHit<.07)return;lastHit=now;
     const v=Math.min(.2,.09+d.t*.02);noise(.14,v,380);tone(90+d.t*8,.16,'sine',v,40);
   },
-  leak(){tone(82,.9,'sine',.24,30,0,{rev:.5});tone(87,.7,'sawtooth',.06,40,0,{lp:300,rev:.5});noise(.55,.13,480,0,{rev:.5});bell(N(-22),1.6,.07,.05,.8)},
+  leak(){if(playSfx('leak',.85))return;tone(82,.9,'sine',.24,30,0,{rev:.5});tone(87,.7,'sawtooth',.06,40,0,{lp:300,rev:.5});noise(.55,.13,480,0,{rev:.5});bell(N(-22),1.6,.07,.05,.8)},
   wave(n){ // 波の開始：角笛と太鼓。5 波ごとの主は低く長く
     const boss=n%5===0,b=boss?-5:0;
+    if(playSfx(boss?'wave_boss':'wave',.82))return;
     brass(N(-31+b),1.5,.075);brass(N(-24+b),1.5,.06,.14);if(boss)brass(N(-19+b),1.6,.05,.3);
     drum(.2,0);drum(.16,.42);if(boss){drum(.22,.84,80);drum(.22,1.05,70)}
   },
-  waveEnd(){[0,7,12,16].forEach((n,i)=>bell(N(n-9),1.1,.06,i*.09,.7));tone(N(-21),.9,'sine',.07,null,0,{a:.02,rev:.5})},
-  boom(){noise(.7,.2,1100,0,{rev:.6});tone(66,.7,'sine',.24,28,0,{rev:.5});tone(48,.9,'sine',.14,24,.05,{rev:.5});bell(N(-19),2,.06,.1,.9)},
+  waveEnd(){if(playSfx('wave_end',.78))return;[0,7,12,16].forEach((n,i)=>bell(N(n-9),1.1,.06,i*.09,.7));tone(N(-21),.9,'sine',.07,null,0,{a:.02,rev:.5})},
+  boom(){if(playSfx('boom',.9))return;noise(.7,.2,1100,0,{rev:.6});tone(66,.7,'sine',.24,28,0,{rev:.5});tone(48,.9,'sine',.14,24,.05,{rev:.5});bell(N(-19),2,.06,.1,.9)},
   fw(){ // 花火：どん、のあとにぱらぱら
     tone(rnd(90,130),.35,'sine',.22,45,0,{rev:.6});noise(.3,.16,rnd(1800,3200),0,{type:'bandpass',q:1,rev:.7});
     for(let i=0;i<7;i++)noise(.03,.07,rnd(4000,9000),.12+rnd(.5),{type:'highpass',rev:.6});
   },
   clear(){ // クリア：金管のファンファーレ → 長い和音と鐘、太鼓
+    if(playSfx('clear',.9))return;
     [[-7,0,.22],[-3,.2,.22],[0,.4,.22],[5,.6,.5],[2,1.05,.22],[5,1.25,1.9]].forEach(([n,t,d])=>{brass(N(n),d,.085,t,.5);brass(N(n-12),d,.05,t,.5)});
     [-19,-12,-7,-3].forEach(n=>tone(N(n),3,'sawtooth',.03,null,1.25,{det:9,a:.3,lp:900,lpTo:2600,rev:.8,hold:1.4}));
     [5,9,12,17,21,24,29].forEach((n,i)=>bell(N(n),1.6,.05,1.3+i*.09,.85));
@@ -218,9 +258,10 @@ const sfx={
     [17,21,24,29,33,36].forEach((n,i)=>bell(N(n),1.4,.05,.45+i*.08,.8));
     noise(1,.02,9000,.5,{type:'highpass',to:6000,a:.3,rev:.9});drum(.18,.4,85);
   },
-  over(){[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
-  warn(){for(let i=0;i<3;i++){tone(N(-17),.34,'sawtooth',.07,N(-12),i*.44,{det:6,lp:900,rev:.3});tone(N(-29),.34,'sine',.12,null,i*.44,{rev:.3});drum(.13,i*.44,70)}}, // 主が近づく警告
+  over(){if(playSfx('over',.88))return;[0,-1,-5,-12].forEach((n,i)=>brass(N(n-19),.9,.07,i*.34,.7));bell(N(-31),3.2,.12,1.3,.95);drum(.22,1.3,70);noise(1.2,.05,300,1.3,{rev:.8})},
+  warn(){if(playSfx('warn',.82))return;for(let i=0;i<3;i++){tone(N(-17),.34,'sawtooth',.07,N(-12),i*.44,{det:6,lp:900,rev:.3});tone(N(-29),.34,'sine',.12,null,i*.44,{rev:.3});drum(.13,i*.44,70)}}, // 主が近づく警告
   kingIntro(){ // 夜の王の降臨演出：DANGER 3連警報 → 地鳴り → 2.15s の顕現フラッシュで轟音と重厚な金管和音・鐘
+    if(playSfx('king_intro',.92))return;
     for(let i=0;i<3;i++){tone(N(-17),.32,'sawtooth',.075,N(-12),i*.42,{det:6,lp:950,rev:.3});tone(N(-29),.32,'sine',.13,null,i*.42,{rev:.3});drum(.15,i*.42,68)}
     tone(52,.85,'sine',.22,34,1.32,{rev:.5});noise(.75,.13,260,1.32,{rev:.5});drum(.24,1.35,62);
     noise(.95,.24,1400,2.15,{rev:.8});tone(64,.95,'sine',.3,28,2.15,{rev:.65});drum(.3,2.15,58);drum(.24,2.38,50);
@@ -228,15 +269,15 @@ const sfx={
     bell(N(-14),2.6,.09,2.2,.95);bell(N(-2),2.2,.055,2.38,.9);
   },
   rage(){brass(N(-33),1.1,.09);brass(N(-27),1.1,.07,.08);drum(.24,0,70);drum(.2,.22,60);noise(.6,.1,900,0,{rev:.5})},                                                       // 主の怒り
-  ach(){bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
+  ach(){if(playSfx('ach',.72))return;bell(N(2),.9,.05,0,.7);bell(N(9),1.1,.05,.13,.7);bell(N(14),1.4,.04,.26,.8)}, // 実績：控えめな鐘
   syn(k){ // 属性シナジー発動：系統ごとの心地よいアクセント音
-    if(S.time-(S._synSfx??-9)<.18)return;S._synSfx=S.time;
+    const now=AC?AC.currentTime:S.time;if(now-(S._synSfx??-9)<.18)return;S._synSfx=now;
     if(k==='wetT'){tone(1040,.1,'square',.045,1560,0,{lp:3200,rev:.2});noise(.05,.05,5200,0,{type:'highpass',rev:.15})}
     else if(k==='britT'){tone(220,.14,'triangle',.09,90,0,{rev:.2});noise(.08,.07,1800,0,{type:'bandpass',q:1.2,rev:.2})}
     else if(k==='dryT'){tone(540,.14,'sine',.075,860,0,{rev:.25});noise(.07,.05,2200,0,{type:'bandpass',rev:.2})}
     else if(k==='tinderT'){tone(360,.16,'sawtooth',.06,620,0,{lp:1800,rev:.25});noise(.1,.06,2400,0,{rev:.2})}
     else{tone(720,.12,'sine',.065,1180,0,{rev:.25});noise(.07,.045,4200,0,{type:'highpass',rev:.2})}
   },
-  ui(){tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
+  ui(){if(playSfx('ui',.55,rnd(.98,1.03)))return;tone(880,.06,'sine',.13,1100,0,{rev:.15});noise(.015,.04,6000,0,{type:'highpass',rev:0})},
 };
 const buzz=ms=>{try{if(FX&&!vibOff&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
