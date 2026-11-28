@@ -7,7 +7,7 @@ const VIS={
   fire:'fireball',flame:'fireball',phoenix:'feather',wisp:'ghost',water:'drop',sea:'wave',
   earth:'rock',rock:'rock',mountain:'rock',peak:'rock',wind:'blade',gust:'blade',sand:'grain',desert:'grain',
   lava:'glob',ice:'shard',engine:'bullet',crystal:'snipe',curse:'hex',iron:'slug',sabi:'slug',fushoku:'slug',spore:'puff',titan:'shell',ragnarok:'meteor',reaper:'scythe',
-  steam:'steam',pond:'ripple',inferno:'flames',sun:'rays',tornado:'spin',typhoon:'spin',storm:'spin',fujin:'spin',sandstorm:'spin',blizzard:'snow',
+  steam:'steam',pond:'ripple',river:'ripple',inferno:'flames',sun:'rays',tornado:'spin',typhoon:'spin',storm:'spin',fujin:'spin',sandstorm:'spin',blizzard:'snow',
   miasma:'fog',abyss:'fog',mist:'fog',golem:'slam',colossus:'slam',
   obsidian:'blade2',tsunami:'tide',heat:'heat',railgun:'rail',dragon:'breath',
   hotspring:'steam',raincloud:'rain',glacier:'rock',volcano:'glob',blueflame:'fireball',geyser:'geyser',icicle:'blade2',
