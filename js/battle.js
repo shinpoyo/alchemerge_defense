@@ -124,6 +124,9 @@ function hurt(e,dmg,fam,srcId,srcIt){ // fam：攻撃した元素の系統（配
 }
 const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
 const STOP_RES=6,STOP_BOSS=.6;
+// 罠の底上げ（2026-11-29）：罠を出たあとも遅さが TRAP_LINGER 秒残る。速い敵（spd≥60）は残りが TRAP_FAST 倍、重い敵（big）は残りと焼く・毒が TRAP_HEAVY 倍。罠の焼く・毒はみな TRAP_DOT 倍。罠の遅さは駆ける影の「効きにくさ」を受けない
+let TRAP_LINGER=1.5,TRAP_FAST=2,TRAP_HEAVY=1.5,TRAP_DOT=1.5,TRAP_NORES=true;
+const trapK=e=>{const f=e.def.spd>=60,h=!!e.def.big;return{lin:(f?TRAP_FAST:1)*(h?TRAP_HEAVY:1),dot:TRAP_DOT*(h?TRAP_HEAVY:1)}};
 const LURE_RES=4; // 誘惑：解けたあとの耐性秒数
 let HIT=null; // いま当てている塔 {it,x,y}（魂集め・誘惑で使う。毒・燃焼・罠・結界のときは null）
 const soulM=it=>{const d=ITEMS[it.id];return d.soul?1+Math.min(d.soulMax,(it.souls||0)*d.soul):1}; // 魂集め：倒した数ぶん威力が上がる（上限あり）
@@ -189,8 +192,10 @@ function applyHit(e,d,m,color,sl){
   }
   if(d.knock&&!isBoss&&!(e.knT>0)){e.d=Math.max(0,e.d-d.knock);e.knT=.8;e.kb=.3;tag(e,'stKnock','#ffffff')}
   if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T*dmDur;e.drainSrc=d.id;e.drainIt=HIT?HIT.it:(sl&&sl.item||null)} // 呪い：命を削る
-  const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow;
-  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,d.slowT*dmDur):d.slowT*dmDur}
+  const isTr=d.kind==='trap'&&!!sl,tk=isTr?trapK(e):null; // 罠：出たあとも遅さが残り、速い敵・重い敵によく効く
+  if(isTr&&tk.dot!==1)m*=tk.dot;
+  const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow,sT=(isTr?TRAP_LINGER*tk.lin:d.slowT)*dmDur;
+  if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slowNR=isTr;e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,sT):sT}
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT*dmDur;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam;e.dotSrc=d.id;e.dotIt=HIT?HIT.it:(sl&&sl.item||null)}
   if(d.plague&&e.dotT>0&&e.dotK){if(!e.plague)tag(e,'stPlague','#c8f070');e.plague=d.plague} // 疫病：この影が毒のまま倒れると、まわりへうつる
 }
@@ -432,7 +437,7 @@ function update(dt){
     if(e.phase>1&&FX&&Math.random()<dt*(e.phase>2?22:12))flameP(e.x+rnd(-e.r,e.r)*.8,e.y-e.r*.4,e.phase>2?'#ffb040':'#ff5a2a',1,5); // 怒った主は炎をまとう
     const stopped=e.stopT>0||(e.slowT>0&&e.slow>=1),epS=modMul('enemySpd',e);
     if(e.lrT>0){if(!stopped){const dd=e.lrD-e.d,st=e.def.spd*(e.spdM||1)*moonSpd()*epS*dt;e.d+=Math.abs(dd)<=st?dd:Math.sign(dd)*st}} // 誘惑中は塔のそばまで引き返して待つ
-    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*epS*(stopped?0:e.slowT>0?1-e.slow*(1-(e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
+    else e.d+=e.def.spd*(e.spdM||1)*moonSpd()*epS*(stopped?0:e.slowT>0?1-e.slow*(1-(e.slowNR&&TRAP_NORES?0:e.def.res||0)):1)*(e.cfT>0?-CONF_SPD:1)*dt;if(e.d<0)e.d=0; // 惑わし中は来た道を逆に歩く
     if(e.d>=e.P.len){
       if(e.type!=='boss'){leak(e);continue}
       // 主・王は通り抜けず、灯の前に居すわって攻撃する。その間に倒せば被害はそこまで
