@@ -43,6 +43,7 @@ cv.addEventListener('pointermove',ev=>{
     if(!strip.moved&&Math.hypot(dx,dy)>10&&(Math.abs(dy)>Math.abs(dx)*.6||shopMax(SHOP.tab)<1)||strip.moved&&p.y<SHOP.y-12){
       const d=shopList(SHOP.tab)[strip.i];
       if(d&&!d.ws&&canBuy(d.id)){const st=strip;strip=null;SHOP.press=null;lpClear();
+        if(buyLock()){lockMsg(p.x,SHOP.y-10);return}
         if(S.mana<itemValue(d)){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return}
         const it=mkItem(d.id,p.x,p.y);it.held=true;it.sv=5;drag={shop:d.id,slot:{x:shopBtnX(st.i)+SHOP.bw/2,y:SHOP.y+SHOP.h/2,item:it},item:it,sx:p.x,sy:p.y,moved:true,touch:st.touch};sfx.pick();buzz(5);return}}}
   if(strip){const dx=p.x-strip.sx;if(Math.abs(dx)>8){strip.moved=true;SHOP.press=null;lpClear()}
@@ -59,6 +60,7 @@ function release(ev,cancel){
     if(d.ws){undoable(()=>upgradeWs(d.ws,bx));return}
     if(disc.has(d.id)&&!canBuy(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,TT('needMake',d.t),'#b9b1d0',FS.f1);return}
     if(!disc.has(d.id)){sfx.fail();floatText(clamp(p.x,70,W-70),SHOP.y-10,UNLOCK[d.id]!==undefined?TT('unlockAt',sn(STAGES[UNLOCK[d.id]])):TT('findFirst'),'#b9b1d0',FS.f1);return}
+    if(buyLock()){lockMsg(p.x,SHOP.y-10);return}
     sfx.ui();floatText(clamp(p.x,90,W-90),SHOP.y-10,TT('dragBuy'),'#cfc8e6',FS.f1);return} // 押しただけでは呼び出さない（つかんで運ぶ）
   if(pressed){const b=pressed;pressed=null;if(!cancel&&inBtn(b,p.x,p.y))press(b);return}
   if(!drag)return;

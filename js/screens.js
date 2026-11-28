@@ -101,7 +101,7 @@ function openDetail(id,from){
   show('detail');shownAt=performance.now();sfx.ui();
 }
 $('#dBody').addEventListener('click',ev=>{const bb=ev.target.closest('[data-buy]');
-  if(bb){const r=undoable(()=>spawnBase(bb.dataset.buy));if(r){bb.textContent=TT(r==='full'?'benchFull':'noMana');bb.classList.add('poor')}else{const y=$('#dBody').scrollTop;openDetail(bb.dataset.buy);$('#dBody').scrollTop=y}return}
+  if(bb){const r=undoable(()=>spawnBase(bb.dataset.buy));if(r){bb.textContent=r==='lock'?TT('earlyLockShort'):TT(r==='full'?'benchFull':'noMana');bb.classList.add('poor')}else{const y=$('#dBody').scrollTop;openDetail(bb.dataset.buy);$('#dBody').scrollTop=y}return}
   const p=ev.target.closest('[data-el]');if(p){openDetail(p.dataset.el);return}const c=ev.target.closest('.rc.go');if(c)openDetail(c.dataset.id)}); // できる元素をタップすると、その詳細へ
 $('#dClose').onclick=()=>{sfx.ui();if(detailFrom==='codex')openCodex();else show(null);detailFrom=null};
 $('#dPrev').onclick=()=>detailStep(-1);$('#dNext').onclick=()=>detailStep(1);
@@ -114,6 +114,7 @@ addEventListener('keydown',e=>{if(!$('#detail').classList.contains('on'))return;
 function buyBtn(d){
   if(!disc.has(d.id))return'';
   if(!canBuy(d.id))return`<button class="cbuy" disabled>${TT('cWs',d.t)}</button>`;
+  if(buyLock())return`<button class="cbuy" disabled>${TT('earlyLockShort')}</button>`;
   const cost=itemValue(d);return`<button class="cbuy${S.mana<cost?' poor':''}" data-buy="${d.id}">◆${cost} ${TT('cBuy')}</button>`;
 }
 function openCodex(){

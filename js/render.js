@@ -426,6 +426,8 @@ function render(dt){
     ctx.strokeStyle=rgba('#e8c36a',.6+pu*.4);ctx.lineWidth=1.5;ctx.stroke();
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=FONT(FS.f1,800);ctx.fillStyle='#ffe9a0';
     ctx.fillText(TT('earlyBtn',eb),bx+bw/2,by+bh/2+.5,bw-12);
+    ctx.textAlign='right';ctx.font=FONT(FS.f1*.9,800);ctx.lineWidth=3;ctx.strokeStyle='#05040a'; // 押す前に代償が分かるよう、チップの左に一言
+    ctx.strokeText(TT('earlyCost'),bx-6,by+bh/2+.5,bx-16);ctx.fillStyle='#ffb0c0';ctx.fillText(TT('earlyCost'),bx-6,by+bh/2+.5,bx-16);
     ctx.restore();
   }
   // 最高ランクを選んでいるときの強化ボタン（押すたびに +1。値段は段ごとに上がる）

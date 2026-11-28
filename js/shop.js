@@ -25,6 +25,9 @@ const TABS=[1,2,3,4,5,6].map((t,i)=>({t,x:12+i*(58.7+5),y:660,w:58.7,h:34})).con
 const WS_COST={2:40,3:100,4:240,5:560,6:1200}; // 工房レベルを上げる魔力
 // ★t を錬成するには工房レベル t-1 が要る（序盤に上位元素ひとつで押し切れないように）
 const rankLv=t=>t-1,rankOpen=t=>S.ws>=rankLv(t);
+// 早呼びの代償：早呼びした時点で残っていた敵（prev）が全部いなくなるまで、一覧から呼び出せない（元素も工房レベルも。合成・配置・還す・強化は止めない）
+const lockLeft=()=>S.active?S.enemies.filter(e=>e.prev&&!e.dead).length:0,buyLock=()=>lockLeft()>0;
+function lockMsg(x,y){sfx.fail();floatText(clamp(x,110,W-110),y,TT('earlyLock',lockLeft()),'#ff9ab0',FS.f1)}
 const canBuy=id=>{const d=ITEMS[id];return disc.has(id)&&(d.t===1||S.made.has(id)||(dailyMut()!=='craftOnly'&&d.t<=S.ws))};
 // しぼりこみと並べ替え（⇅の窓で選ぶ）。rank・place・role は複数選べ、何も選んでいなければ全部を出す
 // rank：1〜6、place：tower/trap、role：burn/slow/area/chain/pierce/buff
@@ -57,6 +60,7 @@ function wsHint(t,delay=0){ // 工房の札が初めて目に入ったとき、�
   setTimeout(()=>floatText(W/2,SHOP.y-18,TT('wsInfo',S.ws+1),'#ffe9a0',FS.f1),delay*1000);
 }
 function upgradeWs(t,b){
+  if(buyLock()){lockMsg(b.x+b.w/2,SHOP.y-10);return}
   if(t!==S.ws+1){sfx.fail();floatText(b.x+b.w/2,SHOP.y-10,TT('wsFirst',t-1),'#b9b1d0',FS.f1);return}
   const cost=wsCost(t);
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return}
