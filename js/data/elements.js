@@ -26,10 +26,10 @@ const ITEMS={
   ice:     {name:'氷',      t:2,c:'#8fe6ff',kind:'bolt', dmg:9,  rate:1.1, range:115,slow:.45,slowT:2,          desc:'敵を強く凍えさせる'},
   sand:    {name:'砂',      t:2,c:'#e6c88a',kind:'bolt', dmg:3.6,rate:5,   range:125,                           desc:'砂つぶての連射'},
   swamp:   {name:'沼',      t:2,c:'#9cbc4e',kind:'trap',                   range:34, slow:.35,slowT:.3,         desc:'罠：踏んだ敵が遅くなる'},
-  thicket: {name:'茂み',    t:2,c:'#5ab84a',kind:'trap',                   range:36, slow:.4,slowT:.3,desc:'罠：茂みに足をとられる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
+  thicket: {name:'茂み',    t:2,c:'#5ab84a',kind:'trap',                   range:36, slow:.4,slowT:.3,dot:6,dotT:1.5,desc:'罠：茂みに足をとられ、枝で引っかかれる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   charcoal:{name:'炭',      t:2,c:'#ff8a5a',kind:'bolt', dmg:12, rate:.9,  range:110,splash:30,dot:6,dotT:3,    desc:'燃えさしを投げて焼く'},
   flower:  {name:'花',      t:2,c:'#ff9ad0',kind:'pulse',dmg:8,  rate:1,   range:90, dot:5,dotT:3,desc:'花粉でむしばむ'},
-  root:    {name:'根',      t:2,c:'#a87a4a',kind:'trap',                   range:34, slow:.4,slowT:.3,          desc:'罠：根が足に絡む'},
+  root:    {name:'根',      t:2,c:'#a87a4a',kind:'trap',                   range:34, slow:.4,slowT:.3,          stop:.5,desc:'罠：根が足に絡み、一瞬止める'},
   leaves:  {name:'木の葉',  t:2,c:'#8ad86a',kind:'bolt', dmg:3.5,rate:4.5, range:125,                           desc:'木の葉を連射する'},
   flash:   {name:'閃光',    t:2,c:'#fff8c8',kind:'beam', dmg:22,           range:120,beams:1,                   desc:'光を当て続ける'},
   ray:     {name:'光線',    t:2,c:'#ffe08a',kind:'pierce',dmg:20,rate:1,   range:145,rico:2,                    desc:'一直線の光が2回跳弾する'},
@@ -43,7 +43,7 @@ const ITEMS={
   tomb:    {name:'墓',      t:2,c:'#a8a0c0',kind:'trap',                   range:34, curse:1.25,desc:'罠：踏んだ敵を呪う'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   bat:     {name:'蝙蝠',    t:2,c:'#b07ad8',kind:'bolt', dmg:5,  rate:3,   range:130,                           desc:'群れで飛びかかる'},
   twilight:{name:'黄昏',    t:2,c:'#ffa87a',kind:'pulse',dmg:7,  rate:1,   range:105,desc:'薄闇で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
-  thorn:   {name:'茨',      t:2,c:'#6aa84a',kind:'trap',                   range:34, dot:12,dotT:2,             desc:'罠：踏んだ敵を刺し続ける'},
+  thorn:   {name:'茨',      t:2,c:'#6aa84a',kind:'trap',                   range:34, dot:12,dotT:2,             slow:.2,slowT:.3,desc:'罠：棘が刺さり続け、足が鈍る'},
   hai:     {name:'灰',      t:2,c:'#9a958c',kind:'bolt', dmg:18, rate:1,   range:110,                           desc:'燃え尽きたもの'},
   // ★3
   inferno: {name:'業火',    t:3,c:'#ff5a2a',kind:'pulse',dmg:22, rate:1,   range:90, dot:14,dotT:3,             desc:'まわりを焼きつくす'},
@@ -59,7 +59,7 @@ const ITEMS={
   curse:   {name:'呪い',    t:3,c:'#d05aff',kind:'bolt', dmg:14, rate:1.5, range:130,curse:1.5,                 desc:'呪った敵の命を削る'},
   obsidian:{name:'黒曜石',  t:3,c:'#9a8cff',kind:'pierce',dmg:40,rate:.8,  range:150,                           desc:'一直線に貫く刃'},
   bog:     {name:'毒沼',    t:3,c:'#8be04a',kind:'trap',                   range:34, slow:.35,slowT:.3,dot:16,dotT:2,desc:'罠：遅くして毒にする'},
-  quicksand:{name:'流砂',   t:3,c:'#e0b060',kind:'trap',                   range:36, slow:.6,slowT:.3,          desc:'罠：足をとられて大きく遅くなる'},
+  quicksand:{name:'流砂',   t:3,c:'#e0b060',kind:'trap',                   range:36, slow:.6,slowT:.3,          knock:4,desc:'罠：足をとられて大きく遅くなり、引きずりこまれる'},
   crater:  {name:'火口',    t:3,c:'#ff6a2a',kind:'trap',                   range:34, dot:32,dotT:2,             desc:'罠：踏んだ敵を焼く'},
   iron:    {name:'鉄',      t:3,c:'#b8c4d8',kind:'bolt', dmg:60, rate:.9,  range:115,                           desc:'重い鉄塊を撃ちこむ'},
   mist:    {name:'霧',      t:3,c:'#a8c8e8',kind:'pulse',dmg:8,  rate:1,   range:115,slow:.4,slowT:1.5,sil:2,desc:'遅くし、力を封じる'},
@@ -69,8 +69,8 @@ const ITEMS={
   magnet:  {name:'磁石',    t:3,c:'#ff5a6a',kind:'chain',dmg:20, rate:.6,  range:120,chain:4,knock:20,          desc:'敵を引き戻す'},
   spore:   {name:'胞子',    t:3,c:'#c8e06a',kind:'bolt', dmg:6,  rate:1,   range:125,splash:50,dot:12,dotT:4,   desc:'毒の胞子をまき散らす'},
   heat:    {name:'熱風',    t:3,c:'#ff9a5a',kind:'pierce',dmg:32,rate:1,   range:140,dot:8,dotT:2,              desc:'一直線に焼く風'},
-  frost:   {name:'氷床',    t:3,c:'#a8ecff',kind:'trap',                   range:36, slow:.7,slowT:.3,          desc:'罠：凍った道で動けなくする'},
-  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'trap',                   range:38, slow:.55,slowT:.3,desc:'罠：絡みついて大きく遅くする'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
+  frost:   {name:'氷床',    t:3,c:'#a8ecff',kind:'trap',                   range:36, slow:.7,slowT:.3,          stun:.6,stunP:.35,stunCd:2,desc:'罠：凍った道で動けなくし、ときに滑って転ばせる'},
+  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'trap',                   range:38, slow:.55,slowT:.3,conf:.8,desc:'罠：絡みついて大きく遅くし、迷わせる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   diamond: {name:'金剛石',  t:3,c:'#d8f8ff',kind:'bolt', dmg:170,rate:.35, range:195,fast:1,rico:3,             desc:'最も硬い一撃。3回跳弾する'},
   holylight:{name:'聖光',   t:3,c:'#fff4b8',kind:'pulse',dmg:26, rate:1,   range:110,desc:'まわりを清める光'},
   laser:   {name:'レーザー',t:3,c:'#ff7a9a',kind:'beam', dmg:55,           range:150,beams:1,                   desc:'焼き切る光線'},
@@ -92,8 +92,8 @@ const ITEMS={
   icicle:  {name:'氷柱',    t:3,c:'#c8f0ff',kind:'pierce',dmg:28,rate:.9,  range:145,slow:.3,slowT:1.2,         desc:'一直線に貫いて凍えさせる'},
   eel:     {name:'雷魚',    t:3,c:'#7af0d8',kind:'chain',dmg:15, rate:1.2, range:115,chain:3,slow:.25,slowT:1, desc:'しびれさせて遅くする'},
   lantern: {name:'灯籠',    t:3,c:'#ffd08a',kind:'support',                range:140,buffD:.15,buffR:.10,       desc:'灯りでまわりの塔を強める'},
-  sekken:  {name:'石鹸',    t:3,c:'#98e4f8',kind:'trap',                   range:36, slow:.5,slowT:.3,          desc:'罠：踏むと滑って遅くなる'},
-  cement:  {name:'セメント',t:3,c:'#a4acb4',kind:'trap',                   range:36, slow:.5,slowT:.3,          desc:'罠：踏むと固まって遅くなる'},
+  sekken:  {name:'石鹸',    t:3,c:'#98e4f8',kind:'trap',                   range:36, slow:.5,slowT:.3,          stun:.6,stunP:.35,stunCd:2,desc:'罠：踏むと滑って遅くなり、ときに転ぶ'},
+  cement:  {name:'セメント',t:3,c:'#a4acb4',kind:'trap',                   range:36, slow:.5,slowT:.3,          stop:.8,desc:'罠：踏むと固まって遅くなり、少し止まる'},
   // ★4
   tank:    {name:'戦車',    t:4,c:'#a8b070',kind:'bolt', dmg:130,rate:.8,  range:150,splash:50,                 desc:'砲撃で吹き飛ばす'},
   wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,   desc:'呪いと祟りでむしばむ'}, // 名前に合わない効き目を外した（2026-11-29）
@@ -107,7 +107,7 @@ const ITEMS={
   particle:{name:'粒子砲',  t:4,c:'#ff8af0',kind:'beam', dmg:90,           range:160,beams:1,chg:5,             desc:'光の粒で焼き、蓄電して連射'},
   icespear:{name:'氷槍',    t:4,c:'#b0e8ff',kind:'pierce',dmg:140,rate:.9, range:175,slow:.4,slowT:1.5,          desc:'氷の槍で貫き、凍えさせる'},
   foxfire: {name:'狐火',    t:4,c:'#5af0c8',kind:'bolt', dmg:30, rate:1.6, range:150,dot:40,dotT:3,             desc:'妖しい火がまとわりつく'},
-  bottomless:{name:'底なし沼',t:4,c:'#8a7a4a',kind:'trap',                range:40, slow:.7,slowT:.3,desc:'罠：沈めて遅くする'},
+  bottomless:{name:'底なし沼',t:4,c:'#8a7a4a',kind:'trap',                range:40, slow:.7,slowT:.3,knock:6,desc:'罠：沈めて遅くし、引きずりこむ'},
   seaserpent:{name:'海蛇',  t:4,c:'#4ab8c8',kind:'chain',dmg:55, rate:1.2, range:140,chain:6,slow:.35,slowT:1, desc:'6体に巻きついてしびれさせる'},
   shinso:  {name:'真祖',    t:4,c:'#ff4a6a',kind:'bolt', dmg:60, rate:1.6, range:150,curse:1.5,   desc:'吸血鬼の祖'}, // 名前に合わない効き目を外した（2026-11-29）
   tenkou:  {name:'天光',    t:4,c:'#fff8d0',kind:'beam', dmg:120,          range:175,beams:2,                   desc:'天から降る二筋の光'},
@@ -115,7 +115,7 @@ const ITEMS={
   mire:    {name:'腐海',    t:4,c:'#7ad63a',kind:'trap',                   range:38, slow:.45,slowT:.3,dot:60,dotT:2.5,desc:'罠：猛毒で蝕み、遅くする'},
   antlion: {name:'蟻地獄',  t:4,c:'#e8a850',kind:'trap',                   range:38, slow:.75,slowT:.3,knock:8,   desc:'罠：引きずり戻し、大きく遅くする'},
   purgatory:{name:'煉獄',   t:4,c:'#ff5a1a',kind:'trap',                   range:38, dot:110,dotT:2.5,          desc:'罠：踏んだ敵を激しく焼く'},
-  permafrost:{name:'永久凍土',t:4,c:'#c8f4ff',kind:'trap',                 range:40, slow:.8,slowT:.3,          desc:'罠：ほとんど進めなくする'},
+  permafrost:{name:'永久凍土',t:4,c:'#c8f4ff',kind:'trap',                 range:40, slow:.8,slowT:.3,          desc:'罠：ほとんど進めなくし、凍えて脆くする'},
   railgun: {name:'電磁砲',  t:4,c:'#8ad8ff',kind:'pierce',dmg:300,rate:.5, range:230,chg:5,                     desc:'蓄電し、画面の端まで貫く'},
   reaper:  {name:'死神',    t:4,c:'#b8a0ff',kind:'bolt', dmg:90, rate:1,   range:150,curse:1.6,   desc:'呪い、命を削る'}, // 名前に合わない効き目を外した（2026-11-29）
   colossus:{name:'巨像',    t:4,c:'#e0b888',kind:'pulse',dmg:190,rate:.6,  range:85, knock:18,                  desc:'近くの敵をまとめて叩き返す'},
@@ -131,7 +131,7 @@ const ITEMS={
   bonfire: {name:'篝火',    t:4,c:'#ff9a5a',kind:'support',                range:150,buffD:.25,buffR:.15,       desc:'燃える火でまわりの塔を強める'},
   mirror:  {name:'鏡',      t:4,c:'#e8f0ff',kind:'mirror',     rate:1,   range:150,                           desc:'隣の塔の力を映して放つ'},
   desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'trap',                   range:40, slow:.55,slowT:.3,dot:50,dotT:2.5,desc:'罠：熱砂で足を奪い、焼く'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
-  kagerou: {name:'陽炎',    t:4,c:'#ffd9a0',kind:'trap',                   range:90, slow:.35,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：ゆらめく熱気で遅くし、ときに足を止める'},
+  kagerou: {name:'陽炎',    t:4,c:'#ffd9a0',kind:'trap',                   range:90, slow:.45,slowT:.3,stun:1,stunP:.5,stunCd:2,desc:'罠：ゆらめく熱気で遅くし、ときに足を止める'},
   awa:     {name:'泡',      t:4,c:'#c0f0ff',kind:'pulse',dmg:30, rate:1,   range:120,slow:.4,slowT:1.2,         desc:'まわりを泡で包みこむ'},
   concrete:{name:'コンクリート',t:4,c:'#9aa4b2',kind:'bolt',dmg:120,rate:.55,range:120,splash:45,knock:10,      desc:'固まった塊で押しつぶす'},
   // ★5
@@ -237,7 +237,7 @@ const ITEMS={
   boukyaku:{name:'忘却',    t:2,c:'#a8a0d8',kind:'chain',dmg:8,  rate:1,   range:120,chain:3,rew:.5,           desc:'当てた敵が少し前の場所へ戻る。敵から敵へ跳ねる'},
   tokei:   {name:'時計',    t:2,c:'#e0f0ff',kind:'bolt', dmg:9,  rate:2,   range:120,                          desc:'チクタクと時を刻むように、休まず撃つ'},
   setsuna: {name:'刹那',    t:2,c:'#f0f6ff',kind:'bolt', dmg:3,  rate:5,   range:125,                          desc:'ほんの一瞬。とても速い連射'},
-  sunadokei:{name:'砂時計', t:3,c:'#e8d0a0',kind:'trap',                   range:36, slow:.75,slowT:.3,         desc:'罠：踏んだ敵の時をほとんど止める'},
+  sunadokei:{name:'砂時計', t:3,c:'#e8d0a0',kind:'trap',                   range:36, slow:.75,slowT:.3,         rew:.8,desc:'罠：踏んだ敵の時をほとんど止め、少し巻き戻す'},
   kohaku:  {name:'琥珀',    t:3,c:'#ffb040',kind:'bolt', dmg:40, rate:.7,  range:120,stop:.9,stopP:.3,         desc:'当てた敵を閉じ込めて止める'},
   chisou:  {name:'地層',    t:3,c:'#c89a70',kind:'pulse',dmg:50, rate:.6,  range:75, knock:14,                 desc:'重い一撃で押し戻す'},
   shinshoku:{name:'侵食',   t:3,c:'#9ab8c8',kind:'pulse',dmg:12, rate:1,   range:110,desc:'周りの敵を削り、ひびを入れる'},
@@ -289,7 +289,7 @@ const ITEMS={
   shinrei: {name:'神霊',    t:3,c:'#e8f8ff',kind:'bolt', dmg:40, rate:.8,  range:140,soul:.04,soulMax:1,       desc:'神々しい霊。強い弾で撃ち、魂集めの上限が高い'},
   zombie:  {name:'ゾンビ',  t:3,c:'#9ac878',kind:'bolt', dmg:24, rate:.8,  range:110,dot:12,dotT:3,slow:.3,slowT:1.5,desc:'墓からよみがえった死体。当てた敵を蝕み、遅くする'},
   daitenshi:{name:'大天使', t:4,c:'#fff0b0',kind:'beam', dmg:70,           range:150,beams:2,buffD:.2,buffR:0,  desc:'強い光で撃ち、広く塔を強める'},
-  youseinowa:{name:'妖精の輪',t:4,c:'#c8f0a0',kind:'trap',                 range:38, slow:.5,slowT:.3,stop:1.2, desc:'罠：輪に入った敵を踊らせて止める'},
+  youseinowa:{name:'妖精の輪',t:4,c:'#c8f0a0',kind:'trap',                 range:38, slow:.6,slowT:.3,stop:1.5, desc:'罠：輪に入った敵を踊らせて止める'},
   akuma:   {name:'悪魔',    t:4,c:'#ff5a7a',kind:'chain',dmg:60, rate:1,   range:135,chain:4,dot:30,dotT:3,curse:1.45,desc:'地獄の炎で焼きながら、敵から敵へ跳ねて呪う'},
   succubus:{name:'サキュバス',t:4,c:'#ff8ad0',kind:'bolt',dmg:50, rate:.8,  range:140,lure:2.2,lureP:.35,       desc:'当てた敵を誘惑して引き戻し、立ち止まらせる'},
   seraphim:{name:'セラフィム',t:5,c:'#ffe8a0',kind:'beam',dmg:150,         range:165,beams:3,dot:40,dotT:2,buffD:.3,buffR:0,desc:'燃える光で広く焼き、塔をすべて強める'},
@@ -306,7 +306,7 @@ const ITEMS={
   nukegara:{name:'抜け殻',  t:2,c:'#d8c8a8',kind:'bolt', dmg:10, rate:1,   range:115,desc:'魂の抜けた器。敵に打ちつける'}, // 名前に合わない効き目を外した（2026-11-29）
   kuukyo:  {name:'空虚',    t:2,c:'#b8b8d0',kind:'pulse',dmg:6,  rate:.9,  range:95, erase:.1,                 desc:'何もない。周りの体力の少ない敵を消し去る'},
   shinkuuha:{name:'真空刃', t:3,c:'#b0f0e0',kind:'pierce',dmg:34,rate:1,   range:150,                          desc:'風の刃で一直線に切り裂く'},
-  doukutsu:{name:'洞窟',    t:3,c:'#9a8a78',kind:'trap',                   range:38, slow:.65,slowT:.3,         desc:'罠：迷いこんだ敵が大きく遅くなる'},
+  doukutsu:{name:'洞窟',    t:3,c:'#9a8a78',kind:'trap',                   range:38, slow:.65,slowT:.3,         conf:.8,desc:'罠：迷いこんだ敵が大きく遅くなり、来た道へ迷う'},
   kouya:   {name:'荒野',    t:3,c:'#d8a868',kind:'trap',                   range:36, dot:30,dotT:2,desc:'罠：乾いた地がじわじわ削る'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   mummy:   {name:'ミイラ',  t:3,c:'#e0d0a8',kind:'chain',dmg:20, rate:1,   range:125,chain:3,slow:.35,slowT:1.5,desc:'包帯で縛って遅くする'},
   kyomu:   {name:'虚無',    t:3,c:'#a8a8c8',kind:'pulse',dmg:14, rate:.9,  range:115,erase:.14,                desc:'すべてが無になる。周りの体力の少ない敵を消し去る'},

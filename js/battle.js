@@ -87,8 +87,8 @@ function bossPhase(e){
 /* 属性シナジー：ある系統の直撃で影に状態をかけ、その状態の影は別の系統から SYN_MUL 倍の傷を受ける。ボスは持続が半分。状態は戦闘中のみ（セーブには入れない）
    from：おもにかける系統（目安）　by：かける元素　to：よく効く系統　k：影の残り秒数　st：状態名　c：色。組は 2 系統の元素で自分にかからないように選ぶ（MULTI を見る） */
 const SYN_MUL=1.5,SYN_T=2.5;
-const SYN=[{to:['volt','ice'],k:'wetT',st:'stWet',c:'#6ab8ff',by:['sea','raincloud','geyser','tsunami','storm','typhoon','poseidon']}, // 濡れ：雷と氷の両方がよく効く
-  {to:['earth'],k:'britT',st:'stBrit',c:'#e8f6ff',by:['blizzard','frost','iceage','absolutezero','sabi','fuka','shinshoku','iseki','sekka']}, // ひび割れ：土で砕ける
+const SYN=[{to:['volt','ice'],k:'wetT',st:'stWet',c:'#6ab8ff',by:['sea','raincloud','geyser','tsunami','storm','typhoon','poseidon','swamp','pond','mud','bottomless']}, // 濡れ：雷と氷の両方がよく効く
+  {to:['earth'],k:'britT',st:'stBrit',c:'#e8f6ff',by:['blizzard','frost','iceage','absolutezero','sabi','fuka','shinshoku','iseki','sekka','permafrost']}, // ひび割れ：土で砕ける
   {to:['water'],k:'dryT',st:'stDry',c:'#f0d08a',by:['gust','tornado','sandstorm','fujin','kanbatsu','kouya']}, // 乾き：乾いた土や砂は水で崩れる
   {to:['flame'],k:'tinderT',st:'stTinder',c:'#ff9a4a',by:['leaves','kinosei','spore','swamp','bog']}, // 火種：木の葉・胞子・沼のガスなど燃えるものをまとわせる
   {to:['wind'],k:'stagT',st:'stStag',c:'#a8f0c8',by:['mud','frost','quicksand','nendo']}]; // よろめき：足を取られた影は風に倒される
@@ -124,8 +124,8 @@ function hurt(e,dmg,fam,srcId,srcIt){ // fam：攻撃した元素の系統（配
 }
 const ECHO_POW=.7; // 山彦のこだまの威力（1 回目に対する割合）
 const STOP_RES=6,STOP_BOSS=.6;
-// 罠の底上げ（2026-11-29）：罠を出たあとも遅さが TRAP_LINGER 秒残る。速い敵（spd≥60）は残りが TRAP_FAST 倍、重い敵（big）は残りと焼く・毒が TRAP_HEAVY 倍。罠の焼く・毒はみな TRAP_DOT 倍。罠の遅さは駆ける影の「効きにくさ」を受けない
-let TRAP_LINGER=1.5,TRAP_FAST=2,TRAP_HEAVY=1.5,TRAP_DOT=1.5,TRAP_NORES=true;
+// 罠の底上げ（2026-11-29）：罠を出たあとも遅さが TRAP_LINGER 秒残る。速い敵（spd≥60）は残りが TRAP_FAST 倍、重い敵（big）は残りと焼く・毒が TRAP_HEAVY 倍。罠の焼く・毒はみな TRAP_DOT 倍。罠で止めたあとは TRAP_STOP_RES 秒で、また止められる。罠の遅さは駆ける影の「効きにくさ」を受けない
+let TRAP_LINGER=1.5,TRAP_FAST=2,TRAP_HEAVY=1.5,TRAP_DOT=2.5,TRAP_NORES=true,TRAP_STOP_RES=2; // TRAP_STOP_RES：罠で止めたあと、次に止められるまでの秒数（塔は STOP_RES）
 const trapK=e=>{const f=e.def.spd>=60,h=!!e.def.big;return{lin:(f?TRAP_FAST:1)*(h?TRAP_HEAVY:1),dot:TRAP_DOT*(h?TRAP_HEAVY:1)}};
 const LURE_RES=4; // 誘惑：解けたあとの耐性秒数
 let HIT=null; // いま当てている塔 {it,x,y}（魂集め・誘惑で使う。毒・燃焼・罠・結界のときは null）
@@ -165,7 +165,7 @@ function applyHit(e,d,m,color,sl){
       }
     }else if(!(e.stopT>0)&&!(e.stopRes>0)&&!(e.hazT>0)){
       if(!d.stopP||Math.random()<d.stopP){
-        e.stopT=d.stop;e.stopRes=d.stop+STOP_RES;e.hazT=Math.max(e.hazT||0,d.stop+STOP_RES);
+        const sr=d.kind==='trap'?TRAP_STOP_RES:STOP_RES;e.stopT=d.stop;e.stopRes=d.stop+sr;e.hazT=Math.max(e.hazT||0,d.stop+sr);
         tag(e,'stStop',color);
         if(FX){ring(e.x,e.y,color,24,.35,2.2);flakes(e.x,e.y,5,80)}
       }
@@ -194,7 +194,7 @@ function applyHit(e,d,m,color,sl){
   if(d.drain&&d.drain>=(e.drainT>0?e.drain:0)-1e-6){if(!(e.drainT>0))tag(e,'stCurse','#d98aff');e.drain=d.drain;e.drainT=DRAIN_T*dmDur;e.drainSrc=d.id;e.drainIt=HIT?HIT.it:(sl&&sl.item||null)} // 呪い：命を削る
   const isTr=d.kind==='trap'&&!!sl,tk=isTr?trapK(e):null; // 罠：出たあとも遅さが残り、速い敵・重い敵によく効く
   if(isTr&&tk.dot!==1)m*=tk.dot;
-  const slw=(d.stun||d.stop)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow,sT=(isTr?TRAP_LINGER*tk.lin:d.slowT)*dmDur;
+  const slw=((d.stun||0)>=1||(d.stop||0)>=1)&&d.kind==='trap'&&isBoss?d.slow*.5:d.slow,sT=(isTr?TRAP_LINGER*tk.lin:d.slowT)*dmDur;
   if(slw&&(slw>=e.slow||e.slowT<=0)){if(e.slowT<=0)tag(e,'stSlow','#8fe6ff');e.slowNR=isTr;e.slow=slw;e.slowT=e.slow===slw?Math.max(e.slowT||0,sT):sT}
   if(d.dot&&(d.dot*m>=e.dot||e.dotT<=0)){const pz=POISON.has(d.id);if(e.dotT<=0)tag(e,pz?'stPoison':'stBurn',pz?'#a8f06a':'#ffa060');e.dot=d.dot*m;e.dotT=d.dotT*dmDur;e.dotC=color;e.dotK=pz?1:0;e.dotF=d.fam;e.dotSrc=d.id;e.dotIt=HIT?HIT.it:(sl&&sl.item||null)}
   if(d.plague&&e.dotT>0&&e.dotK){if(!e.plague)tag(e,'stPlague','#c8f070');e.plague=d.plague} // 疫病：この影が毒のまま倒れると、まわりへうつる
