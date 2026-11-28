@@ -182,7 +182,7 @@ const EN={ // 英語の名前と説明
   sun:['Sun','Scorches a wide area'],tsunami:['Tsunami','Sweeps a whole line'],peak:['Holy Peak','Crushes everything'],typhoon:['Typhoon','Batters all nearby foes'],
   cataclysm:['Cataclysm','Freezing bolts hit 9 foes'],star:['Star','Three burning beams'],abyss:['Abyss','Spreads poison and curse'],titan:['Cannon','Fires huge blasts'],
   railgun:['Railgun','Pierces across the map; charges when idle'],reaper:['Reaper','Curses and drains life'],colossus:['Colossus','Smashes foes backward'],
-  stone:['Sage Stone','Light upon all that silences foes'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Breath that pierces all'],
+  stone:['Sage Stone','Light upon all that silences foes'],ragnarok:['Ragnarok','Burns the night away'],phoenix:['Phoenix','Rains burning feathers'],dragon:['Dragon','Fiery breath that pierces and burns'],
   genesis:['Genesis','Ends the night itself'],
   seihai:['Holy Ash','Carry it to the fort to restore 3 lives'],sabi:['Rust','Corrodes the armor of foes it hits'],barbwire:['Barbed Wire','Trap: snags, stabs, and rusts armor'],kosenjo:['Old Battlefield','Curses nearby foes and rusts their armor'],haikyo:['Ruins','Keeps nearby foes slowed'],kayaku:['Gunpowder','Trap: blows up when stepped on, then is gone'],ekibyo:['Plague','Poison spreads from foes that die of it'],
   fushoku:['Corrosion','Rusts armor and pours in poison'],seiiki:['Sanctuary','Silences foes inside and sears them clean'],

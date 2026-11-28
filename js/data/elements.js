@@ -155,7 +155,7 @@ const ITEMS={
   stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,sil:3,desc:'すべてを照らし、敵の力を封じる'}, // 名前に合わない効き目を外した（2026-11-29）
   ragnarok:{name:'終焉',    t:5,c:'#ff5a7a',kind:'bolt', dmg:420,rate:1.3, range:190,splash:80,dot:60,dotT:3,   desc:'夜ごと焼きつくす'},
   phoenix: {name:'不死鳥',  t:5,c:'#ff9a3c',kind:'bolt', dmg:260,rate:2,   range:180,splash:50,dot:80,dotT:3,   desc:'炎の羽を降らせる'},
-  dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:1080,rate:1,  range:200,           desc:'すべてを貫く息吹'}, // 名前に合わない効き目を外した（2026-11-29）
+  dragon:  {name:'竜',      t:5,c:'#5ad0c0',kind:'pierce',dmg:520,rate:1,  range:200,dot:100,dotT:3,           desc:'炎の息吹で貫き、焼く'}, // 遅くするを外し、燃やすに置きかえた（2026-11-29）
   moonlamp:{name:'月灯',    t:5,c:'#d8e4ff',kind:'support',                range:160,buffD:.40,buffR:.25,       desc:'月の光でまわりの塔を大きく強める'},
   kaleidoscope:{name:'万華鏡',t:5,c:'#ffb0e8',kind:'beam',dmg:260,rate:1.2,range:190,splash:38,kaleido:1,       desc:'撃つたび属性が変わる虹の光'},
   mirage:  {name:'蜃気楼',  t:5,c:'#a8d8e8',kind:'trap',                   range:90, slow:.4,slowT:.3,warp:120,warpP:.5,warpCd:3,desc:'罠：熱気で遅くし、幻に惑わせて後戻りさせる'}, // 陽炎（★4）の広さと減速を受け継ぎ、後戻りを強めた
