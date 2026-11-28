@@ -105,6 +105,7 @@ function checkUnlock(){ // クリアしたステージの基本元素を解放�
 function tutDone(){S.tut=9;if(TUT<9&&FX){TUT=9;save()}}
 function spawnBase(id,b,to){ // 失敗したら理由（'full'／'mana'）を返す。to：置く場所（つかんで運んだとき。空いていて置けるマス）
   const free=to||slots.find(s=>s.bench&&!s.item),cost=itemValue({id});
+  if(buyLock()){lockMsg(W/2,SHOP.y-18);return'lock'}
   if(!free){S.benchShake=.4;sfx.fail();floatText(W/2,LY.top+14,TT('benchFull'),'#ff8a9a',FS.f2);return'full'}
   if(S.mana<cost){S.manaErr=.5;sfx.fail();floatText(W-110,48,TT('noMana'),'#ff8a9a',FS.f1);return'mana'}
   S.mana-=cost;

@@ -61,12 +61,13 @@ function drawShop(dt){
       ctx.fillStyle=rgba('#ffe9a0',.6+.4*Math.sin(T*9));ctx.beginPath();ctx.arc(t.x+t.w-5,t.y+3,3.2,0,TAU);ctx.fill()}}
   const tab=SHOP.tab,list=shopList(tab),max=shopMax(tab);SHOP.scroll[tab]=clamp(SHOP.scroll[tab],0,max);
   if(SHOP.newT>0)SHOP.newT-=dt;SHOP.pressT+=((SHOP.press!==null?1:0)-SHOP.pressT)*Math.min(1,dt*22);
+  const lock=buyLock();
   ctx.save();ctx.beginPath();ctx.rect(SHOP.x-2,SHOP.y-10,SHOP.w+4,SHOP.h+14);ctx.clip();
   list.forEach((d,i)=>{
     const x=shopBtnX(i);if(x>SHOP.x+SHOP.w||x+SHOP.bw<SHOP.x)return;
     const cx=x+SHOP.bw/2,cy=SHOP.y+SHOP.h/2;
     if(d.ws){ // 工房レベルを上げる札
-      const next=d.ws===S.ws+1,cost=wsCost(d.ws),can=next&&S.mana>=cost,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
+      const next=d.ws===S.ws+1,cost=wsCost(d.ws),can=next&&S.mana>=cost&&!lock,sc=1-(SHOP.press===i?SHOP.pressT*.1:0),fz=FS.f1*LY.k;
       ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
       const g2=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);g2.addColorStop(0,next?'#3a2a14':'#16120e');g2.addColorStop(1,'#0a0814');
       ctx.fillStyle=g2;rr(ctx,x,SHOP.y,SHOP.bw,SHOP.h,4);ctx.fill(); // 元素の札（角の丸い札）と見分けがつくよう、角を立てて二重の枠にする
@@ -79,7 +80,7 @@ function drawShop(dt){
       ctx.font=FONT(fz,800);ctx.fillStyle=next?(S.mana>=cost?'#e8c36a':'#a08a6a'):'#8d86a3';ctx.fillText(next?'◆'+cost:TT('wsFirstShort',d.ws-1),cx,SHOP.y+SHOP.h-fz*.7);
       ctx.globalAlpha=1;ctx.restore();return;
     }
-    const ok=disc.has(d.id),buy=ok&&canBuy(d.id),cost=itemValue(d),can=buy&&S.mana>=cost;
+    const ok=disc.has(d.id),buy=ok&&canBuy(d.id),cost=itemValue(d),can=buy&&S.mana>=cost&&!lock;
     const sc=1-(SHOP.press===i?SHOP.pressT*.1:0);
     ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.translate(-cx,-cy);
     const gr=ctx.createLinearGradient(0,SHOP.y,0,SHOP.y+SHOP.h);gr.addColorStop(0,ok?'#191430':'#0e0c19');gr.addColorStop(1,'#0a0814');
@@ -101,6 +102,13 @@ function drawShop(dt){
     ctx.restore();
   });
   ctx.restore();
+  if(lock){ // 早呼びの代償：呼び出せない間は、一覧に帯をかけて残りの敵の数を出す
+    const by=SHOP.y+SHOP.h/2,bh=Math.min(SHOP.h-10,30*LY.k),pu=.5+.5*Math.sin(T*4);
+    ctx.fillStyle='rgba(8,5,14,.55)';rr(ctx,SHOP.x,SHOP.y,SHOP.w,SHOP.h,11);ctx.fill();
+    ctx.fillStyle='rgba(30,10,22,.92)';rr(ctx,SHOP.x+18,by-bh/2,SHOP.w-36,bh,bh/2);ctx.fill();
+    ctx.strokeStyle=rgba('#ff9ab0',.45+.35*pu);ctx.lineWidth=1.4;ctx.stroke();
+    ctx.font=FONT(FS.f1*LY.k*1.05,800);ctx.fillStyle='#ffd0dc';ctx.fillText(TT('earlyLock',lockLeft()),W/2,by+.5,SHOP.w-56);
+  }
   // まだ先があるときは端をぼかし、矢印を出す
   for(const[cond,x0,x1,ax]of[[SHOP.scroll[tab]<max-1,W-46,W,W-10],[SHOP.scroll[tab]>1,46,0,10]]){if(!cond)continue;
     const g=ctx.createLinearGradient(x0,0,x1,0);g.addColorStop(0,'rgba(5,4,9,0)');g.addColorStop(1,'rgba(5,4,9,.95)');ctx.fillStyle=g;ctx.fillRect(Math.min(x0,x1),SHOP.y-8,46,SHOP.h+12);

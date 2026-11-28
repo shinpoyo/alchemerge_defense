@@ -161,6 +161,7 @@ const TX={ // [日本語, English]。{0}{1}… に値が入る
   badgeGot:['試練達成：{0}','Challenge cleared: {0}'],
   pvNext:['次波','Next'],pvFoes:['{0}体','{0} foes'],pvFly:['飛行','Flyer'],pvHeal:['癒し','Mender'],pvArm:['鎧({0})','Armor({0})'],pvRun:['疾走','Runner'],pvSplit:['分裂','Splitter'],
   earlyBtn:['▶ 早呼び +◆{0}','▶ Early +◆{0}'],earlyBonus:['早呼びボーナス ◆+{0}','Early call +◆{0}'],
+  earlyLock:['🔒 早呼び中：前の波の敵があと{0}体いなくなるまで呼び出せない','🔒 Early call: no summoning until earlier foes are gone ({0} left)'],earlyCost:['代償：前の波の敵がいなくなるまで呼び出し不可','Cost: no summoning until earlier foes are gone'],earlyLockShort:['🔒 早呼び中は呼べない','🔒 Locked (early call)'],
   towerStat:['与ダメ {0} ・ 撃破 {1}','DMG {0} · Kills {1}'],mvpLine:['MVP：{0}（{1}）','MVP: {0} ({1})'],
 };
 // 機能固有の文言は各機能ファイルから addLang({...}) で追加登録する（lang.js 末尾のコンフリクト防止）

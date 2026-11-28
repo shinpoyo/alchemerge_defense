@@ -25,6 +25,7 @@ function earlyCall(){ // 敵が出切ったあとに次の波を前倒しで呼�
   if(!canEarlyCall())return;
   const eb=earlyBonus(),wb=12+3*S.wave;
   S.mana+=wb+eb;S.manaBump=1;
+  for(const e of S.enemies)if(!e.dead)e.prev=1; // 早呼びの代償：いま残っている敵がいなくなるまで一覧から呼び出せない
   if(FX)stats.waves++;
   if(DAILY)dailyRecord(S.wave);
   else if(S.wave>rec().best){prog[pkey()]={best:S.wave,clear:rec().clear||S.wave>=maxWave()};save()}
@@ -197,7 +198,7 @@ function kill(e){
   if(e.def.split&&!e.dead){ // 分かれる影：倒れた場所から小さい影が出る（魔力は親のぶんだけ）
     for(let i=0;i<e.def.split;i++){const hp=e.max*.3;
       S.enemies.push({type:'mite',def:ENEMY.mite,P:e.P,hp,max:hp,d:Math.max(0,e.d-i*9),x:e.x,y:e.y,r:ENEMY.mite.r*1.15,
-        slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false,gate:e.gate})}
+        slow:0,slowT:0,dot:0,dotT:0,dotC:'#fff',silT:0,flash:0,ph:rnd(TAU),reward:0,dead:false,final:false,gate:e.gate,prev:e.prev})}
     if(FX){ring(e.x,e.y,e.def.rim,34,.35,3);burst(e.x,e.y,e.def.rim,12,150)}
   }
   if(e.plague&&e.dotT>0&&!e.dead){const r=e.plague,pd={id:'ekibyo',dot:e.dot,dotT:4,fam:e.dotF,plague:r}; // 疫病：毒で倒れた影から、まわりの影へ同じ毒がうつる
