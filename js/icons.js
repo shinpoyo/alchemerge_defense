@@ -229,6 +229,8 @@ const ICON={
   inferno(g,c){for(const[x,y,k,r]of[[-8,4,.62,-.25],[8,4,.62,.25],[0,-1,.98,0]]){g.save();g.translate(x,y);g.rotate(r);g.scale(k,k);flame(g);g.fill();g.restore()}
     g.translate(0,5);g.scale(.5,.5);flame(g);g.fillStyle='#ffe9a0';g.fill()},
   sun(g,c){dot(g,0,0,7.5);g.lineWidth=2.4;for(let i=0;i<8;i++){const a=i/8*TAU;line(g,Math.cos(a)*10.5,Math.sin(a)*10.5,Math.cos(a)*(i%2?13:15),Math.sin(a)*(i%2?13:15))}g.fillStyle='#fff6d8';dot(g,-2,-2,3)},
+  river(g,c){g.lineWidth=5.5;g.strokeStyle=rgba(c,.75);g.beginPath();g.moveTo(-14,-11);g.bezierCurveTo(4,-10,-10,2,4,3);g.bezierCurveTo(14,4,4,12,14,13);g.stroke();
+    g.strokeStyle='#ffffffb0';g.lineWidth=1.2;g.beginPath();g.moveTo(-9,-10);g.bezierCurveTo(0,-9,-5,-3,1,-1);g.stroke()},
   pond(g,c){g.fillStyle=rgba(c,.6);g.beginPath();g.ellipse(-1,5,13,7.5,0,0,TAU);g.fill();g.lineWidth=1.8;g.stroke();
     g.strokeStyle='#ffffffb0';g.lineWidth=1.2;g.beginPath();g.ellipse(-4,5,5.5,2.6,0,0,TAU);g.stroke();
     g.strokeStyle='#8be04a';g.lineWidth=1.8;line(g,8,5,9,-11);line(g,11,6,13,-5);g.lineWidth=4;g.strokeStyle='#a06a3a';line(g,9,-11,9.3,-6)},

@@ -109,7 +109,7 @@ const FAM={
   wood:{w:'triangle',f:330,nf:1200},time:{w:'triangle',f:600,nf:2800},dream:{w:'sine',f:340,nf:1400},soul:{w:'sine',f:440,nf:1800},void:{w:'triangle',f:260,nf:900},
 };
 const FAMOF={fire:'flame',flame:'flame',inferno:'flame',lava:'flame',sun:'flame',ragnarok:'flame',phoenix:'flame',crater:'flame',heat:'flame',wisp:'flame',
-  water:'water',pond:'water',sea:'water',steam:'water',tsunami:'water',mist:'water',
+  water:'water',pond:'water',river:'water',sea:'water',steam:'water',tsunami:'water',mist:'water',
   earth:'earth',rock:'earth',mountain:'earth',peak:'earth',sand:'earth',quicksand:'earth',sandstorm:'earth',golem:'earth',colossus:'earth',swamp:'earth',
   wind:'wind',gust:'wind',tornado:'wind',typhoon:'wind',storm:'wind',fujin:'wind',
   bolt:'volt',inazuma:'volt',cataclysm:'volt',magnet:'volt',railgun:'volt',

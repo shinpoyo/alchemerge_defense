@@ -56,7 +56,8 @@ function resumeRun(){
   const r=RUN;if(!r)return;
   const n0=NIGHT;STAGE=r.stage;NIGHT=toDiff(r.night);DAILY=/^\d{4}-\d\d-\d\d$/.test(r.daily||'')?r.daily:null;if(DAILY&&nightSel===null)nightSel=n0;reset();
   for(const sl of slots)sl.item=null;
-  r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv]=e,sl=slots[i];if(sl&&ITEMS[id]&&fits(id,sl)){const it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
+  r.items.forEach((e,n)=>{if(!Array.isArray(e))return;const[i,id,lv]=e,sl=slots[i];if(!sl||!ITEMS[id])return;let to=sl;if(!fits(id,sl))to=slots.find(b=>b.bench&&!b.item&&!r.items.some(q=>Array.isArray(q)&&slots[q[0]]===b)); // 塔が罠に変わったなどで置けなくなった元素は、空いている作業台へ戻す（2026-11-29）
+    if(to){const sl=to,it=mkItem(id,sl.x,sl.y);if(lv>0&&ITEMS[id].t===MAX_T)it.lv=Math.floor(lv);it.s=.01;it.hide=.1+n*.04;sl.item=it}});
   S.wave=Math.floor(r.wave);S.mana=S.manaShow=Math.floor(r.mana);S.manaFrac=0;S.lives=Math.floor(r.lives);S.endless=!!r.endless;S.cleared=S.endless;S.started=true;S.tut=9;
   S.made=new Set((Array.isArray(r.made)?r.made:[]).filter(i=>ITEMS[i]));S.ws=clamp(Math.floor(+r.ws)||1,1,6);
   if(r.chal&&typeof r.chal==='object')S.chal={max4:!!r.chal.max4,noTrap:!!r.chal.noTrap,base4:!!r.chal.base4};

@@ -16,7 +16,8 @@ const ITEMS={
   dark:    {name:'闇',      t:1,c:'#9a7ad8',kind:'bolt', dmg:6,  rate:1,   range:110,desc:'闇の弾を撃つ'},
   // ★2
   flame:   {name:'炎',      t:2,c:'#ff8a3d',kind:'bolt', dmg:16, rate:1.1, range:110,dot:6,dotT:2,              desc:'強く燃やす'},
-  pond:    {name:'池',      t:2,c:'#5ab8ff',kind:'pulse',dmg:5,  rate:1,   range:85, slow:.35,slowT:1.2,        desc:'まわりの敵を遅くする'},
+  river:   {name:'川',      t:2,c:'#4aa8f0',kind:'pulse',dmg:6,  rate:1,   range:90, slow:.3,slowT:1,knock:6,   desc:'流れで押し戻し、遅くする'}, // 水＋水（2026-11-29。それまでは池）
+  pond:    {name:'池',      t:3,c:'#5ab8ff',kind:'trap',                   range:38, slow:.55,slowT:.3,desc:'罠：水に足をとられて遅くなる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   rock:    {name:'岩',      t:2,c:'#b89a78',kind:'bolt', dmg:34, rate:.5,  range:100,splash:40,                 desc:'大きな岩を投げつける'},
   gust:    {name:'旋風',    t:2,c:'#9af0d0',kind:'bolt', dmg:4.2,rate:4.5, range:135,                           desc:'風の刃を連射する'},
   steam:   {name:'蒸気',    t:2,c:'#cfd8e8',kind:'pulse',dmg:10, rate:1,   range:80,                            desc:'まわりの敵すべてを蒸す'},
@@ -25,7 +26,7 @@ const ITEMS={
   ice:     {name:'氷',      t:2,c:'#8fe6ff',kind:'bolt', dmg:9,  rate:1.1, range:115,slow:.45,slowT:2,          desc:'敵を強く凍えさせる'},
   sand:    {name:'砂',      t:2,c:'#e6c88a',kind:'bolt', dmg:3.6,rate:5,   range:125,                           desc:'砂つぶての連射'},
   swamp:   {name:'沼',      t:2,c:'#9cbc4e',kind:'trap',                   range:34, slow:.35,slowT:.3,         desc:'罠：踏んだ敵が遅くなる'},
-  thicket: {name:'茂み',    t:2,c:'#5ab84a',kind:'pulse',dmg:6,  rate:1,   range:85, slow:.3,slowT:1,           desc:'まわりの敵の足を取る'},
+  thicket: {name:'茂み',    t:2,c:'#5ab84a',kind:'trap',                   range:36, slow:.4,slowT:.3,desc:'罠：茂みに足をとられる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   charcoal:{name:'炭',      t:2,c:'#ff8a5a',kind:'bolt', dmg:12, rate:.9,  range:110,splash:30,dot:6,dotT:3,    desc:'燃えさしを投げて焼く'},
   flower:  {name:'花',      t:2,c:'#ff9ad0',kind:'pulse',dmg:8,  rate:1,   range:90, dot:5,dotT:3,desc:'花粉でむしばむ'},
   root:    {name:'根',      t:2,c:'#a87a4a',kind:'trap',                   range:34, slow:.4,slowT:.3,          desc:'罠：根が足に絡む'},
@@ -39,7 +40,7 @@ const ITEMS={
   shadow:  {name:'影',      t:2,c:'#8a6ac8',kind:'bolt', dmg:7,  rate:1.3, range:120,desc:'影を落として撃つ'},
   blackflame:{name:'黒炎',  t:2,c:'#c05aff',kind:'bolt', dmg:8,  rate:1.1, range:115,dot:12,dotT:3,             desc:'消えにくい黒い炎'},
   venom:   {name:'毒',      t:2,c:'#8be04a',kind:'bolt', dmg:4,  rate:1.2, range:115,dot:10,dotT:4,             desc:'じわじわ効く毒'},
-  tomb:    {name:'墓',      t:2,c:'#a8a0c0',kind:'pulse',dmg:9,  rate:.9,  range:85, curse:1.25,                desc:'まわりの敵を呪う'},
+  tomb:    {name:'墓',      t:2,c:'#a8a0c0',kind:'trap',                   range:34, curse:1.25,desc:'罠：踏んだ敵を呪う'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   bat:     {name:'蝙蝠',    t:2,c:'#b07ad8',kind:'bolt', dmg:5,  rate:3,   range:130,                           desc:'群れで飛びかかる'},
   twilight:{name:'黄昏',    t:2,c:'#ffa87a',kind:'pulse',dmg:7,  rate:1,   range:105,desc:'薄闇で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
   thorn:   {name:'茨',      t:2,c:'#6aa84a',kind:'trap',                   range:34, dot:12,dotT:2,             desc:'罠：踏んだ敵を刺し続ける'},
@@ -69,7 +70,7 @@ const ITEMS={
   spore:   {name:'胞子',    t:3,c:'#c8e06a',kind:'bolt', dmg:6,  rate:1,   range:125,splash:50,dot:12,dotT:4,   desc:'毒の胞子をまき散らす'},
   heat:    {name:'熱風',    t:3,c:'#ff9a5a',kind:'pierce',dmg:32,rate:1,   range:140,dot:8,dotT:2,              desc:'一直線に焼く風'},
   frost:   {name:'氷床',    t:3,c:'#a8ecff',kind:'trap',                   range:36, slow:.7,slowT:.3,          desc:'罠：凍った道で動けなくする'},
-  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'pulse',dmg:30, rate:1,   range:105,slow:.4,slowT:1.2,desc:'絡みつく密林'}, // 名前に合わない効き目を外した（2026-11-29）
+  jungle:  {name:'密林',    t:3,c:'#4ac85a',kind:'trap',                   range:38, slow:.55,slowT:.3,desc:'罠：絡みついて大きく遅くする'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   diamond: {name:'金剛石',  t:3,c:'#d8f8ff',kind:'bolt', dmg:170,rate:.35, range:195,fast:1,rico:3,             desc:'最も硬い一撃。3回跳弾する'},
   holylight:{name:'聖光',   t:3,c:'#fff4b8',kind:'pulse',dmg:26, rate:1,   range:110,desc:'まわりを清める光'},
   laser:   {name:'レーザー',t:3,c:'#ff7a9a',kind:'beam', dmg:55,           range:150,beams:1,                   desc:'焼き切る光線'},
@@ -79,7 +80,7 @@ const ITEMS={
   thornwall:{name:'荊棘',   t:3,c:'#5a9a3a',kind:'trap',                   range:38, slow:.4,slowT:.3,dot:30,dotT:2,desc:'罠：棘が絡みつく'},
   hotaru:  {name:'蛍火',    t:3,c:'#e8ff8a',kind:'chain',dmg:22, rate:1.4, range:140,chain:5,                   desc:'光が5体に飛び移る'},
   gokuen:  {name:'獄炎',    t:3,c:'#b04aff',kind:'bolt', dmg:16, rate:1.1, range:130,splash:35,dot:26,dotT:3,   desc:'地獄の黒い炎'},
-  hotspring:{name:'温泉',   t:3,c:'#7ad8e8',kind:'pulse',dmg:12, rate:1,   range:95, slow:.3,slowT:1.2,dot:8,dotT:2,desc:'まわりを茹でて遅くする'},
+  hotspring:{name:'温泉',   t:3,c:'#7ad8e8',kind:'trap',                   range:36, slow:.45,slowT:.3,dot:16,dotT:2,desc:'罠：茹でて遅くする'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   raincloud:{name:'雨雲',   t:3,c:'#8aa8d8',kind:'pulse',dmg:10, rate:1.3, range:115,slow:.35,slowT:1.2,      desc:'広く雨を降らせて遅くする'},
   plasma:  {name:'プラズマ',t:3,c:'#ff7ae0',kind:'chain',dmg:24, rate:1,   range:125,chain:4,dot:8,dotT:2,chg:5,desc:'4体に跳ねる稲妻。蓄電し連射'},
   glacier: {name:'氷河',    t:3,c:'#9ad8ff',kind:'bolt', dmg:55, rate:.5,  range:110,splash:45,slow:.45,slowT:1.5,desc:'氷塊を落として凍えさせる'},
@@ -96,7 +97,7 @@ const ITEMS={
   // ★4
   tank:    {name:'戦車',    t:4,c:'#a8b070',kind:'bolt', dmg:130,rate:.8,  range:150,splash:50,                 desc:'砲撃で吹き飛ばす'},
   wraith:  {name:'怨霊',    t:4,c:'#a890ff',kind:'bolt', dmg:40, rate:1.3, range:140,curse:1.5,   desc:'呪いと祟りでむしばむ'}, // 名前に合わない効き目を外した（2026-11-29）
-  forest:  {name:'原生林',      t:4,c:'#6ad86a',kind:'pulse',dmg:20, rate:1,   range:125,dot:30,dotT:4,slow:.3,slowT:1.2,desc:'胞子と根で絡めとる'},
+  forest:  {name:'原生林',      t:4,c:'#6ad86a',kind:'trap',                   range:40, slow:.5,slowT:.3,dot:50,dotT:2.5,desc:'罠：根と胞子で絡めとる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   iceage:  {name:'氷河期',  t:4,c:'#d0f4ff',kind:'pulse',dmg:45, rate:.8,  range:120,slow:.6,slowT:1.5,stop:1,stopP:.3,desc:'まわりを凍りつかせる'},
   eruption:{name:'噴火',    t:4,c:'#ff5a2a',kind:'bolt', dmg:170,rate:.6,  range:150,splash:70,dot:30,dotT:3,   desc:'大噴火で広く焼く'},
   raijin:  {name:'万雷',    t:4,c:'#ffd84a',kind:'chain',dmg:85, rate:1.2, range:155,chain:8,                  desc:'8体に大雷を落とす'},
@@ -110,7 +111,7 @@ const ITEMS={
   seaserpent:{name:'海蛇',  t:4,c:'#4ab8c8',kind:'chain',dmg:55, rate:1.2, range:140,chain:6,slow:.35,slowT:1, desc:'6体に巻きついてしびれさせる'},
   shinso:  {name:'真祖',    t:4,c:'#ff4a6a',kind:'bolt', dmg:60, rate:1.6, range:150,curse:1.5,   desc:'吸血鬼の祖'}, // 名前に合わない効き目を外した（2026-11-29）
   tenkou:  {name:'天光',    t:4,c:'#fff8d0',kind:'beam', dmg:120,          range:175,beams:2,                   desc:'天から降る二筋の光'},
-  jukai:   {name:'樹海',    t:4,c:'#3ab85a',kind:'pulse',dmg:70, rate:1,   range:135,slow:.5,slowT:1.5,desc:'迷わせて閉じこめる'}, // 名前に合わない効き目を外した（2026-11-29）
+  jukai:   {name:'樹海',    t:4,c:'#3ab85a',kind:'trap',                   range:40, slow:.6,slowT:.3,conf:1.2,desc:'罠：迷わせて来た道を戻らせる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   mire:    {name:'腐海',    t:4,c:'#7ad63a',kind:'trap',                   range:38, slow:.45,slowT:.3,dot:60,dotT:2.5,desc:'罠：猛毒で蝕み、遅くする'},
   antlion: {name:'蟻地獄',  t:4,c:'#e8a850',kind:'trap',                   range:38, slow:.75,slowT:.3,knock:8,   desc:'罠：引きずり戻し、大きく遅くする'},
   purgatory:{name:'煉獄',   t:4,c:'#ff5a1a',kind:'trap',                   range:38, dot:110,dotT:2.5,          desc:'罠：踏んだ敵を激しく焼く'},
@@ -129,7 +130,7 @@ const ITEMS={
   titan:   {name:'巨砲',    t:4,c:'#ff8a4a',kind:'bolt', dmg:150,rate:1.1, range:160,splash:60,                 desc:'大爆発を撃ちこむ'},
   bonfire: {name:'篝火',    t:4,c:'#ff9a5a',kind:'support',                range:150,buffD:.25,buffR:.15,       desc:'燃える火でまわりの塔を強める'},
   mirror:  {name:'鏡',      t:4,c:'#e8f0ff',kind:'mirror',     rate:1,   range:150,                           desc:'隣の塔の力を映して放つ'},
-  desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'bolt', dmg:75, rate:1,   range:130,splash:25,slow:.25,slowT:1.5,desc:'熱砂を浴びせて足を奪う'}, // 材料の熱風（★3）より弱かったので、威力と小さな爆風を足した
+  desert:  {name:'砂漠',    t:4,c:'#e2c078',kind:'trap',                   range:40, slow:.55,slowT:.3,dot:50,dotT:2.5,desc:'罠：熱砂で足を奪い、焼く'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   kagerou: {name:'陽炎',    t:4,c:'#ffd9a0',kind:'trap',                   range:90, slow:.35,slowT:.3,stun:1,stunP:.3,stunCd:4,desc:'罠：ゆらめく熱気で遅くし、ときに足を止める'},
   awa:     {name:'泡',      t:4,c:'#c0f0ff',kind:'pulse',dmg:30, rate:1,   range:120,slow:.4,slowT:1.2,         desc:'まわりを泡で包みこむ'},
   concrete:{name:'コンクリート',t:4,c:'#9aa4b2',kind:'bolt',dmg:120,rate:.55,range:120,splash:45,knock:10,      desc:'固まった塊で押しつぶす'},
@@ -149,7 +150,7 @@ const ITEMS={
   ninetails:{name:'九尾',   t:5,c:'#7af8d8',kind:'bolt', dmg:140,rate:1.8, range:180,dot:90,dotT:3,curse:1.4,   desc:'九つの狐火で呪い焼く'},
   photon:  {name:'光子砲',  t:5,c:'#ffb0f8',kind:'beam', dmg:320,          range:220,beams:2,                   desc:'二筋の光で貫く'},
   naraku:  {name:'奈落',    t:5,c:'#6a5aa8',kind:'trap',                   range:42, slow:.8,slowT:.3,dot:150,dotT:2.5,curse:1.4,desc:'罠：底へ引きずりこむ'},
-  paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'pulse',dmg:290,rate:1,   range:160,desc:'花と水で包みこむ'}, // 名前に合わない効き目を外した（2026-11-29）
+  paradise:{name:'楽園',    t:5,c:'#ffa8d8',kind:'trap',                   range:42, slow:.6,slowT:.3,stop:1.5,desc:'罠：花と水に見とれて足を止める'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   hellmouth:{name:'地獄門', t:5,c:'#ff3a2a',kind:'trap',                   range:40, dot:300,dotT:2.5,curse:1.5,desc:'罠：業火で焼き、呪う'},
   stasis:  {name:'時の檻',  t:5,c:'#b8c8ff',kind:'trap',                   range:42, slow:.86,slowT:.3,stop:2,knock:8, desc:'罠：時がほとんど止まる'},
   stone:   {name:'賢者の石',t:5,c:'#ffe9a0',kind:'beam', dmg:220,          range:190,beams:4,sil:3,desc:'すべてを照らし、敵の力を封じる'}, // 名前に合わない効き目を外した（2026-11-29）
@@ -174,7 +175,7 @@ const ITEMS={
   kayaku:  {name:'火薬',    t:3,c:'#e8503a',kind:'trap', range:30,boom:150,splash:70, desc:'罠：踏まれると大きく爆ぜて、消える'},
   ekibyo:  {name:'疫病',    t:4,c:'#a0d040',kind:'pulse',dmg:8, rate:1, range:105,dot:36,dotT:4,plague:70, desc:'毒で倒れた影から、まわりへ毒がうつる'},
   barbwire:{name:'有刺鉄線',t:3,c:'#b8865a',kind:'trap', range:36,slow:.4,slowT:.3,dot:18,dotT:2,rust:1, desc:'罠：絡めて遅くし、刺し続け、鎧を朽ちさせる'},
-  kosenjo: {name:'古戦場',  t:3,c:'#a89080',kind:'pulse',dmg:12, rate:.9, range:95,curse:1.3,rust:1, desc:'錆びた剣が眠る地。まわりの影を呪い、鎧を朽ちさせる'},
+  kosenjo: {name:'古戦場',  t:3,c:'#a89080',kind:'trap',                   range:36, curse:1.3,rust:1,desc:'罠：呪い、鎧を朽ちさせる'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   haikyo:  {name:'廃墟',    t:3,c:'#c09a7a',kind:'ward', range:140,slow:.35,slowT:.3, desc:'まわりの影の足を、ずっと鈍らせる'},
   sabi:    {name:'錆',      t:2,c:'#c8783a',kind:'bolt', dmg:14, rate:1,   range:110,rust:1,           desc:'当てた影の鎧を朽ちさせる'},
   fushoku: {name:'腐蝕',    t:3,c:'#9ad04a',kind:'bolt', dmg:22, rate:1,   range:115,dot:14,dotT:4,rust:1,         desc:'鎧を朽ちさせ、毒を流しこむ'},
@@ -306,7 +307,7 @@ const ITEMS={
   kuukyo:  {name:'空虚',    t:2,c:'#b8b8d0',kind:'pulse',dmg:6,  rate:.9,  range:95, erase:.1,                 desc:'何もない。周りの体力の少ない敵を消し去る'},
   shinkuuha:{name:'真空刃', t:3,c:'#b0f0e0',kind:'pierce',dmg:34,rate:1,   range:150,                          desc:'風の刃で一直線に切り裂く'},
   doukutsu:{name:'洞窟',    t:3,c:'#9a8a78',kind:'trap',                   range:38, slow:.65,slowT:.3,         desc:'罠：迷いこんだ敵が大きく遅くなる'},
-  kouya:   {name:'荒野',    t:3,c:'#d8a868',kind:'pulse',dmg:12, rate:1,   range:110,dot:12,dotT:3,desc:'乾ききった地。周りの敵をじわじわ削る'},
+  kouya:   {name:'荒野',    t:3,c:'#d8a868',kind:'trap',                   range:36, dot:30,dotT:2,desc:'罠：乾いた地がじわじわ削る'}, // 名前から塔より罠が合うので罠にした（2026-11-29）
   mummy:   {name:'ミイラ',  t:3,c:'#e0d0a8',kind:'chain',dmg:20, rate:1,   range:125,chain:3,slow:.35,slowT:1.5,desc:'包帯で縛って遅くする'},
   kyomu:   {name:'虚無',    t:3,c:'#a8a8c8',kind:'pulse',dmg:14, rate:.9,  range:115,erase:.14,                desc:'すべてが無になる。周りの体力の少ない敵を消し去る'},
   kokuu:   {name:'虚空',    t:4,c:'#8888b8',kind:'pulse',dmg:40, rate:.9,  range:140,erase:.18,                desc:'どこまでも暗い何もない空間。広い範囲の体力の少ない敵を消し去る'},
@@ -315,11 +316,11 @@ const ITEMS={
 for(const k in ITEMS)ITEMS[k].id=k;
 /* 呪い：命を削る（毎秒、最大体力の一定割合）。curse の値（1.2〜1.6）から割合を決める。ほかの元素には「受ける傷が増える」効果はない（2026-11-23 に廃止） */
 const DRAIN_K=.05,DRAIN_BOSS=.3,DRAIN_T=4;
-for(const k of['tomb','curse','vampire','wraith','shinso','reaper','abyss','hyakki','naraku','hellmouth','eternity','mugen','kosenjo','ninetails','juka','muma','akuryo','akuma','maou']){const d=ITEMS[k];d.drain=+((d.curse-1)*DRAIN_K).toFixed(4);delete d.curse}
+for(const k of['tomb','curse','vampire','wraith','shinso','reaper','abyss','hyakki','naraku','hellmouth','mugen','kosenjo','ninetails','juka','muma','akuryo','akuma','maou']){const d=ITEMS[k];d.drain=+((d.curse-1)*DRAIN_K).toFixed(4);delete d.curse}
 const RECIPES=[
   // おなじもの同士
-  ['fire','fire','flame'],['water','water','pond'],['earth','earth','rock'],['wind','wind','gust'],
-  ['flame','flame','inferno'],['pond','pond','sea'],['rock','rock','mountain'],['gust','gust','tornado'],
+  ['fire','fire','flame'],['water','water','river'],['earth','earth','rock'],['wind','wind','gust'],
+  ['flame','flame','inferno'],['river','river','sea'],['rock','rock','mountain'],['gust','gust','tornado'],
   ['bog','bog','mire'],['quicksand','quicksand','antlion'],['crater','crater','purgatory'],['frost','frost','permafrost'],
   ['purgatory','mire','hellmouth'],['permafrost','jikuu','stasis'],
   ['swamp','swamp','bog'],['sand','sand','quicksand'],['lava','lava','crater'],
@@ -331,14 +332,14 @@ const RECIPES=[
   ['bolt','sand','glass'],['ice','sand','crystal'],['swamp','bolt','curse'],['lava','ice','obsidian'],
   ['inazuma','blizzard','cataclysm'],['glass','crystal','star'],['miasma','curse','abyss'],['engine','obsidian','titan'],
   // ★2 どうしの、もうひとつの組み合わせ
-  ['flame','rock','iron'],['pond','gust','mist'],['rock','sand','golem'],['gust','sand','sandstorm'],['flame','swamp','wisp'],
-  ['bolt','rock','magnet'],['swamp','gust','spore'],['flame','gust','heat'],['pond','ice','frost'],
+  ['flame','rock','iron'],['river','gust','mist'],['rock','sand','golem'],['gust','sand','sandstorm'],['flame','swamp','wisp'],
+  ['bolt','rock','magnet'],['swamp','gust','spore'],['flame','gust','heat'],['river','ice','frost'],
   ['iron','magnet','railgun'],['golem','mountain','colossus'],
   ['star','abyss','stone'],['cataclysm','titan','ragnarok'],['sun','typhoon','phoenix'],['tsunami','peak','dragon'],
   ['stone','ragnarok','genesis'],
   // 図鑑の追加分
-  ['pond','flame','hotspring'],['steam','gust','raincloud'],['bolt','flame','plasma'],['rock','ice','glacier'],['lava','rock','volcano'],
-  ['sand','pond','mud'],['gust','bolt','thunderbird'],['flame','ice','blueflame'],['steam','rock','geyser'],['ice','gust','icicle'],['bolt','pond','eel'],
+  ['lava','water','hotspring'],['steam','gust','raincloud'],['bolt','flame','plasma'],['rock','ice','glacier'],['lava','rock','volcano'],
+  ['sand','river','mud'],['gust','bolt','thunderbird'],['flame','ice','blueflame'],['steam','rock','geyser'],['ice','gust','icicle'],['bolt','river','eel'],
   ['engine','iron','tank'],['spore','mist','forest'],['blizzard','glacier','iceage'],['volcano','inferno','eruption'],
   ['thunderbird','inazuma','raijin'],['obsidian','iron','katana'],
   ['tank','titan','fortress'],['raijin','cataclysm','thunderlord'],['wraith','reaper','hyakki'],['forest','sun','yggdrasil'],['katana','railgun','holysword'],
@@ -351,7 +352,7 @@ const RECIPES=[
   ['naraku','stasis','mugen'],
   // もう 1 つの作り方（名前から想像できる組み合わせ）
   ['venom','swamp','bog'],['venom','steam','miasma'],['tomb','shadow','curse'],['tomb','flame','wisp'],['thicket','swamp','spore'],
-  ['gem','ice','crystal'],['sand','swamp','quicksand'],['steam','pond','mist'],['twilight','shadow','nightfall'],['bat','tomb','vampire'],
+  ['gem','ice','crystal'],['sand','swamp','quicksand'],['steam','river','mist'],['twilight','shadow','nightfall'],['bat','tomb','vampire'],
   ['blackflame','lava','gokuen'],['gem','rock','diamond'],['thicket','leaves','jungle'],['flash','ray','laser'],['ice','ice','glacier'],
   ['steam','steam','raincloud'],['bolt','bolt','inazuma'],
   ['bog','toxin','mire'],['jungle','jungle','forest'],['nightfall','curse','abyss'],['holylight','nightfall','star'],['holylight','inferno','sun'],
@@ -380,7 +381,7 @@ const RECIPES=[
   ['iron','raincloud','sabi'],['iron','yuukyuu','sabi'],['iceage','sun','water'],['golem','raincloud','earth'],
   // 音（基本元素）と、音から作る元素
   ['sound','fire','hanabi'],['sound','water','hamon'],['sound','earth','jibiki'],['sound','wind','fue'],['sound','wood','koto'],['sound','light','suzu'],['sound','dark','juka'],['sound','sound','wakon'],
-  ['hanabi','flame','shakudama'],['suzu','gust','furin'],['fue','leaves','kusabue'],['jibiki','koto','taiko'],['hamon','pond','seseragi'],['koto','twilight','komoriuta'],
+  ['hanabi','flame','shakudama'],['suzu','gust','furin'],['fue','leaves','kusabue'],['jibiki','koto','taiko'],['hamon','river','seseragi'],['ana','water','pond'],['koto','twilight','komoriuta'],
   ['juka','bat','choonpa'],['juka','tomb','chinkonka'],['wakon','flash','sanbika'],['suzu','gem','orgel'],['hanabi','bolt','raimei'],
   ['taiko','mountain','yamabiko'],['taiko','shakudama','matsuribayashi'],['komoriuta','sea','siren'],['choonpa','crystal','kyoumei'],['chinkonka','curse','soukyoku'],['sanbika','holylight','shukufuku'],['furin','kusabue','shirabe'],
   ['shukufuku','tenkou','tengaku'],['yamabiko','kyoumei','goon'],['siren','soukyoku','mateki'],['tengaku','goon','tenchi'],
